@@ -1,0 +1,134 @@
+/* ═══════════════════════════════════════════════════════════════
+   IDI Seafood — Custom Keyframe Animations
+   Imported by index.css after Tailwind
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Fade in from bottom (scroll reveal default) */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ── Fade in (opacity only — for overlays, modals) */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ── Slide in from left (sidebar, mobile menu) */
+@keyframes slideInLeft {
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(0); }
+}
+
+/* ── Slide in from right */
+@keyframes slideInRight {
+  from { transform: translateX(100%); }
+  to   { transform: translateX(0); }
+}
+
+/* ── Scale in (modal, card pop) */
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* ── Pulse glow (used on world map dots) */
+@keyframes pulseGlow {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(26, 147, 111, 0.4);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.05);
+    box-shadow: 0 0 0 8px rgba(26, 147, 111, 0);
+  }
+}
+
+/* ── Shimmer (loading skeleton) */
+@keyframes shimmer {
+  from { background-position: -200% 0; }
+  to   { background-position: 200% 0; }
+}
+
+/* ── Counter number increase (JS controls the number, CSS adds easing feel) */
+@keyframes countUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Navbar scroll shadow appearance */
+@keyframes navbarShadow {
+  from { box-shadow: none; }
+  to   { box-shadow: 0 1px 20px rgba(0, 0, 0, 0.12); }
+}
+
+
+/* ───────────────────────────────────────────────────────────────
+   ANIMATION UTILITY CLASSES
+   Apply these directly in JSX: className="animate-fade-in-up"
+   RevealOnScroll component adds these classes programmatically.
+   ─────────────────────────────────────────────────────────────── */
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.6s ease forwards;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.4s ease forwards;
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.25s ease forwards;
+}
+
+.animate-slide-in-left {
+  animation: slideInLeft 0.35s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.animate-slide-in-right {
+  animation: slideInRight 0.35s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.animate-pulse-glow {
+  animation: pulseGlow 2.5s ease-in-out infinite;
+}
+
+.animate-shimmer {
+  background: linear-gradient(90deg, #f0f4f8 25%, #e2ebf0 50%, #f0f4f8 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s linear infinite;
+}
+
+/* ── Staggered children delays (for section reveals) */
+.stagger-1  { animation-delay: 0ms;   }
+.stagger-2  { animation-delay: 100ms; }
+.stagger-3  { animation-delay: 200ms; }
+.stagger-4  { animation-delay: 300ms; }
+.stagger-5  { animation-delay: 400ms; }
+.stagger-6  { animation-delay: 500ms; }
+
+/* ── Respect reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

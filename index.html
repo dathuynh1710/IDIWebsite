@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Preconnect to Google Fonts for performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Default title — overridden per-page by PageHead component -->
+    <title>IDI Seafood — Vietnam's Leading Pangasius Exporter</title>
+    <meta
+      name="description"
+      content="IDI Seafood is Vietnam's leading pangasius exporter, serving 50+ countries worldwide with ASC-certified, sustainable seafood products."
+    />
+
+    <!-- Open Graph defaults -->
+    <meta property="og:site_name" content="IDI Seafood" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://idiseafood.com" />
+    <meta property="og:title" content="IDI Seafood — Vietnam's Leading Pangasius Exporter" />
+    <meta
+      property="og:description"
+      content="IDI Seafood is Vietnam's leading pangasius exporter, serving 50+ countries worldwide with ASC-certified, sustainable seafood products."
+    />
+
+    <!-- Schema.org JSON-LD -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "IDI Seafood",
+        "url": "https://idiseafood.com",
+        "logo": "https://idiseafood.com/logo.png",
+        "contactPoint": {
+          "@type": "ContactPoint",
+          "telephone": "+84-277-368-0383",
+          "contactType": "customer service",
+          "availableLanguage": ["Vietnamese", "English", "Chinese"]
+        },
+        "address": {
+          "@type": "PostalAddress",
+          "streetAddress": "Quốc lộ 80, Cụm công nghiệp Vàm Cống",
+          "addressLocality": "Đồng Tháp",
+          "addressCountry": "VN"
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

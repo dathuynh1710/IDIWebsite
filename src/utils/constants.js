@@ -6,7 +6,7 @@
 
 // ── Site Identity
 export const SITE_NAME     = 'IDI Seafood'
-export const SITE_TAGLINE  = "Vietnam's Leading Pangasius Exporter"
+export const SITE_TAGLINE  = 'Nhà xuất khẩu cá tra hàng đầu Việt Nam'
 export const SITE_URL      = import.meta.env.VITE_SITE_URL ?? 'https://idiseafood.com'
 export const SITE_FOUNDED  = 1997
 
@@ -17,7 +17,7 @@ export const LANGUAGES = Object.freeze({
   ZH: 'zh',
 })
 
-export const DEFAULT_LANGUAGE = LANGUAGES.EN
+export const DEFAULT_LANGUAGE = LANGUAGES.VI
 
 export const LANGUAGE_LABELS = Object.freeze({
   [LANGUAGES.EN]: 'English',

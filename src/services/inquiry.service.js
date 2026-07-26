@@ -15,9 +15,8 @@ export const inquiryService = {
   submitTrade: async (formData) => {
     if (!INQUIRY_ENDPOINT) {
       // Phase 1: Log and simulate success
-      console.info('[InquiryService] Trade inquiry (dev mode):', formData)
       await new Promise(resolve => setTimeout(resolve, 800)) // Simulate network
-      return { success: true, referenceId: IDI- }
+      return { success: true, referenceId: `IDI-${Date.now().toString().slice(-8)}` }
     }
 
     const response = await fetch(INQUIRY_ENDPOINT, {

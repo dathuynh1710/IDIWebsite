@@ -5,14 +5,29 @@ import NavbarBrand from './NavbarBrand'
 import NavbarDesktop from './NavbarDesktop'
 
 const MOBILE_MENU_LINKS = [
-  { label: 'Products',       href: '/products' },
-  { label: 'Manufacturing',  href: '/manufacturing' },
-  { label: 'Quality',        href: '/quality' },
-  { label: 'Sustainability', href: '/sustainability' },
-  { label: 'About',          href: '/about' },
-  { label: 'Investors',      href: '/investors' },
-  { label: 'News',           href: '/news' },
-  { label: 'Contact',        href: '/contact' },
+  { label: 'Sản phẩm',   href: '/products' },
+  {
+    label: 'Về IDI',
+    href: '/about',
+    children: [
+      { label: 'Thông điệp công ty', href: '/about' },
+      { label: 'Lịch sử phát triển', href: '/about/story' },
+      { label: 'Giá trị cốt lõi', href: '/about/values' },
+    ],
+  },
+  {
+    label: 'Nhà đầu tư',
+    href: '/investors',
+    children: [
+      { label: 'Thông báo', href: '/investors' },
+      { label: 'Báo cáo tài chính', href: '/investors/financials' },
+      { label: 'Báo cáo thường niên', href: '/investors/annual-reports' },
+      { label: 'Đại hội cổ đông', href: '/investors/agm' },
+      { label: 'Trái phiếu', href: '/investors/green-bond' },
+    ],
+  },
+  { label: 'Tin tức',    href: '/news' },
+  { label: 'Liên hệ',    href: '/contact' },
 ]
 
 export default function Navbar() {
@@ -63,7 +78,7 @@ export default function Navbar() {
             <div className="flex items-center gap-3">
               {/* Language switcher */}
               <div className={cn(
-                'hidden lg:flex items-center gap-1 text-xs font-semibold',
+                'hidden xl:flex items-center gap-1 text-xs font-semibold',
                 scrolled || !isHeroPage ? 'text-storm-grey' : 'text-white/80',
               )}>
                 <button className={cn(
@@ -71,9 +86,9 @@ export default function Navbar() {
                   scrolled || !isHeroPage
                     ? 'text-ocean-deep'
                     : 'text-white',
-                )}>EN</button>
+                )}>VI</button>
                 <span className="opacity-30">|</span>
-                <button className="px-2 py-1 rounded hover:opacity-100 opacity-60 transition-opacity">VI</button>
+                <button className="px-2 py-1 rounded hover:opacity-100 opacity-60 transition-opacity">EN</button>
                 <span className="opacity-30">|</span>
                 <button className="px-2 py-1 rounded hover:opacity-100 opacity-60 transition-opacity">中文</button>
               </div>
@@ -82,21 +97,21 @@ export default function Navbar() {
               <Link
                 to="/contact"
                 className={cn(
-                  'hidden lg:inline-flex btn text-sm py-2 px-4',
+                  'hidden xl:inline-flex btn text-sm py-2 px-4',
                   scrolled || !isHeroPage ? 'btn-primary' : 'btn-gold',
                 )}
               >
-                Contact Us
+                Liên hệ
               </Link>
 
               {/* Mobile hamburger */}
               <button
                 onClick={() => setMobileOpen(prev => !prev)}
                 className={cn(
-                  'lg:hidden flex flex-col justify-center items-center w-10 h-10 gap-1.5',
+                  'xl:hidden flex flex-col justify-center items-center w-10 h-10 gap-1.5',
                   scrolled || !isHeroPage ? 'text-ocean-deep' : 'text-white',
                 )}
-                aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
+                aria-label={mobileOpen ? 'Đóng menu' : 'Mở menu'}
                 aria-expanded={mobileOpen}
               >
                 <span className={cn('block w-6 h-0.5 bg-current transition-all duration-300', mobileOpen && 'rotate-45 translate-y-2')} />
@@ -110,7 +125,7 @@ export default function Navbar() {
 
       {/* Mobile Menu Overlay */}
       {mobileOpen && (
-        <div className="fixed inset-0 z-[99] flex flex-col lg:hidden animate-fade-in">
+        <div className="fixed inset-0 z-[99] flex flex-col xl:hidden animate-fade-in">
           {/* Backdrop */}
           <div
             className="absolute inset-0 bg-ocean-deep/95 backdrop-blur-lg"
@@ -121,28 +136,42 @@ export default function Navbar() {
           <div className="relative z-10 flex flex-col h-full pt-[72px] overflow-y-auto animate-slide-in-left">
             <nav className="container py-8 flex flex-col gap-1">
               {MOBILE_MENU_LINKS.map((link) => (
-                <Link
-                  key={link.href}
-                  to={link.href}
-                  className={cn(
-                    'text-lg font-semibold py-3 border-b border-white/10 text-white/80 hover:text-white hover:pl-2 transition-all duration-200',
-                    location.pathname.startsWith(link.href) && link.href !== '/' && 'text-coral-gold',
+                <div key={link.href} className="border-b border-white/10">
+                  <Link
+                    to={link.href}
+                    className={cn(
+                      'block text-lg font-semibold py-3 text-white/80 hover:text-white hover:pl-2 transition-all duration-200',
+                      location.pathname.startsWith(link.href) && link.href !== '/' && 'text-coral-gold',
+                    )}
+                  >
+                    {link.label}
+                  </Link>
+                  {link.children && (
+                    <div className="grid grid-cols-1 gap-1 pb-3 pl-4">
+                      {link.children.map((child) => (
+                        <Link
+                          key={`${child.href}-${child.label}`}
+                          to={child.href}
+                          className="py-1.5 text-sm font-medium text-white/55 hover:text-white transition-colors"
+                        >
+                          {child.label}
+                        </Link>
+                      ))}
+                    </div>
                   )}
-                >
-                  {link.label}
-                </Link>
+                </div>
               ))}
             </nav>
 
             {/* Mobile CTA */}
             <div className="container pb-8 mt-auto flex flex-col gap-3">
               <Link to="/contact" className="btn btn-gold w-full text-center">
-                Request a Quote
+                Yêu cầu báo giá
               </Link>
               <div className="flex justify-center gap-4 text-sm text-white/50">
-                <button className="hover:text-white transition-colors">EN</button>
+                <button className="hover:text-white transition-colors">VI</button>
                 <span>|</span>
-                <button className="hover:text-white transition-colors">Tiếng Việt</button>
+                <button className="hover:text-white transition-colors">English</button>
                 <span>|</span>
                 <button className="hover:text-white transition-colors">中文</button>
               </div>

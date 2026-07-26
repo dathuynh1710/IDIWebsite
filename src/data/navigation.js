@@ -10,99 +10,74 @@
 export const NAV_ITEMS = [
   {
     id: 'products',
-    label: 'Products',
+    label: 'Sản phẩm',
     href: '/products',
     isMega: true, // Renders as full mega-menu panel
     children: [
       {
         id: 'pangasius-fillet',
-        label: 'Pangasius Fillet',
+        label: 'Cá tra phi lê',
         href: '/products?category=pangasius-fillet',
-        description: 'Skinless, skin-on, trimmed varieties',
+        description: 'Không da, có da và nhiều quy cách chỉnh hình',
         icon: 'fillet',
       },
       {
         id: 'pangasius-portions',
-        label: 'Pangasius Portions',
+        label: 'Cá tra cắt khúc',
         href: '/products?category=pangasius-portions',
-        description: 'Portion-controlled cuts for food service',
+        description: 'Cắt theo khẩu phần cho dịch vụ thực phẩm',
         icon: 'portions',
       },
       {
         id: 'whole-fish',
-        label: 'Whole Fish',
+        label: 'Cá nguyên con',
         href: '/products?category=whole-fish',
-        description: 'Butterfly cut, HGT varieties',
+        description: 'Dạng bướm, HGT và làm sạch',
         icon: 'whole',
       },
       {
         id: 'value-added',
-        label: 'Value Added',
+        label: 'Sản phẩm chế biến',
         href: '/products?category=value-added',
-        description: 'Breaded, marinated, specialty cuts',
+        description: 'Tẩm bột, tẩm ướp và cắt theo yêu cầu',
         icon: 'value-added',
       },
     ],
     // Mega menu featured callout (right panel)
     featured: {
-      label: 'Download Product Catalog',
+      label: 'Tải danh mục sản phẩm',
       href: '/products#catalog',
-      cta: 'Get PDF →',
+      cta: 'Tải PDF →',
     },
   },
 
   {
-    id: 'manufacturing',
-    label: 'Manufacturing',
-    href: '/manufacturing',
-    children: null, // No dropdown — direct link
-  },
-
-  {
-    id: 'quality',
-    label: 'Quality',
-    href: '/quality',
-    children: null,
-  },
-
-  {
-    id: 'sustainability',
-    label: 'Sustainability',
-    href: '/sustainability',
-    children: [
-      { id: 'environment', label: 'Environment',       href: '/sustainability/environment' },
-      { id: 'social',      label: 'Social Impact',     href: '/sustainability/social' },
-      { id: 'reports',     label: 'ESG Reports',       href: '/sustainability/reports' },
-      { id: 'green-bond',  label: 'Green Bond',        href: '/investors/green-bond' },
-    ],
-  },
-
-  {
     id: 'about',
-    label: 'About',
+    label: 'Về IDI',
     href: '/about',
     children: [
-      { id: 'story',      label: 'Our Story',        href: '/about/story' },
-      { id: 'leadership', label: 'Leadership',        href: '/about/leadership' },
-      { id: 'values',     label: 'Mission & Values',  href: '/about/values' },
+      { id: 'about-overview', label: 'Thông điệp công ty', href: '/about' },
+      { id: 'story', label: 'Lịch sử phát triển', href: '/about/story' },
+      { id: 'values', label: 'Giá trị cốt lõi', href: '/about/values' },
     ],
   },
 
   {
     id: 'investors',
-    label: 'Investors',
+    label: 'Nhà đầu tư',
     href: '/investors',
     children: [
-      { id: 'financials',     label: 'Financial Reports',  href: '/investors/financials' },
-      { id: 'annual-reports', label: 'Annual Reports',     href: '/investors/annual-reports' },
-      { id: 'agm',            label: 'AGM Documents',      href: '/investors/agm' },
-      { id: 'green-bond',     label: 'Green Bond',         href: '/investors/green-bond' },
+      { id: 'announcements', label: 'Thông báo', href: '/investors' },
+      { id: 'financials', label: 'Báo cáo tài chính', href: '/investors/financials' },
+      { id: 'annual-reports', label: 'Báo cáo thường niên', href: '/investors/annual-reports' },
+      { id: 'agm', label: 'Đại hội cổ đông', href: '/investors/agm' },
+      { id: 'green-bond', label: 'Trái phiếu', href: '/investors/green-bond' },
     ],
   },
 
   {
     id: 'news',
-    label: 'News',
+    label: 'Tin tức',
     href: '/news',
     children: null,
   },
@@ -110,47 +85,48 @@ export const NAV_ITEMS = [
 
 // Investor sidebar navigation (used in InvestorLayout)
 export const INVESTOR_NAV = [
-  { id: 'overview',        label: 'Overview',          href: '/investors' },
-  { id: 'financials',      label: 'Financial Reports', href: '/investors/financials' },
-  { id: 'annual-reports',  label: 'Annual Reports',    href: '/investors/annual-reports' },
-  { id: 'agm',             label: 'AGM Documents',     href: '/investors/agm' },
-  { id: 'green-bond',      label: 'Green Bond',        href: '/investors/green-bond' },
+  { id: 'announcements', label: 'Thông báo', href: '/investors' },
+  { id: 'financials', label: 'Báo cáo tài chính', href: '/investors/financials' },
+  { id: 'annual-reports', label: 'Báo cáo thường niên', href: '/investors/annual-reports' },
+  { id: 'agm', label: 'Đại hội cổ đông', href: '/investors/agm' },
+  { id: 'green-bond', label: 'Trái phiếu', href: '/investors/green-bond' },
 ]
 
 // Footer quick links (columns)
 export const FOOTER_LINKS = {
   products: {
-    title: 'Products',
+    title: 'Sản phẩm',
     links: [
-      { label: 'Pangasius Fillet',   href: '/products?category=pangasius-fillet' },
-      { label: 'Pangasius Portions', href: '/products?category=pangasius-portions' },
-      { label: 'Whole Fish',         href: '/products?category=whole-fish' },
-      { label: 'Value Added',        href: '/products?category=value-added' },
+      { label: 'Cá tra phi lê', href: '/products?category=pangasius-fillet' },
+      { label: 'Cá tra cắt khúc', href: '/products?category=pangasius-portions' },
+      { label: 'Cá nguyên con', href: '/products?category=whole-fish' },
+      { label: 'Sản phẩm chế biến', href: '/products?category=value-added' },
     ],
   },
   company: {
-    title: 'Company',
+    title: 'Công ty',
     links: [
-      { label: 'Our Story',     href: '/about/story' },
-      { label: 'Leadership',    href: '/about/leadership' },
-      { label: 'Manufacturing', href: '/manufacturing' },
-      { label: 'Careers',       href: '/careers' },
+      { label: 'Lịch sử phát triển', href: '/about/story' },
+      { label: 'Năng lực sản xuất', href: '/manufacturing' },
+      { label: 'Tuyển dụng', href: '/careers' },
     ],
   },
   quality: {
-    title: 'Quality',
+    title: 'Chất lượng',
     links: [
-      { label: 'Certifications', href: '/quality' },
-      { label: 'Standards',      href: '/quality#standards' },
-      { label: 'Traceability',   href: '/quality#traceability' },
+      { label: 'Chứng nhận', href: '/quality' },
+      { label: 'Tiêu chuẩn', href: '/quality#standards' },
+      { label: 'Truy xuất nguồn gốc', href: '/quality#traceability' },
     ],
   },
   investors: {
-    title: 'Investors',
+    title: 'Nhà đầu tư',
     links: [
-      { label: 'Financial Reports', href: '/investors/financials' },
-      { label: 'Annual Reports',    href: '/investors/annual-reports' },
-      { label: 'Green Bond',        href: '/investors/green-bond' },
+      { label: 'Thông báo', href: '/investors' },
+      { label: 'Báo cáo tài chính', href: '/investors/financials' },
+      { label: 'Báo cáo thường niên', href: '/investors/annual-reports' },
+      { label: 'Đại hội cổ đông', href: '/investors/agm' },
+      { label: 'Trái phiếu', href: '/investors/green-bond' },
     ],
   },
 }

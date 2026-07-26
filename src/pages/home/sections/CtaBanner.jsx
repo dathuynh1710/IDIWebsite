@@ -37,22 +37,22 @@ export default function CtaBanner() {
           <RevealOnScroll>
             <span className="inline-flex items-center gap-2 bg-white/10 border border-white/20 text-white/80 text-xs font-semibold tracking-widest uppercase px-4 py-2 rounded-full mb-8">
               <span className="w-1.5 h-1.5 rounded-full bg-coral-gold animate-pulse" />
-              Start a Conversation
+              Kết nối cùng IDI
             </span>
           </RevealOnScroll>
 
           <RevealOnScroll delay={80}>
             <h2 className="text-h1 font-black text-white mb-6 leading-tight text-balance">
-              Ready to Source Premium{' '}
-              <span className="text-coral-gold">Pangasius</span>?
+              Sẵn sàng tìm nguồn{' '}
+              <span className="text-coral-gold">cá tra chất lượng cao</span>?
             </h2>
           </RevealOnScroll>
 
           <RevealOnScroll delay={160}>
             <p className="text-white/70 text-body-lg leading-relaxed mb-10 max-w-xl mx-auto">
-              Whether you need a full container or a custom product formulation,
-              our export team responds within 24 hours. Get specifications, pricing,
-              and samples tailored to your market.
+              Dù bạn cần nguyên container hay sản phẩm theo công thức riêng,
+              đội ngũ xuất khẩu của IDI sẽ phản hồi trong 24 giờ với thông số,
+              báo giá và mẫu hàng phù hợp cho thị trường của bạn.
             </p>
           </RevealOnScroll>
 
@@ -62,7 +62,7 @@ export default function CtaBanner() {
                 to="/contact"
                 className="btn btn-gold text-base px-8 py-4 w-full sm:w-auto"
               >
-                Request a Quote
+                Yêu cầu báo giá
                 <svg className="w-4 h-4" viewBox="0 0 16 16" fill="none">
                   <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
@@ -71,7 +71,7 @@ export default function CtaBanner() {
                 to="/products"
                 className="btn btn-ghost text-base px-8 py-4 w-full sm:w-auto"
               >
-                Browse Product Catalog
+                Xem danh mục sản phẩm
               </Link>
             </div>
           </RevealOnScroll>
@@ -79,13 +79,13 @@ export default function CtaBanner() {
           {/* Trust badges */}
           <RevealOnScroll delay={360}>
             <div className="flex flex-wrap items-center justify-center gap-6 mt-12 text-white/40 text-xs font-medium tracking-wide">
-              <span>✓ ASC Certified Farms</span>
+              <span>✓ Vùng nuôi đạt chuẩn ASC</span>
               <span className="hidden sm:block">·</span>
-              <span>✓ 24h Response SLA</span>
+              <span>✓ Phản hồi trong 24 giờ</span>
               <span className="hidden sm:block">·</span>
-              <span>✓ 50+ Countries Served</span>
+              <span>✓ Phục vụ hơn 50 quốc gia</span>
               <span className="hidden sm:block">·</span>
-              <span>✓ Custom Specifications</span>
+              <span>✓ Sản xuất theo yêu cầu</span>
             </div>
           </RevealOnScroll>
 

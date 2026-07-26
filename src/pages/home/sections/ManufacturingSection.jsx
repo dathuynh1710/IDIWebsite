@@ -2,12 +2,12 @@ import { Link } from 'react-router'
 import RevealOnScroll from '@components/common/RevealOnScroll'
 
 const CAPABILITIES = [
-  { label: 'Annual Capacity',    value: '100,000 MT', icon: '⚡' },
-  { label: 'Processing Lines',   value: '12 Lines',   icon: '🏭' },
-  { label: 'Cold Storage',       value: '15,000 MT',  icon: '❄️' },
-  { label: 'Farm Area',          value: '280 Ha',     icon: '🌊' },
-  { label: 'IQF Tunnels',        value: '8 Units',    icon: '🔧' },
-  { label: 'Quality Labs',       value: '2 In-house', icon: '🔬' },
+  { label: 'Công suất mỗi năm', value: '100.000 MT', icon: '⚡' },
+  { label: 'Dây chuyền chế biến', value: '12 dây chuyền', icon: '🏭' },
+  { label: 'Kho lạnh', value: '15.000 MT', icon: '❄️' },
+  { label: 'Diện tích vùng nuôi', value: '280 ha', icon: '🌊' },
+  { label: 'Hệ thống cấp đông IQF', value: '8 hệ thống', icon: '🔧' },
+  { label: 'Phòng kiểm nghiệm', value: '2 nội bộ', icon: '🔬' },
 ]
 
 export default function ManufacturingSection() {
@@ -40,18 +40,18 @@ export default function ManufacturingSection() {
           {/* ── Left: Content ──────────────────────────────────── */}
           <div>
             <RevealOnScroll>
-              <span className="section-eyebrow text-seafoam-light">Facilities</span>
+              <span className="section-eyebrow text-seafoam-light">Năng lực sản xuất</span>
             </RevealOnScroll>
             <RevealOnScroll delay={80}>
               <h2 className="text-h2 font-bold text-white mt-3 mb-6 text-balance">
-                State-of-the-Art Processing at Scale
+                Công nghệ chế biến hiện đại ở quy mô lớn
               </h2>
             </RevealOnScroll>
             <RevealOnScroll delay={160}>
               <p className="text-white/65 leading-relaxed mb-8 text-body-lg">
-                Our Đồng Tháp processing complex spans 28 hectares along the Mekong River.
-                Fully automated IQF processing lines, in-house quality laboratories, and
-                real-time HACCP monitoring ensure every product meets the strictest global standards.
+                Tổ hợp chế biến tại Đồng Tháp rộng 28 ha bên dòng Mekong.
+                Dây chuyền IQF tự động, phòng kiểm nghiệm nội bộ và hệ thống giám sát
+                HACCP theo thời gian thực bảo đảm từng sản phẩm đáp ứng tiêu chuẩn quốc tế khắt khe.
               </p>
             </RevealOnScroll>
 
@@ -72,7 +72,7 @@ export default function ManufacturingSection() {
 
             <RevealOnScroll delay={600}>
               <Link to="/manufacturing" className="btn btn-ghost">
-                Explore Facilities →
+                Khám phá nhà máy →
               </Link>
             </RevealOnScroll>
           </div>
@@ -83,7 +83,7 @@ export default function ManufacturingSection() {
               <div className="rounded-2xl overflow-hidden aspect-[4/3] shadow-2xl ring-1 ring-white/10">
                 <img
                   src="https://idiseafood.com/vnt_upload/weblink/dichvu.jpg"
-                  alt="IDI Seafood Processing Facility"
+                  alt="Nhà máy chế biến IDI Seafood"
                   className="w-full h-full object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-ocean-deep/60 to-transparent" />
@@ -91,8 +91,8 @@ export default function ManufacturingSection() {
 
               {/* Process steps badge */}
               <div className="absolute -bottom-5 -right-5 bg-coral-gold text-white rounded-2xl p-5 shadow-xl max-w-[180px]">
-                <div className="text-2xl font-black">Farm → Fork</div>
-                <div className="text-xs mt-1 opacity-90 font-medium">Full vertical integration</div>
+                <div className="text-2xl font-black">Từ vùng nuôi đến bàn ăn</div>
+                <div className="text-xs mt-1 opacity-90 font-medium">Chuỗi giá trị khép kín</div>
               </div>
 
               {/* Decorative ring */}

@@ -13,9 +13,9 @@ const REASONS = [
         <circle cx="16" cy="16" r="4" fill="currentColor" />
       </svg>
     ),
-    title: 'Vertical Integration',
-    body: 'We own and operate every link — fingerling hatcheries, grow-out farms, processing plants, and cold-chain logistics. This eliminates intermediary risk and ensures margin efficiency for your procurement.',
-    highlight: 'Farm-to-door traceability',
+    title: 'Chuỗi giá trị khép kín',
+    body: 'IDI trực tiếp vận hành từ con giống, vùng nuôi, nhà máy chế biến đến logistics chuỗi lạnh, giúp kiểm soát rủi ro và tối ưu hiệu quả thu mua cho đối tác.',
+    highlight: 'Truy xuất từ vùng nuôi đến điểm giao',
   },
   {
     id: 'quality',
@@ -24,9 +24,9 @@ const REASONS = [
         <path d="M16 3l3.09 6.26L26 10.27l-5 4.87 1.18 6.88L16 19l-6.18 3.02L11 15.14 6 10.27l6.91-1.01L16 3z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
       </svg>
     ),
-    title: 'Multi-Certified Quality',
-    body: 'ASC, BRC AA-grade, GlobalGAP, IFS Higher, HACCP, HALAL, KOSHER — our portfolio of international certifications is the most comprehensive in Vietnam\'s pangasius industry.',
-    highlight: '8+ international certifications',
+    title: 'Chất lượng đa chứng nhận',
+    body: 'ASC, BRC hạng AA, GlobalGAP, IFS Higher, HACCP, HALAL, KOSHER — hệ thống chứng nhận toàn diện đáp ứng các thị trường cá tra khắt khe nhất.',
+    highlight: 'Hơn 8 chứng nhận quốc tế',
   },
   {
     id: 'sustainability',
@@ -37,9 +37,9 @@ const REASONS = [
         <path d="M8 13c0-2.21 1.79-4 4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
       </svg>
     ),
-    title: 'Sustainability Leader',
-    body: 'Asia-Pacific\'s first seafood Green Bond issuer. All our farms are ASC-certified. We operate a closed wastewater loop and have reduced CO₂ emissions by 28% year-over-year.',
-    highlight: 'Green Bond certified by Climate Bonds Initiative',
+    title: 'Tiên phong phát triển bền vững',
+    body: 'Doanh nghiệp thủy sản đầu tiên tại Châu Á - Thái Bình Dương phát hành Trái phiếu Xanh. Toàn bộ vùng nuôi đạt ASC và vận hành hệ thống tuần hoàn nước khép kín.',
+    highlight: 'Trái phiếu Xanh đạt chuẩn CBI',
   },
   {
     id: 'reliability',
@@ -48,9 +48,9 @@ const REASONS = [
         <path d="M4 16L16 4l12 12M6 14v12h6v-6h8v6h6V14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
       </svg>
     ),
-    title: 'Supply Reliability',
-    body: '100,000 MT annual processing capacity with redundant cold storage ensures you receive consistent volumes on schedule. Our 25+ years of export relationships speak to our dependability.',
-    highlight: '100% on-time delivery commitment',
+    title: 'Nguồn cung ổn định',
+    body: 'Công suất 100.000 tấn mỗi năm cùng hệ thống kho lạnh dự phòng bảo đảm sản lượng ổn định và đúng tiến độ cho mọi đơn hàng.',
+    highlight: 'Cam kết giao hàng đúng hạn',
   },
 ]
 
@@ -62,17 +62,17 @@ export default function WhyChooseUsSection() {
         {/* Header */}
         <div className="max-w-2xl mx-auto text-center mb-16">
           <RevealOnScroll>
-            <span className="section-eyebrow">Why IDI</span>
+            <span className="section-eyebrow">Vì sao chọn IDI</span>
           </RevealOnScroll>
           <RevealOnScroll delay={80}>
             <h2 className="text-h2 font-bold text-ocean-deep mt-3 mb-4">
-              The Preferred Partner for Serious Buyers
+              Đối tác tin cậy của nhà mua hàng chuyên nghiệp
             </h2>
           </RevealOnScroll>
           <RevealOnScroll delay={160}>
             <p className="text-storm-grey text-body-lg">
-              From supermarket chains in Europe to food service operators in North America,
-              our clients choose IDI for four non-negotiable reasons.
+              Từ chuỗi siêu thị Châu Âu đến hệ thống dịch vụ thực phẩm Bắc Mỹ,
+              đối tác lựa chọn IDI vì bốn giá trị cốt lõi.
             </p>
           </RevealOnScroll>
         </div>

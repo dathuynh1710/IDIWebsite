@@ -18,8 +18,8 @@ export default function HomePage() {
   return (
     <>
       <PageHead
-        title="IDI Seafood — Vietnam's Leading Pangasius Exporter"
-        description="I.D.I Multipurpose Investment & Development Corporation — ASC-certified pangasius from Mekong Delta farms to 50+ countries worldwide. Premium seafood since 1997."
+        title="IDI Seafood — Nhà xuất khẩu cá tra hàng đầu Việt Nam"
+        description="Công ty Cổ phần Đầu tư và Phát triển Đa Quốc Gia I.D.I — cá tra đạt chuẩn ASC từ Đồng bằng sông Cửu Long, xuất khẩu đến hơn 50 quốc gia."
       />
 
       {/* 1. Hero — full-screen video with headline + stats bar */}

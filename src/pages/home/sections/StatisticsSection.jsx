@@ -6,16 +6,16 @@ const STATS = [
     id: 'countries',
     target: 50,
     suffix: '+',
-    label: 'Export Countries',
-    description: 'Across Europe, Americas, Asia, and the Middle East',
+    label: 'Quốc gia xuất khẩu',
+    description: 'Hiện diện tại Châu Âu, Châu Mỹ, Châu Á và Trung Đông',
     color: 'text-coral-gold',
   },
   {
     id: 'capacity',
     target: 100000,
     suffix: ' MT',
-    label: 'Annual Capacity',
-    description: 'Metric tonnes of pangasius products processed per year',
+    label: 'Công suất mỗi năm',
+    description: 'Tấn sản phẩm cá tra được chế biến mỗi năm',
     color: 'text-coral-gold',
     compact: true,
   },
@@ -23,16 +23,16 @@ const STATS = [
     id: 'founded',
     target: 1997,
     suffix: '',
-    label: 'Year Founded',
-    description: 'Nearly three decades of aquaculture expertise',
+    label: 'Năm thành lập',
+    description: 'Gần ba thập kỷ kinh nghiệm trong ngành thủy sản',
     color: 'text-coral-gold',
   },
   {
     id: 'staff',
     target: 5000,
     suffix: '+',
-    label: 'Employees',
-    description: 'Skilled workforce from farm to export',
+    label: 'Nhân sự',
+    description: 'Đội ngũ lành nghề xuyên suốt chuỗi giá trị',
     color: 'text-coral-gold',
   },
 ]
@@ -55,13 +55,13 @@ export default function StatisticsSection() {
         {/* Header */}
         <RevealOnScroll>
           <div className="text-center mb-16">
-            <span className="section-eyebrow text-seafoam-light">By The Numbers</span>
+            <span className="section-eyebrow text-seafoam-light">Những con số nổi bật</span>
             <h2 className="text-h2 font-bold text-white mt-3">
-              A Scale That Means Reliability
+              Quy mô tạo nên sự tin cậy
             </h2>
             <p className="text-white/60 mt-4 max-w-xl mx-auto">
-              Our processing capacity and global network give importers and distributors
-              the confidence of consistent supply at volume.
+              Năng lực chế biến và mạng lưới toàn cầu giúp đối tác an tâm
+              về nguồn cung ổn định với sản lượng lớn.
             </p>
           </div>
         </RevealOnScroll>
@@ -93,7 +93,7 @@ export default function StatisticsSection() {
         {/* Bottom tagline */}
         <RevealOnScroll delay={400}>
           <p className="text-center text-white/40 text-sm mt-10 tracking-wide">
-            Listed on Ho Chi Minh Stock Exchange · Ticker: IDI · Since 1997
+            Niêm yết trên HOSE · Mã chứng khoán: IDI · Thành lập năm 1997
           </p>
         </RevealOnScroll>
       </div>

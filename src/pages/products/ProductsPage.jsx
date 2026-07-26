@@ -1,25 +1,30 @@
-import { useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { Link, useSearchParams } from 'react-router'
 import PageHead from '@components/common/PageHead'
 
 const PRODUCT_TABS = [
   {
     label: 'Cá Fillet',
     target: 'vtab5',
+    slug: 'pangasius-fillet',
     summary: 'Dòng sản phẩm chủ lực với nhiều tiêu chuẩn tạo hình cho thị trường xuất khẩu.',
   },
   {
     label: 'Cá cắt khúc',
     target: 'vtab6',
+    slug: 'pangasius-portions',
     summary: 'Các quy cách cắt khúc tiện dụng cho bán lẻ, food service và chế biến sâu.',
   },
   {
     label: 'Cá Nguyên Con',
     target: 'vtab8',
+    slug: 'whole-fish',
     summary: 'Sản phẩm cá nguyên con được sơ chế, cấp đông và đóng gói theo chuẩn quốc tế.',
   },
   {
     label: 'Các sản phẩm khác',
     target: 'vtab7',
+    slug: 'value-added',
     summary: 'Danh mục giá trị gia tăng, đáp ứng nhu cầu trình bày và chế biến đa dạng.',
   },
 ]
@@ -119,16 +124,20 @@ const PRODUCT_GROUPS = {
   ],
 }
 
-const HERO_IMAGE = 'https://idiseafood.com/vnt_upload/weblink/dichvu.jpg'
-
-function ProductCard({ product, category }) {
+function ProductCard({ product, category, onOpen }) {
   return (
     <div className="colsl">
       <article className="itproducthb">
         <div className="thumb">
-          <a className="nonepointe" href={product.href} rel="nofollow" aria-label={product.name}>
+          <button
+            type="button"
+            className="nonepointe"
+            onClick={onOpen}
+            aria-label={`Xem chi tiết ${product.name}`}
+            aria-haspopup="dialog"
+          >
             <img src={product.image} alt={product.name} loading="lazy" />
-          </a>
+          </button>
         </div>
 
         <div className="decss">
@@ -139,9 +148,9 @@ function ProductCard({ product, category }) {
 
           <div className="dstitle">
             <h3>
-              <a className="chitietpopup" href={product.href} rel="nofollow">
+              <button type="button" className="chitietpopup" onClick={onOpen} aria-haspopup="dialog">
                 {product.name}
-              </a>
+              </button>
             </h3>
           </div>
 
@@ -153,9 +162,9 @@ function ProductCard({ product, category }) {
           </div>
 
           <div className="dsviews">
-            <a className="chitietpopup" href={product.href} rel="nofollow">
+            <button type="button" className="chitietpopup" onClick={onOpen} aria-haspopup="dialog">
               <span>Xem chi tiết</span>
-            </a>
+            </button>
           </div>
         </div>
       </article>
@@ -163,13 +172,186 @@ function ProductCard({ product, category }) {
   )
 }
 
+function ProductModal({ product, isClosing, onClose, closeButtonRef, dialogRef }) {
+  if (!product) return null
+
+  return (
+    <div
+      className={`product-modal${isClosing ? ' is-closing' : ''}`}
+      role="presentation"
+      onMouseDown={(event) => {
+        if (event.target === event.currentTarget) onClose()
+      }}
+    >
+      <section
+        ref={dialogRef}
+        className="product-modal__dialog"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="product-modal-title"
+        aria-describedby="product-modal-description"
+      >
+        <button
+          ref={closeButtonRef}
+          type="button"
+          className="product-modal__close"
+          onClick={onClose}
+          aria-label="Đóng thông tin sản phẩm"
+        >
+          <span aria-hidden="true">×</span>
+        </button>
+
+        <div className="product-modal__media">
+          <img src={product.image} alt={product.name} />
+          <div className="product-modal__media-label">
+            <span>IDI Seafood</span>
+            <strong>Chất lượng xuất khẩu</strong>
+          </div>
+        </div>
+
+        <div className="product-modal__content">
+          <div className="product-modal__eyebrow">
+            <span>{product.category}</span>
+            <span>IQF / Block Frozen</span>
+          </div>
+
+          <h2 id="product-modal-title">{product.name}</h2>
+          <p id="product-modal-description" className="product-modal__description">
+            Sản phẩm được chế biến từ cá tra chọn lọc tại Đồng bằng sông Cửu Long,
+            kiểm soát theo chuỗi khép kín và đáp ứng linh hoạt quy cách của từng thị trường.
+          </p>
+
+          <div className="product-modal__sizes">
+            <span>Kích cỡ hiện có</span>
+            <div>
+              {product.sizes.map(size => (
+                <span key={size}>{size}</span>
+              ))}
+            </div>
+          </div>
+
+          <dl className="product-modal__specs">
+            <div>
+              <dt>Phương pháp cấp đông</dt>
+              <dd>IQF / Block Frozen</dd>
+            </div>
+            <div>
+              <dt>Nhiệt độ bảo quản</dt>
+              <dd>≤ -18°C</dd>
+            </div>
+            <div>
+              <dt>Đóng gói</dt>
+              <dd>Theo yêu cầu khách hàng</dd>
+            </div>
+            <div>
+              <dt>Chứng nhận</dt>
+              <dd>ASC · BRC AA · HACCP</dd>
+            </div>
+            <div>
+              <dt>Xuất xứ</dt>
+              <dd>Đồng Tháp, Việt Nam</dd>
+            </div>
+            <div>
+              <dt>Thời hạn sử dụng</dt>
+              <dd>24 tháng</dd>
+            </div>
+          </dl>
+
+          <div className="product-modal__actions">
+            <Link to="/contact" className="btn btn-primary">
+              Yêu cầu tư vấn
+              <span aria-hidden="true">→</span>
+            </Link>
+            <button type="button" className="btn btn-secondary" onClick={onClose}>
+              Tiếp tục xem sản phẩm
+            </button>
+          </div>
+        </div>
+      </section>
+    </div>
+  )
+}
+
 export default function ProductsPage() {
-  const [activeTab, setActiveTab] = useState('vtab5')
+  const [searchParams, setSearchParams] = useSearchParams()
+  const categoryParam = searchParams.get('category')
+  const tabFromUrl = PRODUCT_TABS.find(tab => tab.slug === categoryParam)?.target ?? PRODUCT_TABS[0].target
+  const [activeTab, setActiveTab] = useState(tabFromUrl)
+  const [selectedProduct, setSelectedProduct] = useState(null)
+  const [isModalClosing, setIsModalClosing] = useState(false)
+  const closeTimerRef = useRef(null)
+  const closeButtonRef = useRef(null)
+  const dialogRef = useRef(null)
   const activeCategory = useMemo(
     () => PRODUCT_TABS.find(tab => tab.target === activeTab) ?? PRODUCT_TABS[0],
     [activeTab],
   )
   const totalProducts = Object.values(PRODUCT_GROUPS).reduce((count, items) => count + items.length, 0)
+
+  useEffect(() => {
+    setActiveTab(tabFromUrl)
+  }, [tabFromUrl])
+
+  const selectCategory = (tab) => {
+    setActiveTab(tab.target)
+    setSearchParams({ category: tab.slug })
+  }
+
+  const openProduct = (product, category) => {
+    if (closeTimerRef.current) window.clearTimeout(closeTimerRef.current)
+    setIsModalClosing(false)
+    setSelectedProduct({ ...product, category })
+  }
+
+  const closeProduct = useCallback(() => {
+    if (!selectedProduct || isModalClosing) return
+    setIsModalClosing(true)
+    closeTimerRef.current = window.setTimeout(() => {
+      setSelectedProduct(null)
+      setIsModalClosing(false)
+    }, 220)
+  }, [isModalClosing, selectedProduct])
+
+  useEffect(() => {
+    if (!selectedProduct) return undefined
+
+    const previousOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    closeButtonRef.current?.focus()
+
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') closeProduct()
+      if (event.key === 'Tab') {
+        const focusableElements = dialogRef.current?.querySelectorAll(
+          'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled])',
+        )
+        if (!focusableElements?.length) return
+
+        const firstElement = focusableElements[0]
+        const lastElement = focusableElements[focusableElements.length - 1]
+        if (event.shiftKey && document.activeElement === firstElement) {
+          event.preventDefault()
+          lastElement.focus()
+        } else if (!event.shiftKey && document.activeElement === lastElement) {
+          event.preventDefault()
+          firstElement.focus()
+        }
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+
+    return () => {
+      document.body.style.overflow = previousOverflow
+      window.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [closeProduct, selectedProduct])
+
+  useEffect(
+    () => () => {
+      if (closeTimerRef.current) window.clearTimeout(closeTimerRef.current)
+    },
+    [],
+  )
 
   return (
     <>
@@ -179,48 +361,40 @@ export default function ProductsPage() {
       />
 
       <main className="products-page">
-        <section className="products-hero">
-          <img src={HERO_IMAGE} alt="IDI Seafood production and aquaculture" />
-          <div className="products-hero__overlay" />
-
-          <div className="container products-hero__content">
-            <span className="products-eyebrow">IDI Seafood Product Portfolio</span>
-            <h1>SẢN PHẨM</h1>
-            <p>
-              Với quy trình sản xuất khép kín từ vườn ươm, nuôi trồng đến nhà máy chế biến
-              cùng công nghệ hiện đại, IDI cung cấp cho khách hàng toàn cầu những sản phẩm
-              cá tra an toàn, ổn định và đạt chuẩn quốc tế.
-            </p>
-
-            <div className="products-hero__stats" aria-label="IDI product strengths">
-              <div>
-                <strong>{totalProducts}</strong>
-                <span>Sản phẩm mẫu</span>
-              </div>
-              <div>
-                <strong>4</strong>
-                <span>Danh mục chính</span>
-              </div>
-              <div>
-                <strong>-18°C</strong>
-                <span>Chuỗi lạnh xuất khẩu</span>
-              </div>
-            </div>
-          </div>
-        </section>
-
         <section className="products-catalog" id="products-catalog">
           <div className="container">
-            <div className="products-catalog__intro">
-              <span className="section-eyebrow">Product Categories</span>
-              <h2>Danh mục sản phẩm xuất khẩu</h2>
-              <p>
-                Chọn nhóm sản phẩm để xem các quy cách hiện có. Mỗi sản phẩm vẫn giữ liên kết
-                popup chi tiết theo cấu trúc gốc của hệ thống IDI.
-              </p>
+            <div className="products-page__header">
+              <nav className="products-breadcrumb" aria-label="Đường dẫn trang">
+                <Link to="/">Trang chủ</Link>
+                <span aria-hidden="true">/</span>
+                <span aria-current="page">Sản phẩm</span>
+              </nav>
+
+              <div className="products-page__heading">
+                <div className="products-catalog__intro">
+                  <span className="section-eyebrow">Danh mục sản phẩm</span>
+                  <h1>Cá tra chất lượng cao cho thị trường toàn cầu</h1>
+                  <p>
+                    Khám phá các dòng cá tra được sản xuất theo chuỗi khép kín,
+                    cấp đông hiện đại và linh hoạt quy cách cho từng thị trường.
+                  </p>
+                </div>
+
+                <aside className="products-page__assurance" aria-label="Tiêu chuẩn sản phẩm">
+                  <div>
+                    <span className="products-page__assurance-label">Tiêu chuẩn xuất khẩu</span>
+                    <strong>{totalProducts} quy cách sản phẩm</strong>
+                    <p>ASC · BRC AA · HACCP · HALAL</p>
+                  </div>
+                  <Link to="/contact">
+                    Nhận tư vấn quy cách
+                    <span aria-hidden="true">→</span>
+                  </Link>
+                </aside>
+              </div>
             </div>
 
-            <nav className="tpproductha" aria-label="Product categories">
+            <nav className="tpproductha" aria-label="Danh mục sản phẩm">
               <ul>
                 {PRODUCT_TABS.map(tab => (
                   <li
@@ -228,7 +402,7 @@ export default function ProductsPage() {
                     data-target={tab.target}
                     className={activeTab === tab.target ? 'active' : ''}
                   >
-                    <button type="button" onClick={() => setActiveTab(tab.target)}>
+                    <button type="button" onClick={() => selectCategory(tab)}>
                       <span>{tab.label}</span>
                     </button>
                   </li>
@@ -253,7 +427,12 @@ export default function ProductsPage() {
                 >
                   <div className="slproducthb vhslickload">
                     {PRODUCT_GROUPS[tab.target].map(product => (
-                      <ProductCard key={product.href} product={product} category={tab.label} />
+                      <ProductCard
+                        key={product.href}
+                        product={product}
+                        category={tab.label}
+                        onOpen={() => openProduct(product, tab.label)}
+                      />
                     ))}
                   </div>
                 </div>
@@ -262,6 +441,14 @@ export default function ProductsPage() {
           </div>
         </section>
       </main>
+
+      <ProductModal
+        product={selectedProduct}
+        isClosing={isModalClosing}
+        onClose={closeProduct}
+        closeButtonRef={closeButtonRef}
+        dialogRef={dialogRef}
+      />
     </>
   )
 }

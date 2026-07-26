@@ -3,45 +3,35 @@ import { cn } from '@utils/cn'
 
 const NAV_ITEMS = [
   {
-    label: 'Products',
+    label: 'Sản phẩm',
     href: '/products',
     children: [
-      { label: 'Pangasius Fillet',   href: '/products?category=pangasius-fillet' },
-      { label: 'Pangasius Portions', href: '/products?category=pangasius-portions' },
-      { label: 'Whole Fish',         href: '/products?category=whole-fish' },
-      { label: 'Value Added',        href: '/products?category=value-added' },
-    ],
-  },
-  { label: 'Manufacturing',  href: '/manufacturing',  children: null },
-  { label: 'Quality',        href: '/quality',        children: null },
-  {
-    label: 'Sustainability',
-    href: '/sustainability',
-    children: [
-      { label: 'Environment',  href: '/sustainability/environment' },
-      { label: 'Social Impact', href: '/sustainability/social' },
-      { label: 'ESG Reports',  href: '/sustainability/reports' },
+      { label: 'Cá tra phi lê',     href: '/products?category=pangasius-fillet' },
+      { label: 'Cá tra cắt khúc',   href: '/products?category=pangasius-portions' },
+      { label: 'Cá nguyên con',     href: '/products?category=whole-fish' },
+      { label: 'Sản phẩm chế biến', href: '/products?category=value-added' },
     ],
   },
   {
-    label: 'About',
+    label: 'Về IDI',
     href: '/about',
     children: [
-      { label: 'Our Story',       href: '/about/story' },
-      { label: 'Leadership',      href: '/about/leadership' },
-      { label: 'Mission & Values', href: '/about/values' },
+      { label: 'Lịch sử phát triển', href: '/about/story' },
+      { label: 'Giá trị cốt lõi', href: '/about/values' },
     ],
   },
   {
-    label: 'Investors',
+    label: 'Nhà đầu tư',
     href: '/investors',
     children: [
-      { label: 'Financial Reports', href: '/investors/financials' },
-      { label: 'Annual Reports',    href: '/investors/annual-reports' },
-      { label: 'Green Bond',        href: '/investors/green-bond' },
+      { label: 'Thông báo', href: '/investors' },
+      { label: 'Báo cáo tài chính', href: '/investors/financials' },
+      { label: 'Báo cáo thường niên', href: '/investors/annual-reports' },
+      { label: 'Đại hội cổ đông', href: '/investors/agm' },
+      { label: 'Trái phiếu', href: '/investors/green-bond' },
     ],
   },
-  { label: 'News', href: '/news', children: null },
+  { label: 'Tin tức', href: '/news', children: null },
 ]
 
 export default function NavbarDesktop({ scrolled }) {
@@ -53,7 +43,7 @@ export default function NavbarDesktop({ scrolled }) {
       : location.pathname.startsWith(href)
 
   return (
-    <nav className="hidden lg:flex items-center gap-1" aria-label="Main navigation">
+    <nav className="hidden xl:flex items-center gap-1" aria-label="Điều hướng chính">
       {NAV_ITEMS.map((item) => (
         <div key={item.href} className="group relative">
           <Link

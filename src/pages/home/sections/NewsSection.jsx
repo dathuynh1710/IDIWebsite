@@ -9,7 +9,7 @@ const CATEGORY_COLORS = {
 }
 
 function formatDate(iso) {
-  return new Date(iso).toLocaleDateString('en-GB', {
+  return new Date(iso).toLocaleDateString('vi-VN', {
     day:   'numeric',
     month: 'long',
     year:  'numeric',
@@ -27,17 +27,17 @@ export default function NewsSection() {
         <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6 mb-12">
           <div>
             <RevealOnScroll>
-              <span className="section-eyebrow">Latest News</span>
+              <span className="section-eyebrow">Tin mới nhất</span>
             </RevealOnScroll>
             <RevealOnScroll delay={80}>
               <h2 className="text-h2 font-bold text-ocean-deep mt-3">
-                News &amp; Updates
+                Tin tức &amp; Sự kiện
               </h2>
             </RevealOnScroll>
           </div>
           <RevealOnScroll direction="right">
             <Link to="/news" className="btn btn-secondary whitespace-nowrap">
-              All News →
+              Xem tất cả →
             </Link>
           </RevealOnScroll>
         </div>
@@ -93,7 +93,7 @@ export default function NewsSection() {
 
                     {/* Read more */}
                     <div className="flex items-center gap-1.5 text-seafoam text-xs font-semibold mt-5 opacity-0 group-hover:opacity-100 translate-y-1 group-hover:translate-y-0 transition-all duration-300">
-                      Read More
+                      Đọc thêm
                       <svg className="w-3.5 h-3.5" viewBox="0 0 14 14" fill="none">
                         <path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                       </svg>

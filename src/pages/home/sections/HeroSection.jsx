@@ -1,10 +1,10 @@
 import { Link } from 'react-router'
 
 const STATS = [
-  { value: '50+',     label: 'Countries Exported' },
-  { value: '100K MT', label: 'Annual Capacity' },
-  { value: '1997',    label: 'Year Founded' },
-  { value: 'ASC',     label: 'Certified' },
+  { value: '50+',     label: 'Quốc gia xuất khẩu' },
+  { value: '100K MT', label: 'Công suất mỗi năm' },
+  { value: '1997',    label: 'Năm thành lập' },
+  { value: 'ASC',     label: 'Chứng nhận quốc tế' },
 ]
 
 export default function HeroSection() {
@@ -39,12 +39,12 @@ export default function HeroSection() {
 
             {/* Eyebrow badge */}
             <div
-              className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 text-white/90 text-xs font-semibold tracking-widest uppercase px-3 sm:px-4 py-2 rounded-full mb-6 sm:mb-8"
+              className="inline-flex max-w-full items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 text-white/90 text-xs font-semibold tracking-widest uppercase px-3 sm:px-4 py-2 rounded-full mb-6 sm:mb-8"
               style={{ animation: 'fadeInUp 0.6s ease forwards', animationDelay: '0ms' }}
             >
               <span className="w-2 h-2 rounded-full bg-coral-gold animate-pulse" />
-              <span className="hidden xs:inline">Asia-Pacific's First Seafood Green Bond Issuer</span>
-              <span className="xs:hidden">Green Bond Leader</span>
+              <span className="hidden xs:inline">Tiên phong Trái phiếu Xanh ngành thủy sản khu vực</span>
+              <span className="xs:hidden">Tiên phong Trái phiếu Xanh</span>
             </div>
 
             {/* Main headline */}
@@ -52,9 +52,9 @@ export default function HeroSection() {
               className="text-display text-white mb-5 sm:mb-6 text-balance"
               style={{ animation: 'fadeInUp 0.7s ease forwards', animationDelay: '100ms', opacity: 0 }}
             >
-              Vietnam's Leading{' '}
-              <span className="text-coral-gold">Pangasius</span>{' '}
-              Exporter
+              Nhà xuất khẩu{' '}
+              <span className="text-coral-gold">cá tra</span>{' '}
+              hàng đầu Việt Nam
             </h1>
 
             {/* Sub-headline */}
@@ -62,9 +62,9 @@ export default function HeroSection() {
               className="text-lg sm:text-xl text-white/75 mb-8 sm:mb-10 max-w-xl leading-relaxed"
               style={{ animation: 'fadeInUp 0.7s ease forwards', animationDelay: '200ms', opacity: 0 }}
             >
-              Premium, ASC-certified pangasius from Mekong Delta farms to your
-              market — vertically integrated, fully traceable, serving 50+ countries
-              since 1997.
+              Cá tra chất lượng cao đạt chuẩn ASC từ Đồng bằng sông Cửu Long,
+              vận hành theo chuỗi khép kín, truy xuất nguồn gốc minh bạch và
+              hiện diện tại hơn 50 quốc gia từ năm 1997.
             </p>
 
             {/* CTAs */}
@@ -73,13 +73,13 @@ export default function HeroSection() {
               style={{ animation: 'fadeInUp 0.7s ease forwards', animationDelay: '300ms', opacity: 0 }}
             >
               <Link to="/products" className="btn btn-gold text-base px-7 py-3.5 w-full xs:w-auto justify-center">
-                Explore Products
+                Khám phá sản phẩm
                 <svg className="w-4 h-4" viewBox="0 0 16 16" fill="none">
                   <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
               </Link>
               <Link to="/contact" className="btn btn-ghost text-base px-7 py-3.5 w-full xs:w-auto justify-center">
-                Request a Quote
+                Yêu cầu báo giá
               </Link>
             </div>
 
@@ -110,7 +110,7 @@ export default function HeroSection() {
       {/* ── Scroll indicator ──────────────────────────────────── */}
       <div className="absolute bottom-28 right-8 hidden lg:flex flex-col items-center gap-2 opacity-40">
         <div className="w-px h-12 bg-white" style={{ animation: 'shimmer 2s ease-in-out infinite' }} />
-        <span className="text-white text-[10px] tracking-[0.2em] rotate-90 origin-center mt-2">SCROLL</span>
+        <span className="text-white text-[10px] tracking-[0.2em] rotate-90 origin-center mt-2">CUỘN</span>
       </div>
 
     </section>

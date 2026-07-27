@@ -1,17 +1,25 @@
-import AboutPageHeader from '@components/about/AboutPageHeader'
+import PageHead from '@components/common/PageHead'
 import { DEVELOPMENT_TIMELINE } from '@data/about'
 
 export default function StoryPage() {
   return (
     <>
-      <AboutPageHeader
-        eyebrow="Về IDI"
-        title="Lịch sử hình thành và đổi mới"
+      <PageHead
+        title="Lịch sử hình thành và đổi mới | IDI Seafood"
         description="Hành trình phát triển của IDI qua những cột mốc quan trọng."
       />
 
-      <main className="bg-white py-14 sm:py-18">
+      <main className="bg-white pb-14 pt-32 sm:pb-18 sm:pt-36">
         <article className="container max-w-4xl">
+          <header className="mb-10 border-b border-light-mist pb-8">
+            <h1 className="text-[clamp(1.75rem,4.2vw,3.5rem)] font-black text-ocean-deep sm:whitespace-nowrap">
+              Lịch sử hình thành và đổi mới
+            </h1>
+            <p className="mt-4 max-w-2xl text-base leading-8 text-storm-grey sm:text-lg">
+              Hành trình IDI từng bước trưởng thành, đổi mới và khẳng định vị thế trong ngành thủy sản Việt Nam.
+            </p>
+          </header>
+
           <div className="space-y-5 text-base leading-8 text-slate sm:text-lg sm:leading-9">
             <p>
               Từ khi IDI bắt đầu hành trình của mình, công ty đã liên tục trau dồi và chuyển đổi trên

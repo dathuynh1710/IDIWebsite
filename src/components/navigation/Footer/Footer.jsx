@@ -10,7 +10,17 @@ const CONTACT_INFO = [
       </svg>
     ),
     label: 'Trụ sở chính',
-    value: '51 Bis, Võ Thị Sáu, Phường 6, TP. Sa Đéc, Đồng Tháp, Việt Nam',
+    value: 'Quốc lộ 80, Cụm công nghiệp Vàm Cống, ấp An Thạnh, xã Lấp Vò, Tỉnh Đồng Tháp, Việt Nam',
+  },
+  {
+    icon: (
+      <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+        <path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    ),
+    label: 'Văn phòng đại diện Hồ Chí Minh',
+    value: '9 Nguyễn Kim, phường 12, quận 5, Thành phố Hồ Chí Minh, Việt Nam',
   },
   {
     icon: (
@@ -18,9 +28,9 @@ const CONTACT_INFO = [
         <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" strokeLinecap="round" strokeLinejoin="round" />
       </svg>
     ),
-    label: 'Liên hệ xuất khẩu',
-    value: 'export@idiseafood.com',
-    href: 'mailto:export@idiseafood.com',
+    label: 'Email',
+    value: 'info@idiseafood.com',
+    href: 'mailto:info@idiseafood.com',
   },
   {
     icon: (
@@ -29,8 +39,18 @@ const CONTACT_INFO = [
       </svg>
     ),
     label: 'Điện thoại',
-    value: '+84 277 3955 888',
-    href: 'tel:+842773955888',
+    value: '+84 2773 680 383 / +84 2777 300 468',
+    href: 'tel:+842773680383',
+  },
+  {
+    icon: (
+      <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+        <path d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    ),
+    label: 'Điện thoại văn phòng Hồ Chí Minh',
+    value: '+84 932 824 888',
+    href: 'tel:+84932824888',
   },
 ]
 
@@ -55,7 +75,7 @@ export default function Footer() {
               </div>
               <div>
                 <div className="text-white font-bold text-base leading-tight">IDI Seafood</div>
-                <div className="text-white/40 text-[11px] tracking-wide">Từ năm 1997 · Việt Nam</div>
+                <div className="text-white/40 text-[11px] tracking-wide">Từ năm 2003 · Việt Nam</div>
               </div>
             </Link>
 
@@ -87,7 +107,7 @@ export default function Footer() {
           {/* Nav link columns */}
           <nav
             aria-label="Điều hướng cuối trang"
-            className="md:col-span-8 lg:col-span-6 xl:col-span-5 grid grid-cols-2 sm:grid-cols-4 gap-x-6 gap-y-10"
+            className="md:col-span-8 lg:col-span-6 xl:col-span-5 grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-10"
           >
             {Object.values(FOOTER_LINKS).map((col) => (
               <div key={col.title} className="min-w-0">
@@ -156,21 +176,12 @@ export default function Footer() {
 
       {/* ── Bottom bar ──────────────────────────────────────────── */}
       <div className="container py-6">
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left text-[11px] text-white/30">
-
+        <div className="flex flex-col items-center justify-between gap-2 text-center text-[11px] text-white/35 sm:flex-row sm:text-left">
           <p>
-            © {currentYear} Công ty Cổ phần Đầu tư và Phát triển Đa Quốc Gia I.D.I.
-            Bảo lưu mọi quyền.
+            Số giấy phép kinh doanh: 0303141296 do Sở Kế hoạch và Đầu tư Thành phố Hồ Chí Minh
+            cấp ngày 15/07/2003 · Đại diện: Lê Văn Cảnh
           </p>
-
-          <div className="flex flex-wrap items-center justify-center gap-4">
-            <Link to="/privacy" className="hover:text-white/60 transition-colors">Chính sách bảo mật</Link>
-            <span>·</span>
-            <Link to="/terms" className="hover:text-white/60 transition-colors">Điều khoản sử dụng</Link>
-            <span>·</span>
-            <Link to="/sitemap" className="hover:text-white/60 transition-colors">Sơ đồ trang</Link>
-          </div>
-
+          <p className="shrink-0">Copyright © {currentYear} idiseafood.com</p>
         </div>
       </div>
 

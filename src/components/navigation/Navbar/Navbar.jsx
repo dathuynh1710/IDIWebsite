@@ -5,16 +5,16 @@ import NavbarBrand from './NavbarBrand'
 import NavbarDesktop from './NavbarDesktop'
 
 const MOBILE_MENU_LINKS = [
-  { label: 'Sản phẩm',   href: '/products' },
   {
     label: 'Về IDI',
     href: '/about',
     children: [
-      { label: 'Thông điệp công ty', href: '/about' },
       { label: 'Lịch sử phát triển', href: '/about/story' },
       { label: 'Giá trị cốt lõi', href: '/about/values' },
     ],
   },
+  { label: 'Sản phẩm', href: '/products' },
+  { label: 'Phát triển bền vững', href: '/sustainability' },
   {
     label: 'Nhà đầu tư',
     href: '/investors',
@@ -27,6 +27,7 @@ const MOBILE_MENU_LINKS = [
     ],
   },
   { label: 'Tin tức',    href: '/news' },
+  { label: 'Tuyển dụng', href: '/careers' },
   { label: 'Liên hệ',    href: '/contact' },
 ]
 
@@ -97,7 +98,7 @@ export default function Navbar() {
               <Link
                 to="/contact"
                 className={cn(
-                  'hidden xl:inline-flex btn text-sm py-2 px-4',
+                  'hidden xl:inline-flex btn px-4 py-2 text-sm uppercase tracking-[0.035em]',
                   scrolled || !isHeroPage ? 'btn-primary' : 'btn-gold',
                 )}
               >
@@ -140,7 +141,7 @@ export default function Navbar() {
                   <Link
                     to={link.href}
                     className={cn(
-                      'block text-lg font-semibold py-3 text-white/80 hover:text-white hover:pl-2 transition-all duration-200',
+                      'block py-3 text-lg font-semibold uppercase tracking-[0.035em] text-white/80 transition-all duration-200 hover:pl-2 hover:text-white',
                       location.pathname.startsWith(link.href) && link.href !== '/' && 'text-coral-gold',
                     )}
                   >
@@ -165,7 +166,7 @@ export default function Navbar() {
 
             {/* Mobile CTA */}
             <div className="container pb-8 mt-auto flex flex-col gap-3">
-              <Link to="/contact" className="btn btn-gold w-full text-center">
+              <Link to="/contact" className="btn btn-gold w-full text-center uppercase tracking-[0.035em]">
                 Yêu cầu báo giá
               </Link>
               <div className="flex justify-center gap-4 text-sm text-white/50">

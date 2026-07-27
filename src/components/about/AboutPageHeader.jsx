@@ -2,7 +2,6 @@ import { NavLink } from 'react-router'
 import PageHead from '@components/common/PageHead'
 
 const ABOUT_NAV = [
-  { label: 'Thông điệp công ty', href: '/about', end: true },
   { label: 'Lịch sử phát triển', href: '/about/story' },
   { label: 'Giá trị cốt lõi', href: '/about/values' },
 ]

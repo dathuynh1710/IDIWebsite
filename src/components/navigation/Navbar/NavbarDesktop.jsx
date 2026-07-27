@@ -3,6 +3,14 @@ import { cn } from '@utils/cn'
 
 const NAV_ITEMS = [
   {
+    label: 'Về IDI',
+    href: '/about',
+    children: [
+      { label: 'Lịch sử phát triển', href: '/about/story' },
+      { label: 'Giá trị cốt lõi', href: '/about/values' },
+    ],
+  },
+  {
     label: 'Sản phẩm',
     href: '/products',
     children: [
@@ -12,14 +20,7 @@ const NAV_ITEMS = [
       { label: 'Sản phẩm chế biến', href: '/products?category=value-added' },
     ],
   },
-  {
-    label: 'Về IDI',
-    href: '/about',
-    children: [
-      { label: 'Lịch sử phát triển', href: '/about/story' },
-      { label: 'Giá trị cốt lõi', href: '/about/values' },
-    ],
-  },
+  { label: 'Phát triển bền vững', href: '/sustainability', children: null },
   {
     label: 'Nhà đầu tư',
     href: '/investors',
@@ -32,6 +33,7 @@ const NAV_ITEMS = [
     ],
   },
   { label: 'Tin tức', href: '/news', children: null },
+  { label: 'Tuyển dụng', href: '/careers', children: null },
 ]
 
 export default function NavbarDesktop({ scrolled }) {
@@ -49,7 +51,7 @@ export default function NavbarDesktop({ scrolled }) {
           <Link
             to={item.href}
             className={cn(
-              'flex items-center gap-1 px-3 py-2 text-[13px] font-semibold rounded-md transition-colors duration-150',
+              'flex items-center gap-1 rounded-md px-3 py-2 text-[13px] font-semibold uppercase tracking-[0.035em] transition-colors duration-150',
               scrolled
                 ? isActive(item.href)
                   ? 'text-ocean-deep'

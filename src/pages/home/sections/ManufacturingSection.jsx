@@ -71,8 +71,8 @@ export default function ManufacturingSection() {
             </div>
 
             <RevealOnScroll delay={600}>
-              <Link to="/manufacturing" className="btn btn-ghost">
-                Khám phá nhà máy →
+              <Link to="/sustainability" className="btn btn-ghost">
+                Tìm hiểu thêm →
               </Link>
             </RevealOnScroll>
           </div>

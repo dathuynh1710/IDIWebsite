@@ -85,22 +85,20 @@ export const COMPANY_INFO = Object.freeze({
   capacityMT:   100000, // MT per year
 
   headOffice: {
-    label:    'Head Office',
-    address:  'Quốc lộ 80, Cụm công nghiệp Vàm Cống, ấp An Thạnh, xã Lấp Vò, Tỉnh Đồng Tháp, Vietnam',
+    label:    'Trụ sở chính',
+    address:  'Quốc lộ 80, Cụm công nghiệp Vàm Cống, ấp An Thạnh, xã Lấp Vò, Tỉnh Đồng Tháp, Việt Nam',
     phone:    '+84 2773 680 383',
     phone2:   '+84 2777 300 468',
     fax:      '+84 2773 680 382',
     email:    'info@idiseafood.com',
-    tradeEmail: 'trade@idiseafood.com',
     lat: 10.448, // Approx coordinates for map
     lng: 105.617,
   },
 
   hcmOffice: {
-    label:   'Ho Chi Minh City Office',
-    address: '9 Nguyễn Kim, Phường 12, Quận 5, Thành phố Hồ Chí Minh, Vietnam',
+    label:   'Văn phòng đại diện Hồ Chí Minh',
+    address: '9 Nguyễn Kim, phường 12, quận 5, Thành phố Hồ Chí Minh, Việt Nam',
     phone:   '+84 932 824 888',
-    email:   'hcm@idiseafood.com',
     lat: 10.758,
     lng: 106.666,
   },
@@ -117,12 +115,10 @@ export const NAV_PATHS = Object.freeze({
   HOME:           '/',
   PRODUCTS:       '/products',
   ABOUT:          '/about',
-  MANUFACTURING:  '/manufacturing',
   QUALITY:        '/quality',
   SUSTAINABILITY: '/sustainability',
   INVESTORS:      '/investors',
   NEWS:           '/news',
-  RECIPES:        '/recipes',
   CAREERS:        '/careers',
   CONTACT:        '/contact',
 })

@@ -6,7 +6,7 @@ export const COMPANY_PROFILE = {
   exchange: 'HOSE',
   taxCode: '0303141296',
   charterCapital: '2.731,7 tỷ đồng',
-  headquarters: 'Quốc lộ 80, Cụm Công nghiệp Vàm Cống, xã Lấp Vò, tỉnh Đồng Tháp',
+  headquarters: 'Quốc lộ 80, Cụm công nghiệp Vàm Cống, ấp An Thạnh, xã Lấp Vò, Tỉnh Đồng Tháp, Việt Nam',
   email: 'info@idiseafood.com',
 }
 
@@ -118,21 +118,29 @@ export const CORE_VALUES = [
     number: '01',
     title: 'Niềm đam mê',
     body: 'Niềm đam mê và sự cống hiến là những yếu tố chủ chốt tạo nên thành công. Chúng gắn liền với mọi khía cạnh trong suốt quá trình hoạt động và là trái tim của văn hóa doanh nghiệp tại IDI.',
+    image: 'https://idiseafood.com/vnt_upload/about/gt1.jpg',
+    imageAlt: 'Niềm đam mê trong hoạt động sản xuất tại IDI',
   },
   {
     number: '02',
     title: 'Sự đổi mới',
     body: 'Tại IDI, sự đổi mới là tiêu chuẩn cho mọi việc chúng tôi thực hiện và tất cả những gì chúng tôi sản xuất. Yếu tố này dẫn dắt chúng tôi tiến xa hơn trong ngành công nghiệp thủy sản.',
+    image: 'https://idiseafood.com/vnt_upload/about/07_2024/congnhan.png',
+    imageAlt: 'Đội ngũ IDI đổi mới trong hoạt động sản xuất',
   },
   {
     number: '03',
     title: 'Sự sẻ chia',
     body: 'IDI khuyến khích xây dựng một môi trường cởi mở và minh bạch. Cơ hội được chia sẻ giữa tất cả nhân viên, cho phép mỗi người có những đóng góp quan trọng trong hoạt động kinh doanh của công ty.',
+    image: 'https://idiseafood.com/vnt_upload/about/gt3.jpg',
+    imageAlt: 'Văn hóa sẻ chia và hợp tác tại IDI',
   },
   {
     number: '04',
     title: 'Tinh thần trách nhiệm',
     body: 'Thừa hưởng nguồn lợi thiên nhiên đi kèm với trách nhiệm xã hội lớn lao. Sự tôn trọng và đóng góp liên tục của IDI cho xã hội và môi trường là yếu tố cần thiết để duy trì bản sắc và thành công của chúng tôi.',
+    image: 'https://idiseafood.com/vnt_upload/about/gt4.jpg',
+    imageAlt: 'Tinh thần trách nhiệm của IDI với xã hội và môi trường',
   },
 ]
 

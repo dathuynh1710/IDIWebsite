@@ -1,4 +1,4 @@
-import AboutPageHeader from '@components/about/AboutPageHeader'
+import PageHead from '@components/common/PageHead'
 import { COMPANY_MESSAGE } from '@data/about'
 
 export default function AboutPage() {
@@ -6,14 +6,14 @@ export default function AboutPage() {
 
   return (
     <>
-      <AboutPageHeader
-        eyebrow="Về IDI"
-        title="Thông điệp của công ty"
+      <PageHead
+        title="Thông điệp của công ty | IDI Seafood"
         description="Chia sẻ từ Ban điều hành về định hướng phát triển và trách nhiệm của IDI đối với con người, xã hội và môi trường."
       />
 
-      <main className="bg-white py-14 sm:py-18">
+      <main className="bg-white pb-14 pt-32 sm:pb-18 sm:pt-36">
         <article className="container max-w-4xl">
+          <h1 className="sr-only">Thông điệp của công ty</h1>
           <header className="flex flex-col gap-5 border-b border-light-mist pb-7 sm:flex-row sm:items-center sm:gap-7">
             <img
               src="/images/about/le-van-chung.jpg"

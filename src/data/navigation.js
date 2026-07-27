@@ -9,6 +9,16 @@
 
 export const NAV_ITEMS = [
   {
+    id: 'about',
+    label: 'Về IDI',
+    href: '/about',
+    children: [
+      { id: 'story', label: 'Lịch sử phát triển', href: '/about/story' },
+      { id: 'values', label: 'Giá trị cốt lõi', href: '/about/values' },
+    ],
+  },
+
+  {
     id: 'products',
     label: 'Sản phẩm',
     href: '/products',
@@ -52,14 +62,10 @@ export const NAV_ITEMS = [
   },
 
   {
-    id: 'about',
-    label: 'Về IDI',
-    href: '/about',
-    children: [
-      { id: 'about-overview', label: 'Thông điệp công ty', href: '/about' },
-      { id: 'story', label: 'Lịch sử phát triển', href: '/about/story' },
-      { id: 'values', label: 'Giá trị cốt lõi', href: '/about/values' },
-    ],
+    id: 'sustainability',
+    label: 'Phát triển bền vững',
+    href: '/sustainability',
+    children: null,
   },
 
   {
@@ -79,6 +85,13 @@ export const NAV_ITEMS = [
     id: 'news',
     label: 'Tin tức',
     href: '/news',
+    children: null,
+  },
+
+  {
+    id: 'careers',
+    label: 'Tuyển dụng',
+    href: '/careers',
     children: null,
   },
 ]
@@ -107,16 +120,8 @@ export const FOOTER_LINKS = {
     title: 'Công ty',
     links: [
       { label: 'Lịch sử phát triển', href: '/about/story' },
-      { label: 'Năng lực sản xuất', href: '/manufacturing' },
+      { label: 'Phát triển bền vững', href: '/sustainability' },
       { label: 'Tuyển dụng', href: '/careers' },
-    ],
-  },
-  quality: {
-    title: 'Chất lượng',
-    links: [
-      { label: 'Chứng nhận', href: '/quality' },
-      { label: 'Tiêu chuẩn', href: '/quality#standards' },
-      { label: 'Truy xuất nguồn gốc', href: '/quality#traceability' },
     ],
   },
   investors: {

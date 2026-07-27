@@ -24,22 +24,13 @@ import ProductsPage from '@pages/products/ProductsPage'
 // LAZY LOADED — Non-critical pages (split into separate chunks)
 // Each lazy() call = separate JS bundle, downloaded on demand.
 // ─────────────────────────────────────────────────────────────
-const ProductDetailPage     = lazy(() => import('@pages/products/ProductDetailPage'))
-
 const AboutPage             = lazy(() => import('@pages/about/AboutPage'))
 const StoryPage             = lazy(() => import('@pages/about/StoryPage'))
-const LeadershipPage        = lazy(() => import('@pages/about/LeadershipPage'))
 const ValuesPage            = lazy(() => import('@pages/about/ValuesPage'))
 
-const ManufacturingPage     = lazy(() => import('@pages/manufacturing/ManufacturingPage'))
-
 const QualityPage           = lazy(() => import('@pages/quality/QualityPage'))
-const CertificationDetail   = lazy(() => import('@pages/quality/CertificationDetailPage'))
 
 const SustainabilityPage    = lazy(() => import('@pages/sustainability/SustainabilityPage'))
-const EnvironmentPage       = lazy(() => import('@pages/sustainability/EnvironmentPage'))
-const SocialPage            = lazy(() => import('@pages/sustainability/SocialPage'))
-const ReportsPage           = lazy(() => import('@pages/sustainability/ReportsPage'))
 
 const InvestorsPage         = lazy(() => import('@pages/investors/InvestorsPage'))
 const FinancialsPage        = lazy(() => import('@pages/investors/FinancialsPage'))
@@ -50,11 +41,7 @@ const GreenBondPage         = lazy(() => import('@pages/investors/GreenBondPage'
 const NewsPage              = lazy(() => import('@pages/news/NewsPage'))
 const NewsDetailPage        = lazy(() => import('@pages/news/NewsDetailPage'))
 
-const RecipesPage           = lazy(() => import('@pages/recipes/RecipesPage'))
-const RecipeDetailPage      = lazy(() => import('@pages/recipes/RecipeDetailPage'))
-
 const CareersPage           = lazy(() => import('@pages/careers/CareersPage'))
-const JobDetailPage         = lazy(() => import('@pages/careers/JobDetailPage'))
 
 const ContactPage           = lazy(() => import('@pages/contact/ContactPage'))
 
@@ -87,26 +74,17 @@ export const router = createBrowserRouter([
 
       // ── Products
       { path: 'products', element: <ProductsPage /> },
-      { path: 'products/:slug', element: withSuspense(ProductDetailPage) },
 
       // ── About (parent page + sub-pages)
       { path: 'about', element: withSuspense(AboutPage) },
       { path: 'about/story', element: withSuspense(StoryPage) },
-      { path: 'about/leadership', element: withSuspense(LeadershipPage) },
       { path: 'about/values', element: withSuspense(ValuesPage) },
-
-      // ── Manufacturing
-      { path: 'manufacturing', element: withSuspense(ManufacturingPage) },
 
       // ── Quality
       { path: 'quality', element: withSuspense(QualityPage) },
-      { path: 'quality/certifications/:id', element: withSuspense(CertificationDetail) },
 
       // ── Sustainability
       { path: 'sustainability', element: withSuspense(SustainabilityPage) },
-      { path: 'sustainability/environment', element: withSuspense(EnvironmentPage) },
-      { path: 'sustainability/social', element: withSuspense(SocialPage) },
-      { path: 'sustainability/reports', element: withSuspense(ReportsPage) },
 
       // ── Investors: Uses InvestorLayout (adds sidebar nav)
       {
@@ -125,13 +103,8 @@ export const router = createBrowserRouter([
       { path: 'news', element: withSuspense(NewsPage) },
       { path: 'news/:slug', element: withSuspense(NewsDetailPage) },
 
-      // ── Recipes
-      { path: 'recipes', element: withSuspense(RecipesPage) },
-      { path: 'recipes/:slug', element: withSuspense(RecipeDetailPage) },
-
       // ── Careers
       { path: 'careers', element: withSuspense(CareersPage) },
-      { path: 'careers/:id', element: withSuspense(JobDetailPage) },
 
       // ── Contact
       { path: 'contact', element: withSuspense(ContactPage) },

@@ -17,22 +17,34 @@ const INITIAL_FORM = {
 
 const CONTACT_CHANNELS = [
   {
-    label: 'Liên hệ xuất khẩu',
-    value: 'export@idiseafood.com',
-    href: 'mailto:export@idiseafood.com',
-    note: 'Phản hồi trong vòng 24 giờ làm việc',
-  },
-  {
-    label: 'Điện thoại',
-    value: '+84 277 3955 888',
-    href: 'tel:+842773955888',
-    note: 'Thứ Hai – Thứ Sáu, 08:00 – 17:00',
-  },
-  {
     label: 'Trụ sở chính',
-    value: '51 Bis Võ Thị Sáu, Phường 6, TP. Sa Đéc, Đồng Tháp, Việt Nam',
+    value: 'Quốc lộ 80, Cụm công nghiệp Vàm Cống, ấp An Thạnh, xã Lấp Vò, Tỉnh Đồng Tháp, Việt Nam',
     href: null,
-    note: 'Văn phòng điều hành IDI Seafood',
+  },
+  {
+    label: 'Điện thoại trụ sở',
+    value: '+84 2773 680 383 / +84 2777 300 468',
+    href: 'tel:+842773680383',
+  },
+  {
+    label: 'Fax',
+    value: '+84 2773 680 382',
+    href: 'tel:+842773680382',
+  },
+  {
+    label: 'Email',
+    value: 'info@idiseafood.com',
+    href: 'mailto:info@idiseafood.com',
+  },
+  {
+    label: 'Văn phòng đại diện Hồ Chí Minh',
+    value: '9 Nguyễn Kim, phường 12, quận 5, Thành phố Hồ Chí Minh, Việt Nam',
+    href: null,
+  },
+  {
+    label: 'Điện thoại văn phòng Hồ Chí Minh',
+    value: '+84 932 824 888',
+    href: 'tel:+84932824888',
   },
 ]
 
@@ -169,11 +181,7 @@ export default function ContactPage() {
                 <span className="mb-3 block text-xs font-bold uppercase tracking-[0.16em] text-coral-gold">
                   Thông tin liên hệ
                 </span>
-                <h2 className="mb-4 text-2xl font-black text-white">IDI Seafood</h2>
-                <p className="mb-10 text-sm leading-relaxed text-white/55">
-                  Công ty Cổ phần Đầu tư và Phát triển Đa Quốc Gia I.D.I.
-                  Nhà sản xuất và xuất khẩu cá tra từ Đồng bằng sông Cửu Long.
-                </p>
+                <h2 className="mb-10 text-2xl font-black text-white">IDI Seafood</h2>
 
                 <div className="space-y-7">
                   {CONTACT_CHANNELS.map((channel, index) => (
@@ -195,19 +203,11 @@ export default function ContactPage() {
                         ) : (
                           <p className="text-sm font-bold leading-relaxed text-white">{channel.value}</p>
                         )}
-                        <p className="mt-1 text-xs leading-relaxed text-white/40">{channel.note}</p>
                       </div>
                     </div>
                   ))}
                 </div>
 
-                <div className="mt-10 rounded-2xl border border-white/10 bg-white/5 p-5">
-                  <span className="mb-2 block text-xs font-bold text-seafoam-light">Cam kết phản hồi</span>
-                  <p className="text-xs leading-relaxed text-white/55">
-                    Mọi yêu cầu hợp lệ được chuyển trực tiếp đến bộ phận phụ trách và phản hồi
-                    trong vòng 24 giờ làm việc.
-                  </p>
-                </div>
               </div>
             </aside>
 

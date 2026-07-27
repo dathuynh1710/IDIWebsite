@@ -39,9 +39,7 @@ export default function ManufacturingSection() {
 
           {/* ── Left: Content ──────────────────────────────────── */}
           <div>
-            <RevealOnScroll>
-              <span className="section-eyebrow text-seafoam-light">Năng lực sản xuất</span>
-            </RevealOnScroll>
+
             <RevealOnScroll delay={80}>
               <h2 className="text-h2 font-bold text-white mt-3 mb-6 text-balance">
                 Công nghệ chế biến hiện đại ở quy mô lớn

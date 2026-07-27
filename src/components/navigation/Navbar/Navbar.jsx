@@ -70,7 +70,7 @@ export default function Navbar() {
         <div className="container">
           <div className="flex items-center justify-between h-[72px]">
             {/* Brand */}
-            <NavbarBrand scrolled={scrolled || !isHeroPage} />
+            <NavbarBrand />
 
             {/* Desktop Nav */}
             <NavbarDesktop scrolled={scrolled || !isHeroPage} />

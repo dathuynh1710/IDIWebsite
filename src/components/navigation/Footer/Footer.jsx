@@ -70,9 +70,11 @@ export default function Footer() {
           <div className="md:col-span-12 lg:col-span-3 xl:col-span-4">
             {/* Logo area */}
             <Link to="/" className="inline-flex items-center gap-3 mb-6 group">
-              <div className="w-10 h-10 rounded-xl bg-seafoam flex items-center justify-center flex-shrink-0">
-                <span className="text-white font-black text-sm tracking-tight">IDI</span>
-              </div>
+              <img
+                src="/images/brand/idi-logo.png"
+                alt="IDI Seafood"
+                className="h-14 w-24 flex-shrink-0 rounded-md bg-white object-contain p-1"
+              />
               <div>
                 <div className="text-white font-bold text-base leading-tight">IDI Seafood</div>
                 <div className="text-white/40 text-[11px] tracking-wide">Từ năm 2003 · Việt Nam</div>
@@ -84,12 +86,6 @@ export default function Footer() {
               xuất khẩu cá tra đạt chuẩn ASC đến hơn 50 quốc gia.
             </p>
 
-            {/* Stock ticker */}
-            <div className="inline-flex flex-wrap items-center gap-2 bg-white/6 border border-white/10 rounded-lg px-3 py-2 text-xs mb-8">
-              <span className="text-coral-gold font-bold">HOSE: IDI</span>
-              <span className="text-white/30">·</span>
-              <span className="text-white/50">Sở Giao dịch Chứng khoán TP.HCM</span>
-            </div>
 
             {/* Certifications mini badges */}
             <div className="flex flex-wrap gap-2">
@@ -156,16 +152,7 @@ export default function Footer() {
               ))}
             </ul>
 
-            {/* CTA */}
-            <Link
-              to="/contact"
-              className="inline-flex items-center gap-2 mt-6 btn btn-gold text-sm py-2.5 px-5"
-            >
-              Yêu cầu báo giá
-              <svg className="w-3.5 h-3.5" viewBox="0 0 14 14" fill="none">
-                <path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </Link>
+
           </div>
 
         </div>

@@ -77,7 +77,10 @@ export default function NavbarDesktop({ scrolled }) {
               'transition-all duration-200 ease-out',
               'translate-y-1 group-hover:translate-y-0',
             )}>
-              <div className="bg-white rounded-xl shadow-[0_10px_40px_-8px_rgba(0,0,0,0.15)] border border-light-mist p-2 min-w-[200px]">
+              <div
+                className="isolate min-w-[200px] overflow-hidden rounded-xl border border-light-mist bg-white p-2 shadow-[0_10px_40px_-8px_rgba(0,0,0,0.15)]"
+                style={{ backgroundColor: '#ffffff' }}
+              >
                 {item.children.map((child) => (
                   <Link
                     key={child.href}

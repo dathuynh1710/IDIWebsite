@@ -1,10 +1,10 @@
 import { Link } from 'react-router'
 
 const STATS = [
-  { value: '50+',     label: 'Quốc gia xuất khẩu' },
-  { value: '100K MT', label: 'Công suất mỗi năm' },
-  { value: '1997',    label: 'Năm thành lập' },
-  { value: 'ASC',     label: 'Chứng nhận quốc tế' },
+  { value: '50+', label: 'Quốc gia xuất khẩu' },
+  { value: '200+', label: 'Khách hàng' },
+  { value: '80+', label: 'Sản phẩm' },
+  { value: 'ASC', label: 'Chứng nhận quốc tế' },
 ]
 
 export default function HeroSection() {

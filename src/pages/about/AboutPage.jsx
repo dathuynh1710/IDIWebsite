@@ -16,7 +16,7 @@ export default function AboutPage() {
           <h1 className="sr-only">Thông điệp của công ty</h1>
           <header className="flex flex-col gap-5 border-b border-light-mist pb-7 sm:flex-row sm:items-center sm:gap-7">
             <img
-              src="/images/about/le-van-chung.jpg"
+              src={`${import.meta.env.BASE_URL}images/about/le-van-chung.jpg`}
               alt={`Ông ${message.author}`}
               width="370"
               height="370"

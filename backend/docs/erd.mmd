@@ -1,0 +1,65 @@
+erDiagram
+    users ||--o{ media_folders : creates
+    users ||--o{ media : creates
+    media ||--o| users : avatar
+    media_folders ||--o{ media_folders : parent
+    media_folders ||--o{ media : contains
+    media ||--o{ media_variants : has
+    media ||--o{ mediables : attaches
+
+    modules ||--o{ module_settings : configures
+    locales ||--o{ localized_routes : localizes
+    users ||--o{ localized_routes : audits
+    users ||--o{ content_revisions : creates
+    product_categories ||--o{ localized_routes : routeable
+    products ||--o{ localized_routes : routeable
+    post_categories ||--o{ localized_routes : routeable
+    posts ||--o{ localized_routes : routeable
+    pages ||--o{ localized_routes : routeable
+    recipes ||--o{ localized_routes : routeable
+    job_positions ||--o{ localized_routes : routeable
+    products ||--o{ content_revisions : revisionable
+    posts ||--o{ content_revisions : revisionable
+    pages ||--o{ content_revisions : revisionable
+    recipes ||--o{ content_revisions : revisionable
+
+    product_categories ||--o{ product_categories : parent
+    product_categories ||--o{ products : classifies
+    media ||--o{ product_categories : features
+    media ||--o{ products : features
+    products ||--o{ product_attributes : has
+    attributes ||--o{ product_attributes : defines
+    products ||--o{ product_documents : has
+    media ||--o{ product_documents : stores
+    products ||--o{ product_view_statistics : aggregates
+    locales ||--o{ product_view_statistics : partitions
+
+    post_categories ||--o{ post_categories : parent
+    post_categories ||--o{ posts : classifies
+    users ||--o{ posts : authors
+    posts ||--o{ post_tag : tagged
+    tags ||--o{ post_tag : tags
+    pages ||--o{ pages : parent
+    pages ||--o{ page_sections : owns
+
+    recipes ||--o{ recipe_ingredients : owns
+    recipes ||--o{ recipe_steps : owns
+    media ||--o{ recipe_steps : illustrates
+    products ||--o{ product_recipe : relates
+    recipes ||--o{ product_recipe : relates
+
+    document_categories ||--o{ document_categories : parent
+    document_categories ||--o{ investor_documents : classifies
+    investor_documents ||--o{ investor_document_files : owns
+    media ||--o{ investor_document_files : stores
+
+    job_positions ||--o{ job_applications : receives
+    media ||--o{ job_applications : stores_cv
+    users ||--o{ job_applications : reviews
+    users ||--o{ contact_messages : assigned
+
+    sliders ||--o{ slider_items : owns
+    slider_items ||--o{ slider_item_media : owns
+    locales ||--o{ slider_item_media : localizes
+    media ||--o{ slider_item_media : displays
+    locales ||--o{ sitemap_logs : partitions

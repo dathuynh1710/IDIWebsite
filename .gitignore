@@ -1,24 +1,35 @@
+# Frontend
+/frontend/node_modules/
+/frontend/dist/
+/frontend/.env
+/frontend/.env.local
+/frontend/.env.*.local
+
+# Backend
+/backend/vendor/
+/backend/.env
+/backend/storage/*.key
+/backend/storage/framework/cache/*
+/backend/storage/framework/sessions/*
+/backend/storage/framework/views/*
+/backend/storage/logs/*
+/backend/bootstrap/cache/*
+
 # Dependencies
-node_modules/
 .pnp
 .pnp.js
 
 # Build outputs
-dist/
 dist-ssr/
 *.local
 
 # Environment files
 .env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
 
 # Editor
 .vscode/*
 !.vscode/extensions.json
-.idea
+.idea/
 *.suo
 *.ntvs*
 *.njsproj

@@ -3,10 +3,11 @@
 ## Architecture
 
 - `frontend/`: ReactJS + Vite SPA
-- `backend/`: Laravel REST API
+- `backend/`: Laravel REST API + Blade Admin CMS
 
-The two applications run independently. Laravel does not render React; the
-frontend calls the backend over HTTP.
+The two applications run independently. Laravel does not render the public
+React app; the frontend calls the backend over HTTP. The private `/admin`
+interface uses Laravel Blade and Alpine.js.
 
 ## Requirements
 
@@ -39,6 +40,8 @@ cd backend
 cp .env.example .env
 composer install
 php artisan key:generate
+php artisan storage:link
+npm install
 php artisan serve
 ```
 
@@ -46,8 +49,7 @@ Backend URL: <http://localhost:8000>
 
 Health endpoint: <http://localhost:8000/api/health>
 
-No product migrations or other business database schema are included in this
-phase. Configure MySQL in `backend/.env`, but do not run migrations yet.
+Admin URL: <http://localhost:8000/admin>
 
 ## Environment
 
@@ -76,10 +78,17 @@ cd backend
 php artisan serve
 ```
 
-Terminal 2:
+Terminal 2 (public website):
 
 ```bash
 cd frontend
+npm run dev
+```
+
+Terminal 3 (admin assets):
+
+```bash
+cd backend
 npm run dev
 ```
 
@@ -97,6 +106,5 @@ cd backend
 php artisan test
 ```
 
-The current phase contains only the API foundation and health check. It does not
-include business CRUD, authentication, permissions, or multilingual backend
-features.
+Admin architecture and extension guidance are documented in
+`backend/docs/admin-blade-dashboard.md`.

@@ -1,0 +1,17 @@
+{
+    "name": "idi-seafood-admin",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "dev": "vite",
+        "build": "vite build"
+    },
+    "dependencies": {
+        "alpinejs": "^3.14.9",
+        "tinymce": "^7.9.1"
+    },
+    "devDependencies": {
+        "laravel-vite-plugin": "^1.2.0",
+        "vite": "^6.0.0"
+    }
+}

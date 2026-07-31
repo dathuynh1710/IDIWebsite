@@ -12,3 +12,74 @@
 .modal-backdrop { position: fixed; z-index: 100; inset: 0; display: grid; place-items: center; padding: 20px; background: rgba(7, 23, 39, .6); backdrop-filter: blur(3px); }
 .modal-card { width: min(100%, 430px); padding: 26px; border-radius: 13px; background: #fff; box-shadow: 0 20px 70px #07172755; text-align: center; }.modal-icon { width: 52px; height: 52px; display: grid; place-items: center; margin: 0 auto 14px; border-radius: 50%; color: var(--admin-danger); background: #fff0f0; }.modal-card h2 { margin-bottom: 7px; }.modal-card p { color: var(--admin-muted); }.modal-actions { display: flex; justify-content: center; gap: 9px; margin-top: 22px; }
 .loading-spinner { width: 20px; height: 20px; display: inline-block; border: 2px solid #d5e1ec; border-top-color: var(--admin-primary); border-radius: 50%; animation: spin .7s linear infinite; } @keyframes spin { to { transform: rotate(360deg); } }
+.admin-loading-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    background: rgb(15 23 42 / 18%);
+    backdrop-filter: blur(1px);
+}
+
+.admin-toast-region {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    z-index: 1100;
+    width: min(26rem, calc(100vw - 2rem));
+}
+
+.admin-toast-region .flash-message {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    box-shadow: 0 12px 35px rgb(15 23 42 / 20%);
+}
+
+.admin-form-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 900;
+    display: grid;
+    place-items: center;
+    padding: 1.25rem;
+}
+
+.admin-form-modal-backdrop {
+    position: absolute;
+    inset: 0;
+    border: 0;
+    background: rgb(15 23 42 / 55%);
+    cursor: default;
+}
+
+.admin-form-modal-panel {
+    position: relative;
+    z-index: 1;
+    width: min(90rem, 100%);
+    max-height: calc(100vh - 2.5rem);
+    overflow: auto;
+    padding: 1.25rem;
+    border-radius: var(--radius-lg);
+    background: var(--color-background, #f8fafc);
+    box-shadow: 0 24px 70px rgb(15 23 42 / 35%);
+}
+
+.admin-form-modal-close {
+    position: sticky;
+    top: 0;
+    float: right;
+    z-index: 2;
+}
+
+.admin-form-modal .product-form-sidebar,
+.admin-form-modal .category-form-sidebar {
+    top: 12px;
+    max-height: calc(100vh - 64px);
+}
+
+.admin-form-modal .tab-list {
+    top: 12px;
+}

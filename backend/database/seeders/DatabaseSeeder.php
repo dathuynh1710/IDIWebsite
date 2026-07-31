@@ -13,6 +13,7 @@ class DatabaseSeeder extends Seeder
             CatalogSeeder::class,
             ContentSeeder::class,
             BusinessSeeder::class,
+            ContactSampleSeeder::class,
             PresentationSeeder::class,
             LocalizedRouteSeeder::class,
         ]);

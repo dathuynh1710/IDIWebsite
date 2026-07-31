@@ -1,6 +1,6 @@
 <aside class="admin-sidebar" aria-label="Điều hướng quản trị">
     <div class="sidebar-brand">
-        <a href="{{ route('admin.dashboard') }}" aria-label="IDI Seafood CMS">
+        <a href="{{ route('admin.dashboard') }}" wire:navigate aria-label="IDI Seafood CMS">
             <img src="{{ asset('images/idi-logo.svg') }}" alt="IDI Seafood">
             <span class="brand-text"><strong>IDI Seafood</strong><small>Content Management</small></span>
         </a>

@@ -15,14 +15,14 @@
         <ul class="sidebar-submenu" x-show="open" x-transition x-cloak>
             @foreach($item['children'] as $child)
                 <li>
-                    <a href="{{ route($child['route']) }}" class="{{ request()->routeIs($child['route']) ? 'is-active' : '' }}">
+                    <a href="{{ route($child['route']) }}" wire:navigate class="{{ request()->routeIs($child['route']) ? 'is-active' : '' }}">
                         <span></span>{{ $child['label'] }}
                     </a>
                 </li>
             @endforeach
         </ul>
     @else
-        <a href="{{ $href }}" class="sidebar-link {{ $isActive ? 'is-active' : '' }}">
+        <a href="{{ $href }}" wire:navigate class="sidebar-link {{ $isActive ? 'is-active' : '' }}">
             <x-ui.icon :name="$item['icon'] ?? 'info'" />
             <span class="sidebar-label">{{ $item['label'] }}</span>
         </a>

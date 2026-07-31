@@ -1,4 +1,4 @@
-import Alpine from 'alpinejs';
+import { Alpine, Livewire } from '../../vendor/livewire/livewire/dist/livewire.esm';
 import tinymce from 'tinymce/tinymce';
 import 'tinymce/icons/default';
 import 'tinymce/themes/silver';
@@ -72,6 +72,58 @@ window.productSlug = (initialTitle = '', initialSlug = '', published = false) =>
     regenerate() {
         this.slug = slugify(this.title);
         this.slugEdited = true;
+    },
+});
+
+window.categorySlug = (initialName = '', initialSlug = '') => ({
+    name: initialName || '',
+    slug: initialSlug || '',
+    slugEdited: Boolean(initialSlug),
+    onName() {
+        if (!this.slugEdited || !this.slug) this.slug = slugify(this.name);
+    },
+    markSlugEdited() {
+        this.slugEdited = true;
+        this.slug = slugify(this.slug);
+    },
+    regenerate() {
+        this.slug = slugify(this.name);
+        this.slugEdited = true;
+    },
+});
+
+window.bulkCategories = () => ({
+    selected: 0,
+    get selectedLabel() {
+        return this.selected > 0 ? `Đã chọn ${this.selected} danh mục` : 'Chưa chọn danh mục';
+    },
+    checkboxes() {
+        return [...document.querySelectorAll('.category-row-checkbox')];
+    },
+    toggleAll(event) {
+        this.checkboxes().forEach((checkbox) => {
+            checkbox.checked = event.target.checked;
+        });
+        this.syncSelection();
+    },
+    syncSelection() {
+        const checkboxes = this.checkboxes();
+        this.selected = checkboxes.filter((checkbox) => checkbox.checked).length;
+        if (this.$refs.selectAll) {
+            this.$refs.selectAll.checked = this.selected === checkboxes.length && checkboxes.length > 0;
+            this.$refs.selectAll.indeterminate = this.selected > 0 && this.selected < checkboxes.length;
+        }
+    },
+    validateSelection(event) {
+        if (this.selected > 0) return;
+        event.preventDefault();
+        window.alert('Vui lòng chọn ít nhất một danh mục.');
+    },
+    confirmDelete(event) {
+        if (this.selected === 0) return;
+        if (!window.confirm(`Chuyển ${this.selected} danh mục đã chọn vào thùng rác?`)) {
+            event.preventDefault();
+        }
     },
 });
 
@@ -156,7 +208,18 @@ window.initEditorForPanel = (locale) => {
     tinymce.init({ ...editorOptions, target: textarea });
 };
 
-document.addEventListener('DOMContentLoaded', () => {
+const initializeAdminPage = () => {
+    document.querySelectorAll('.sidebar-nav a[href]').forEach((link) => {
+        if (link.getAttribute('href') === '#') {
+            link.classList.remove('is-active');
+            return;
+        }
+
+        const target = new URL(link.href, window.location.origin);
+        const active = target.pathname === window.location.pathname;
+        link.classList.toggle('is-active', active);
+    });
+
     const initialLocale = document.querySelector('.language-tabs')?.dataset.initial;
     if (initialLocale) window.initEditorForPanel(initialLocale);
 
@@ -172,6 +235,9 @@ document.addEventListener('DOMContentLoaded', () => {
             event.preventDefault();
         });
     });
-});
+};
 
-Alpine.start();
+document.addEventListener('livewire:navigating', () => tinymce.remove());
+document.addEventListener('livewire:navigated', initializeAdminPage);
+
+Livewire.start();

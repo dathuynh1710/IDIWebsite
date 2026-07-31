@@ -29,12 +29,18 @@
         'trash' => '<path d="M3 6h18M8 6V4h8v2M19 6l-1 15H6L5 6M10 11v6M14 11v6"/>',
         'copy' => '<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V4H4v12h4"/>',
         'eye' => '<path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12z"/><circle cx="12" cy="12" r="2.5"/>',
+        'eye-off' => '<path d="m3 3 18 18M10.6 10.7a2.5 2.5 0 0 0 3.4 3.4M9.9 5.2A10.8 10.8 0 0 1 12 5c6.5 0 10 7 10 7a16.7 16.7 0 0 1-2.1 3M6.6 6.6C3.6 8.4 2 12 2 12s3.5 7 10 7a10 10 0 0 0 3.4-.6"/>',
+        'link' => '<path d="M10 13a5 5 0 0 0 7.5.5l2-2a5 5 0 0 0-7-7l-1.1 1.1M14 11a5 5 0 0 0-7.5-.5l-2 2a5 5 0 0 0 7 7l1.1-1.1"/>',
+        'restore' => '<path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/>',
         'filter' => '<path d="M4 5h16l-6 7v5l-4 2v-7z"/>',
         'folder' => '<path d="M3 6h7l2 2h9v11H3z"/>',
         'languages' => '<path d="M4 5h8M8 3v2M6 5c0 4 2 7 6 9M11 5c-1 4-4 7-8 9M14 20l4-10 4 10M15.5 17h5"/>',
         'save' => '<path d="M4 4h14l2 2v14H4zM8 4v6h8V4M8 20v-6h8v6"/>',
         'arrow-left' => '<path d="m15 18-6-6 6-6"/>',
         'upload' => '<path d="M12 16V4M7 9l5-5 5 5M4 20h16"/>',
+        'download' => '<path d="M12 4v12M7 11l5 5 5-5M4 20h16"/>',
+        'file' => '<path d="M6 3h8l4 4v14H6zM14 3v5h5"/>',
+        'map-pin' => '<path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0z"/><circle cx="12" cy="10" r="2.5"/>',
     ];
 @endphp
 <svg {{ $attributes->merge(['class' => 'icon', 'width' => $size, 'height' => $size, 'viewBox' => '0 0 24 24', 'fill' => 'none', 'stroke' => 'currentColor', 'stroke-width' => '1.8', 'stroke-linecap' => 'round', 'stroke-linejoin' => 'round', 'aria-hidden' => 'true']) }}>

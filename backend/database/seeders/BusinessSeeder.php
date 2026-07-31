@@ -16,7 +16,8 @@ class BusinessSeeder extends Seeder
 
         $recipeId = $this->seedRecipe($adminId);
         $this->seedInvestorRelations($adminId);
-        $this->seedRecruitment($adminId);
+        $positionIds = $this->seedRecruitment($adminId);
+        $this->seedRecruitmentApplications($adminId, $positionIds);
         $this->seedOfficeLocations();
 
         $productId = (int) DB::table('products')->where('sku', 'IDI-PAN-001')->value('id');
@@ -144,43 +145,118 @@ class BusinessSeeder extends Seeder
         ]);
     }
 
-    private function seedRecruitment(int $adminId): void
+    /**
+     * @return array<string, int>
+     */
+    private function seedRecruitment(int $adminId): array
     {
-        $this->upsertId('job_positions', ['code' => 'SALES_EXPORT_01'], [
-            'department' => 'International Sales',
-            'title' => $this->translations('Chuyên viên kinh doanh xuất khẩu', 'Export sales executive', '出口销售专员'),
-            'slug' => $this->translations('chuyen-vien-kinh-doanh-xuat-khau', 'export-sales-executive', 'chukou-xiaoshou-zhuanyuan'),
-            'location' => $this->translations('Đồng Tháp, Việt Nam', 'Dong Thap, Vietnam', '越南同塔省'),
-            'summary' => $this->translations(
-                'Phát triển khách hàng và thị trường xuất khẩu.',
-                'Develop export customers and markets.',
-                '开发出口客户与市场。'
-            ),
-            'description' => $this->translations(
-                '<p>Quản lý khách hàng, báo giá và phối hợp thực hiện đơn hàng.</p>',
-                '<p>Manage customers, quotations, and order execution.</p>',
-                '<p>管理客户、报价并协调订单执行。</p>'
-            ),
-            'requirements' => $this->translations(
-                '<ul><li>Tiếng Anh giao tiếp tốt</li><li>Kinh nghiệm xuất khẩu là lợi thế</li></ul>',
-                '<ul><li>Good English communication</li><li>Export experience is preferred</li></ul>',
-                '<ul><li>良好的英语沟通能力</li><li>有出口经验者优先</li></ul>'
-            ),
-            'benefits' => $this->translations(
-                'Thu nhập cạnh tranh và đầy đủ chế độ.',
-                'Competitive compensation and benefits.',
-                '有竞争力的薪酬与福利。'
-            ),
-            'quantity' => 2,
-            'expires_at' => now()->addMonths(2),
-            'translation_status' => $this->publishedStatus(),
-            'locale_published_at' => $this->publishedDates(),
-            'sort_order' => 0,
-            'is_active' => true,
-            'created_by' => $adminId,
-            'updated_by' => $adminId,
-            'deleted_at' => null,
-        ]);
+        $definitions = [
+            'sales' => [
+                'code' => 'SALES_EXPORT_01', 'department' => 'International Sales', 'quantity' => 2, 'sort' => 40,
+                'title' => ['Chuyên viên kinh doanh xuất khẩu', 'Export sales executive', '出口销售专员'],
+                'slug' => ['chuyen-vien-kinh-doanh-xuat-khau', 'export-sales-executive', 'chukou-xiaoshou-zhuanyuan'],
+                'location' => ['Thành phố Hồ Chí Minh', 'Ho Chi Minh City', '胡志明市'],
+                'summary' => ['Phát triển khách hàng và thị trường xuất khẩu thủy sản.', 'Develop seafood export customers and markets.', '开发水产品出口客户与市场。'],
+                'description' => ['<ul><li>Tìm kiếm và chăm sóc khách hàng quốc tế.</li><li>Phối hợp báo giá, hợp đồng và thực hiện đơn hàng.</li></ul>', '<ul><li>Acquire and support international customers.</li><li>Coordinate quotations, contracts, and order execution.</li></ul>', '<ul><li>开发并维护国际客户。</li><li>协调报价、合同与订单执行。</li></ul>'],
+                'requirements' => ['<ul><li>Tốt nghiệp Đại học khối kinh tế.</li><li>Tiếng Anh giao tiếp tốt.</li><li>Kinh nghiệm xuất khẩu là lợi thế.</li></ul>', '<ul><li>University degree in business or economics.</li><li>Good English communication.</li><li>Export experience is preferred.</li></ul>', '<ul><li>经济或商务相关专业本科。</li><li>良好的英语沟通能力。</li><li>有出口经验者优先。</li></ul>'],
+                'benefits' => ['<p>Thu nhập cạnh tranh, thưởng doanh số và đầy đủ chế độ bảo hiểm.</p>', '<p>Competitive income, sales incentives, and full insurance benefits.</p>', '<p>有竞争力的薪酬、销售奖金及完整保险福利。</p>'],
+            ],
+            'quality' => [
+                'code' => 'QA_SUPERVISOR_01', 'department' => 'Quality Assurance', 'quantity' => 1, 'sort' => 30,
+                'title' => ['Giám sát đảm bảo chất lượng', 'Quality assurance supervisor', '质量保证主管'],
+                'slug' => ['giam-sat-dam-bao-chat-luong', 'quality-assurance-supervisor', 'zhiliang-baozheng-zhuguan'],
+                'location' => ['Nhà máy Vàm Cống, Đồng Tháp', 'Vam Cong Factory, Dong Thap', '同塔省 Vam Cong 工厂'],
+                'summary' => ['Giám sát hệ thống chất lượng và an toàn thực phẩm tại nhà máy.', 'Supervise factory quality and food-safety systems.', '监督工厂质量与食品安全体系。'],
+                'description' => ['<ul><li>Kiểm soát việc tuân thủ HACCP, BRC và tiêu chuẩn khách hàng.</li><li>Phân tích sự cố và theo dõi hành động khắc phục.</li></ul>', '<ul><li>Control compliance with HACCP, BRC, and customer standards.</li><li>Investigate incidents and monitor corrective actions.</li></ul>', '<ul><li>监督 HACCP、BRC 及客户标准的执行。</li><li>分析异常并跟进纠正措施。</li></ul>'],
+                'requirements' => ['<ul><li>Tốt nghiệp Công nghệ thực phẩm hoặc ngành liên quan.</li><li>Có ít nhất 2 năm kinh nghiệm QA/QC thủy sản.</li></ul>', '<ul><li>Degree in food technology or a related field.</li><li>At least two years in seafood QA/QC.</li></ul>', '<ul><li>食品技术或相关专业。</li><li>至少两年水产 QA/QC 经验。</li></ul>'],
+                'benefits' => ['<p>Phụ cấp ca, bữa ăn tại nhà máy và chương trình đào tạo chuyên môn.</p>', '<p>Shift allowance, factory meals, and professional training.</p>', '<p>轮班津贴、工厂餐食及专业培训。</p>'],
+            ],
+            'it' => [
+                'code' => 'IT_SYSTEM_01', 'department' => 'Information Technology', 'quantity' => 2, 'sort' => 20,
+                'title' => ['Nhân viên hệ thống công nghệ thông tin', 'IT systems specialist', '信息技术系统专员'],
+                'slug' => ['nhan-vien-he-thong-cong-nghe-thong-tin', 'it-systems-specialist', 'xinxi-jishu-xitong-zhuanyuan'],
+                'location' => ['Lấp Vò, Đồng Tháp', 'Lap Vo, Dong Thap', '同塔省立武县'],
+                'summary' => ['Vận hành hạ tầng mạng, máy chủ và hỗ trợ người dùng nội bộ.', 'Operate network and server infrastructure and support internal users.', '运维网络、服务器基础设施并支持内部用户。'],
+                'description' => ['<ul><li>Giám sát hệ thống mạng, máy chủ và sao lưu dữ liệu.</li><li>Tiếp nhận, xử lý yêu cầu hỗ trợ kỹ thuật.</li></ul>', '<ul><li>Monitor networks, servers, and data backups.</li><li>Handle internal technical support requests.</li></ul>', '<ul><li>监控网络、服务器与数据备份。</li><li>处理内部技术支持需求。</li></ul>'],
+                'requirements' => ['<ul><li>Tốt nghiệp CNTT, Mạng máy tính hoặc tương đương.</li><li>Ưu tiên có kiến thức Windows Server, Linux và bảo mật.</li></ul>', '<ul><li>Degree in IT, networking, or equivalent.</li><li>Windows Server, Linux, and security knowledge is preferred.</li></ul>', '<ul><li>信息技术、网络或相关专业。</li><li>熟悉 Windows Server、Linux 与信息安全者优先。</li></ul>'],
+                'benefits' => ['<p>Môi trường ổn định, trang thiết bị đầy đủ và lộ trình phát triển rõ ràng.</p>', '<p>Stable environment, modern equipment, and a clear career path.</p>', '<p>稳定的工作环境、完善设备与清晰职业发展路径。</p>'],
+            ],
+            'hr' => [
+                'code' => 'HR_RECRUITMENT_01', 'department' => 'Human Resources', 'quantity' => 1, 'sort' => 10,
+                'title' => ['Chuyên viên tuyển dụng và đào tạo', 'Recruitment and training specialist', '招聘与培训专员'],
+                'slug' => ['chuyen-vien-tuyen-dung-va-dao-tao', 'recruitment-training-specialist', 'zhaopin-peixun-zhuanyuan'],
+                'location' => ['Lấp Vò, Đồng Tháp', 'Lap Vo, Dong Thap', '同塔省立武县'],
+                'summary' => ['Phụ trách tuyển dụng, hội nhập và hỗ trợ đào tạo nhân sự.', 'Manage recruitment, onboarding, and employee training support.', '负责招聘、入职及员工培训支持。'],
+                'description' => ['<ul><li>Triển khai kế hoạch tuyển dụng theo nhu cầu phòng ban.</li><li>Tổ chức hội nhập và theo dõi đào tạo.</li></ul>', '<ul><li>Execute recruitment plans for business units.</li><li>Organize onboarding and track training activities.</li></ul>', '<ul><li>按部门需求执行招聘计划。</li><li>组织入职并跟进培训活动。</li></ul>'],
+                'requirements' => ['<ul><li>Tốt nghiệp Quản trị nhân lực hoặc ngành phù hợp.</li><li>Kỹ năng giao tiếp và tổ chức tốt.</li></ul>', '<ul><li>Degree in human resources or a relevant field.</li><li>Strong communication and organization skills.</li></ul>', '<ul><li>人力资源或相关专业。</li><li>良好的沟通与组织能力。</li></ul>'],
+                'benefits' => ['<p>Thưởng hiệu quả, khám sức khỏe định kỳ và hoạt động gắn kết nhân viên.</p>', '<p>Performance bonus, annual health checks, and employee activities.</p>', '<p>绩效奖金、年度体检与员工活动。</p>'],
+            ],
+        ];
+
+        $ids = [];
+        foreach ($definitions as $key => $position) {
+            $ids[$key] = $this->upsertId('job_positions', ['code' => $position['code']], [
+                'department' => $position['department'],
+                'title' => $this->translations(...$position['title']),
+                'slug' => $this->translations(...$position['slug']),
+                'location' => $this->translations(...$position['location']),
+                'summary' => $this->translations(...$position['summary']),
+                'description' => $this->translations(...$position['description']),
+                'requirements' => $this->translations(...$position['requirements']),
+                'benefits' => $this->translations(...$position['benefits']),
+                'seo_title' => $this->translations(...$position['title']),
+                'meta_description' => $this->translations(...$position['summary']),
+                'quantity' => $position['quantity'],
+                'expires_at' => now()->addDays(45 + $position['sort']),
+                'translation_status' => $this->publishedStatus(),
+                'locale_published_at' => $this->publishedDates(),
+                'sort_order' => $position['sort'],
+                'is_active' => true,
+                'created_by' => $adminId,
+                'updated_by' => $adminId,
+                'deleted_at' => null,
+            ]);
+        }
+
+        return $ids;
+    }
+
+    /**
+     * @param  array<string, int>  $positionIds
+     */
+    private function seedRecruitmentApplications(int $adminId, array $positionIds): void
+    {
+        $applications = [
+            ['position' => 'sales', 'name' => 'Nguyễn Minh Trí', 'email' => 'minhtri.sales@example.com', 'phone' => '0908123456', 'address' => 'Quận Bình Thạnh, Thành phố Hồ Chí Minh', 'status' => 'new', 'letter' => 'Tôi có ba năm kinh nghiệm chăm sóc khách hàng xuất khẩu và mong muốn phát triển cùng IDI Seafood.'],
+            ['position' => 'sales', 'name' => 'Trần Ngọc Anh', 'email' => 'ngocanh.export@example.com', 'phone' => '0939456789', 'address' => 'Thành phố Thủ Đức, Thành phố Hồ Chí Minh', 'status' => 'reviewing', 'letter' => 'Tôi sử dụng tốt tiếng Anh và có kinh nghiệm xử lý chứng từ xuất khẩu thủy sản.'],
+            ['position' => 'quality', 'name' => 'Lê Thị Thanh Hương', 'email' => 'thanhhuong.qa@example.com', 'phone' => '0919234567', 'address' => 'Thành phố Cao Lãnh, Đồng Tháp', 'status' => 'shortlisted', 'letter' => 'Tôi đã làm việc bốn năm trong bộ phận QA nhà máy chế biến thực phẩm và am hiểu HACCP.'],
+            ['position' => 'it', 'name' => 'Đỗ Trung Kiên', 'email' => 'trungkien.it@example.com', 'phone' => '0388829090', 'address' => 'Thành phố Long Xuyên, An Giang', 'status' => 'reviewing', 'letter' => 'Tôi có kinh nghiệm vận hành hệ thống mạng, Windows Server, sao lưu và hỗ trợ người dùng.'],
+            ['position' => 'it', 'name' => 'Phạm Thái Thiên', 'email' => 'thaithien.it@example.com', 'phone' => '0862705185', 'address' => 'Quận Cái Răng, Thành phố Cần Thơ', 'status' => 'rejected', 'letter' => 'Tôi mong muốn được làm việc trong môi trường sản xuất quy mô lớn để phát triển chuyên môn IT.'],
+            ['position' => 'hr', 'name' => 'Võ Vân Đăng', 'email' => 'vandang.hr@example.com', 'phone' => '0907628885', 'address' => 'Thành phố Cao Lãnh, Đồng Tháp', 'status' => 'hired', 'letter' => 'Tôi có kinh nghiệm tuyển dụng lao động nhà máy, tổ chức hội nhập và quản lý hồ sơ đào tạo.'],
+        ];
+
+        foreach ($applications as $index => $application) {
+            $isReviewed = $application['status'] !== 'new';
+            $this->upsertId('job_applications', [
+                'job_position_id' => $positionIds[$application['position']],
+                'email' => $application['email'],
+            ], [
+                'full_name' => $application['name'],
+                'phone' => $application['phone'],
+                'address' => $application['address'],
+                'cover_letter' => $application['letter'],
+                'cv_media_id' => null,
+                'status' => $application['status'],
+                'internal_note' => $isReviewed ? match ($application['status']) {
+                    'shortlisted' => 'Hồ sơ phù hợp, mời phỏng vấn vòng chuyên môn.',
+                    'rejected' => 'Kinh nghiệm hiện tại chưa phù hợp yêu cầu vị trí.',
+                    'hired' => 'Đã hoàn tất phỏng vấn và gửi thư mời nhận việc.',
+                    default => 'Đã liên hệ xác nhận thông tin ứng viên.',
+                } : null,
+                'reviewed_by' => $isReviewed ? $adminId : null,
+                'reviewed_at' => $isReviewed ? now()->subDays(6 - $index) : null,
+            ]);
+        }
     }
 
     private function seedOfficeLocations(): void

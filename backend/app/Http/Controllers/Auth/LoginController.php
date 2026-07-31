@@ -19,12 +19,12 @@ class LoginController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $credentials = $request->validate([
-            'email' => ['required', 'email'],
+            'username' => ['required', 'string'],
             'password' => ['required', 'string'],
         ]);
 
         if (! Auth::attempt(array_merge($credentials, ['is_active' => true]), $request->boolean('remember'))) {
-            throw ValidationException::withMessages(['email' => 'Email hoặc mật khẩu không chính xác.']);
+            throw ValidationException::withMessages(['username' => 'Tên đăng nhập hoặc mật khẩu không chính xác.']);
         }
 
         $request->session()->regenerate();

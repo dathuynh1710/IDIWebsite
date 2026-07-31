@@ -1,7 +1,8 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router'
 import PageHead from '@components/common/PageHead'
 import { careersService } from '@services/careers.service'
+import { useLanguage } from '@hooks/useLanguage'
 
 const HERO_IMAGE =
   'https://www.idiseafood.com/vnt_upload/recruitment/gt2.jpg'
@@ -30,6 +31,7 @@ const BENEFITS = [
 ]
 
 const INITIAL_FORM = {
+  jobPositionId: '',
   fullName: '',
   phone: '',
   email: '',
@@ -45,6 +47,7 @@ const ACCEPTED_FILE_TYPES = [
 const MAX_FILE_SIZE = 10 * 1024 * 1024
 
 function validateField(name, value) {
+  if (name === 'jobPositionId') return ''
   if (name === 'cv') {
     if (!value) return 'Vui lòng chọn CV của bạn.'
     if (!ACCEPTED_FILE_TYPES.includes(value.type)) {
@@ -84,12 +87,31 @@ function FormField({ label, name, error, children }) {
 }
 
 export default function CareersPage() {
+  const { language } = useLanguage()
   const [form, setForm] = useState(INITIAL_FORM)
+  const [openings, setOpenings] = useState([])
+  const [isLoadingOpenings, setIsLoadingOpenings] = useState(true)
   const [errors, setErrors] = useState({})
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState('')
   const [referenceId, setReferenceId] = useState('')
   const fileInputRef = useRef(null)
+
+  useEffect(() => {
+    let active = true
+    setIsLoadingOpenings(true)
+    careersService.getOpenings({ locale: language })
+      .then(result => {
+        if (active) setOpenings(result.items ?? [])
+      })
+      .catch(() => {
+        if (active) setOpenings([])
+      })
+      .finally(() => {
+        if (active) setIsLoadingOpenings(false)
+      })
+    return () => { active = false }
+  }, [language])
 
   const inputClass = (name) => [
     'h-12 w-full rounded-xl border bg-white px-4 text-sm text-ink outline-none transition',
@@ -353,6 +375,25 @@ export default function CareersPage() {
                   </div>
 
                   <form onSubmit={handleSubmit} noValidate>
+                    <div className="mb-6">
+                      <label htmlFor="jobPositionId" className="block">
+                        <span className="mb-2 block text-sm font-bold text-ocean-deep">Vị trí quan tâm</span>
+                        <select
+                          id="jobPositionId"
+                          name="jobPositionId"
+                          value={form.jobPositionId}
+                          onChange={handleChange}
+                          className={inputClass('jobPositionId')}
+                        >
+                          <option value="">{isLoadingOpenings ? 'Đang tải vị trí...' : 'Ứng tuyển tự do'}</option>
+                          {openings.map(opening => (
+                            <option key={opening.id} value={opening.id}>
+                              {opening.title}{opening.location ? ` — ${opening.location}` : ''}
+                            </option>
+                          ))}
+                        </select>
+                      </label>
+                    </div>
                     <div className="grid gap-6 sm:grid-cols-2">
                       <FormField label="Họ và tên" name="fullName" error={errors.fullName}>
                         <input

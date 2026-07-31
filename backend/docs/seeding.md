@@ -18,8 +18,8 @@ that must be preserved.
 
 ## Local administrator
 
-- Email: `admin@idiseafood.local`
-- Password: `Admin@123456`
+- Username: `admin`
+- Password: `idi686868`
 - Role: `super-admin`
 
 Change this password before using the account outside local development.

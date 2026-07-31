@@ -1,19 +1,85 @@
 <?php
 
-use App\Http\Controllers\Admin\DashboardController;
-use App\Http\Controllers\Admin\ProductCategoryController;
+use App\Http\Controllers\Admin\AboutPageController;
+use App\Http\Controllers\Admin\PostController;
 use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\Admin\RecipeController;
+use App\Http\Controllers\Admin\RecruitmentController;
+use App\Livewire\Admin\AboutPages\Form as AboutPageForm;
+use App\Livewire\Admin\AboutPages\Index as AboutPageIndex;
+use App\Livewire\Admin\AboutPages\Settings as AboutPageSettings;
+use App\Livewire\Admin\Contacts\Index as ContactIndex;
+use App\Livewire\Admin\Contacts\Settings as ContactSettings;
+use App\Livewire\Admin\Dashboard;
+use App\Livewire\Admin\Investors\CategoryForm as InvestorCategoryForm;
+use App\Livewire\Admin\Investors\CategoryIndex as InvestorCategoryIndex;
+use App\Livewire\Admin\Investors\DocumentForm as InvestorDocumentForm;
+use App\Livewire\Admin\Investors\DocumentIndex as InvestorDocumentIndex;
+use App\Livewire\Admin\Investors\Settings as InvestorSettings;
+use App\Livewire\Admin\News\CategoryForm as NewsCategoryForm;
+use App\Livewire\Admin\News\CategoryIndex as NewsCategoryIndex;
+use App\Livewire\Admin\News\Featured as NewsFeatured;
+use App\Livewire\Admin\News\PostForm as NewsPostForm;
+use App\Livewire\Admin\News\PostIndex as NewsPostIndex;
+use App\Livewire\Admin\News\Settings as NewsSettings;
+use App\Livewire\Admin\ProductCategories\Form as ProductCategoryForm;
+use App\Livewire\Admin\ProductCategories\Index as ProductCategoryIndex;
+use App\Livewire\Admin\Products\Form as ProductForm;
+use App\Livewire\Admin\Products\Index as ProductIndex;
+use App\Livewire\Admin\Recipes\Form as RecipeForm;
+use App\Livewire\Admin\Recipes\Index as RecipeIndex;
+use App\Livewire\Admin\Recipes\Settings as RecipeSettings;
+use App\Livewire\Admin\Recruitment\ApplicationIndex as RecruitmentApplicationIndex;
+use App\Livewire\Admin\Recruitment\PositionForm as RecruitmentPositionForm;
+use App\Livewire\Admin\Recruitment\PositionIndex as RecruitmentPositionIndex;
+use App\Livewire\Admin\Recruitment\Settings as RecruitmentSettings;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth')
     ->prefix('admin')
     ->name('admin.')
     ->group(function (): void {
-        Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+        Route::get('/', Dashboard::class)->name('dashboard');
+        Route::get('contacts', ContactIndex::class)->name('contacts.index');
+        Route::get('contacts/settings', ContactSettings::class)->name('contacts.settings');
+        Route::get('recipes/settings', RecipeSettings::class)->name('recipes.settings');
+        Route::get('recipes', RecipeIndex::class)->name('recipes.index');
+        Route::get('recipes/create', RecipeForm::class)->name('recipes.create');
+        Route::get('recipes/{recipe}/edit', RecipeForm::class)->name('recipes.edit');
+        Route::get('recipes/{recipe}/preview', [RecipeController::class, 'preview'])->name('recipes.preview');
+        Route::get('news/settings', NewsSettings::class)->name('news.settings');
+        Route::get('news/categories', NewsCategoryIndex::class)->name('news.categories.index');
+        Route::get('news/categories/create', NewsCategoryForm::class)->name('news.categories.create');
+        Route::get('news/categories/{category}/edit', NewsCategoryForm::class)->name('news.categories.edit');
+        Route::get('news/featured', NewsFeatured::class)->name('news.featured');
+        Route::get('news', NewsPostIndex::class)->name('news.posts.index');
+        Route::get('news/create', NewsPostForm::class)->name('news.posts.create');
+        Route::get('news/{post}/edit', NewsPostForm::class)->name('news.posts.edit');
+        Route::get('news/{post}/preview', [PostController::class, 'preview'])->name('news.posts.preview');
+        Route::get('investors/settings', InvestorSettings::class)->name('investors.settings');
+        Route::get('investors/categories', InvestorCategoryIndex::class)->name('investors.categories.index');
+        Route::get('investors/categories/create', InvestorCategoryForm::class)->name('investors.categories.create');
+        Route::get('investors/categories/{category}/edit', InvestorCategoryForm::class)->name('investors.categories.edit');
+        Route::get('investors', InvestorDocumentIndex::class)->name('investors.documents.index');
+        Route::get('investors/create', InvestorDocumentForm::class)->name('investors.documents.create');
+        Route::get('investors/{document}/edit', InvestorDocumentForm::class)->name('investors.documents.edit');
+        Route::get('about/settings', AboutPageSettings::class)->name('about-pages.settings');
+        Route::get('about', AboutPageIndex::class)->name('about-pages.index');
+        Route::get('about/create', AboutPageForm::class)->name('about-pages.create');
+        Route::get('about/{page}/edit', AboutPageForm::class)->name('about-pages.edit');
+        Route::get('about/{page}/preview', [AboutPageController::class, 'preview'])->name('about-pages.preview');
+        Route::get('recruitment/settings', RecruitmentSettings::class)->name('recruitment.settings');
+        Route::get('recruitment', RecruitmentPositionIndex::class)->name('recruitment.positions.index');
+        Route::get('recruitment/create', RecruitmentPositionForm::class)->name('recruitment.positions.create');
+        Route::get('recruitment/applications', RecruitmentApplicationIndex::class)->name('recruitment.applications.index');
+        Route::get('recruitment/{position}/edit', RecruitmentPositionForm::class)->name('recruitment.positions.edit');
+        Route::get('recruitment/{position}/preview', [RecruitmentController::class, 'preview'])->name('recruitment.positions.preview');
         Route::post('media/editor-image', [ProductController::class, 'uploadEditorImage'])->name('media.editor-image');
         Route::get('products/{product}/preview', [ProductController::class, 'preview'])->name('products.preview');
-        Route::post('products/{product}/duplicate', [ProductController::class, 'duplicate'])->name('products.duplicate');
-        Route::resource('products', ProductController::class)->except('show');
-        Route::get('product-categories', [ProductCategoryController::class, 'index'])
-            ->name('product-categories.index');
+        Route::get('products', ProductIndex::class)->name('products.index');
+        Route::get('products/create', ProductForm::class)->name('products.create');
+        Route::get('products/{product}/edit', ProductForm::class)->name('products.edit');
+        Route::get('product-categories', ProductCategoryIndex::class)->name('product-categories.index');
+        Route::get('product-categories/create', ProductCategoryForm::class)->name('product-categories.create');
+        Route::get('product-categories/{category}/edit', ProductCategoryForm::class)->name('product-categories.edit');
     });

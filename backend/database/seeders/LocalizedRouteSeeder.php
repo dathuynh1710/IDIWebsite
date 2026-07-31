@@ -100,10 +100,25 @@ class LocalizedRouteSeeder extends Seeder
                 'en' => ['slug' => 'annual-report-2025', 'path' => '/en/investors/annual-report-2025'],
                 'zh' => ['slug' => '2025-niandu-baogao', 'path' => '/zh/touzizhe/2025-niandu-baogao'],
             ]),
-            $this->definition('job_positions', 'code', 'SALES_EXPORT_01', 'App\\Models\\JobPosition', 'jobs.show', [
+            $this->definition('job_positions', 'code', 'SALES_EXPORT_01', 'App\\Models\\JobPosition', 'careers.show', [
                 'vi' => ['slug' => 'chuyen-vien-kinh-doanh-xuat-khau', 'path' => '/vi/tuyen-dung/chuyen-vien-kinh-doanh-xuat-khau'],
                 'en' => ['slug' => 'export-sales-executive', 'path' => '/en/careers/export-sales-executive'],
                 'zh' => ['slug' => 'chukou-xiaoshou-zhuanyuan', 'path' => '/zh/zhaopin/chukou-xiaoshou-zhuanyuan'],
+            ]),
+            $this->definition('job_positions', 'code', 'QA_SUPERVISOR_01', 'App\\Models\\JobPosition', 'careers.show', [
+                'vi' => ['slug' => 'giam-sat-dam-bao-chat-luong', 'path' => '/vi/tuyen-dung/giam-sat-dam-bao-chat-luong'],
+                'en' => ['slug' => 'quality-assurance-supervisor', 'path' => '/en/careers/quality-assurance-supervisor'],
+                'zh' => ['slug' => 'zhiliang-baozheng-zhuguan', 'path' => '/zh/zhaopin/zhiliang-baozheng-zhuguan'],
+            ]),
+            $this->definition('job_positions', 'code', 'IT_SYSTEM_01', 'App\\Models\\JobPosition', 'careers.show', [
+                'vi' => ['slug' => 'nhan-vien-he-thong-cong-nghe-thong-tin', 'path' => '/vi/tuyen-dung/nhan-vien-he-thong-cong-nghe-thong-tin'],
+                'en' => ['slug' => 'it-systems-specialist', 'path' => '/en/careers/it-systems-specialist'],
+                'zh' => ['slug' => 'xinxi-jishu-xitong-zhuanyuan', 'path' => '/zh/zhaopin/xinxi-jishu-xitong-zhuanyuan'],
+            ]),
+            $this->definition('job_positions', 'code', 'HR_RECRUITMENT_01', 'App\\Models\\JobPosition', 'careers.show', [
+                'vi' => ['slug' => 'chuyen-vien-tuyen-dung-va-dao-tao', 'path' => '/vi/tuyen-dung/chuyen-vien-tuyen-dung-va-dao-tao'],
+                'en' => ['slug' => 'recruitment-training-specialist', 'path' => '/en/careers/recruitment-training-specialist'],
+                'zh' => ['slug' => 'zhaopin-peixun-zhuanyuan', 'path' => '/zh/zhaopin/zhaopin-peixun-zhuanyuan'],
             ]),
         ];
     }

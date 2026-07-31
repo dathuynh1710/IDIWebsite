@@ -30,6 +30,26 @@ class AppServiceProvider extends ServiceProvider
                 "products.{$ability}",
                 fn (User $user): bool => $user->getAllPermissions()->contains('name', 'products.manage')
             );
+            Gate::define(
+                "pages.{$ability}",
+                fn (User $user): bool => $user->getAllPermissions()->contains('name', 'pages.manage')
+            );
+            Gate::define(
+                "recipes.{$ability}",
+                fn (User $user): bool => $user->getAllPermissions()->contains('name', 'recipes.manage')
+            );
+            Gate::define(
+                "posts.{$ability}",
+                fn (User $user): bool => $user->getAllPermissions()->contains('name', 'posts.manage')
+            );
+            Gate::define(
+                "recruitment.{$ability}",
+                fn (User $user): bool => $user->getAllPermissions()->contains('name', 'recruitment.manage')
+            );
+            Gate::define(
+                "investors.{$ability}",
+                fn (User $user): bool => $user->getAllPermissions()->contains('name', 'investor-documents.manage')
+            );
         }
     }
 }

@@ -2,11 +2,14 @@
 
 namespace Tests\Feature;
 
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Schema;
 use Tests\TestCase;
 
 class DatabaseSchemaTest extends TestCase
 {
+    use RefreshDatabase;
+
     public function test_core_cms_tables_exist(): void
     {
         $tables = [

@@ -50,8 +50,9 @@ class CoreSeeder extends Seeder
     {
         return $this->upsertId('users', ['email' => 'admin@idiseafood.local'], [
             'name' => 'IDI Seafood Administrator',
+            'username' => 'admin',
             'email_verified_at' => now(),
-            'password' => Hash::make('Admin@123456'),
+            'password' => Hash::make('idi686868'),
             'is_active' => true,
             'remember_token' => null,
             'deleted_at' => null,
@@ -191,6 +192,8 @@ class CoreSeeder extends Seeder
     {
         foreach ([
             ['code' => 'products', 'name' => 'Products', 'type' => 'catalog', 'title' => ['Sản phẩm', 'Products', '产品']],
+            ['code' => 'recipes', 'name' => 'Recipes', 'type' => 'content', 'title' => ['Công thức bạn có thể thử', 'Recipes you can try', '值得尝试的食谱']],
+            ['code' => 'about', 'name' => 'About', 'type' => 'content', 'title' => ['Giới thiệu', 'About us', '关于我们']],
             ['code' => 'news', 'name' => 'News', 'type' => 'content', 'title' => ['Tin tức', 'News', '新闻']],
             ['code' => 'investors', 'name' => 'Investor Relations', 'type' => 'documents', 'title' => ['Quan hệ cổ đông', 'Investor Relations', '投资者关系']],
             ['code' => 'careers', 'name' => 'Careers', 'type' => 'recruitment', 'title' => ['Tuyển dụng', 'Careers', '招聘']],
@@ -213,6 +216,14 @@ class CoreSeeder extends Seeder
     {
         foreach ([
             ['module' => 'products', 'key' => 'items_per_page', 'value' => 12, 'type' => 'number'],
+            ['module' => 'recipes', 'key' => 'items_per_page', 'value' => 12, 'type' => 'number'],
+            ['module' => 'recipes', 'key' => 'show_placeholder_image', 'value' => true, 'type' => 'boolean'],
+            ['module' => 'recipes', 'key' => 'thumbnail_size', 'value' => 180, 'type' => 'number'],
+            ['module' => 'recipes', 'key' => 'max_upload_width', 'value' => 1600, 'type' => 'number'],
+            ['module' => 'about', 'key' => 'items_per_page', 'value' => 10, 'type' => 'number'],
+            ['module' => 'about', 'key' => 'show_placeholder_image', 'value' => true, 'type' => 'boolean'],
+            ['module' => 'about', 'key' => 'thumbnail_size', 'value' => 150, 'type' => 'number'],
+            ['module' => 'about', 'key' => 'max_upload_width', 'value' => 1200, 'type' => 'number'],
             ['module' => 'news', 'key' => 'items_per_page', 'value' => 9, 'type' => 'number'],
             ['module' => 'investors', 'key' => 'default_year', 'value' => 2025, 'type' => 'number'],
             ['module' => 'careers', 'key' => 'application_enabled', 'value' => true, 'type' => 'boolean'],

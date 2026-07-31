@@ -4,7 +4,7 @@
         @foreach($items as $item)
             <li>
                 @if(!$loop->last && isset($item['route']))
-                    <a href="{{ route($item['route']) }}">{{ $item['label'] }}</a>
+                    <a href="{{ route($item['route']) }}" wire:navigate>{{ $item['label'] }}</a>
                 @else
                     <span @if($loop->last) aria-current="page" @endif>{{ $item['label'] }}</span>
                 @endif

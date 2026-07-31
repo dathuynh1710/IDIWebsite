@@ -182,7 +182,7 @@ class ContentSeeder extends Seeder
         $aboutId = $this->upsertId('pages', ['code' => 'ABOUT'], [
             'parent_id' => null,
             'featured_media_id' => $mediaId,
-            'template' => 'default',
+            'template' => 'about',
             'title' => $this->translations('Về IDI Seafood', 'About IDI Seafood', '关于 IDI Seafood'),
             'slug' => $this->translations('ve-chung-toi', 'about-us', 'guanyu-women'),
             'summary' => $this->translations(

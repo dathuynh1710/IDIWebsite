@@ -1,4 +1,4 @@
-@props(['formId', 'title' => 'Xác nhận xóa', 'message'])
+@props(['formId', 'title' => 'Xác nhận xóa', 'message', 'confirmLabel' => 'Xóa sản phẩm'])
 <div x-data="confirmDialog()" @keydown.escape.window="close()" class="confirm-wrap">
     <span @click="openDialog($event)">{{ $trigger }}</span>
     <template x-teleport="body">
@@ -9,7 +9,7 @@
                 <p>{{ $message }}</p>
                 <div class="modal-actions">
                     <x-ui.button variant="secondary" @click="close()">Hủy</x-ui.button>
-                    <x-ui.button variant="danger" type="submit" :form="$formId">Xóa sản phẩm</x-ui.button>
+                    <x-ui.button variant="danger" type="submit" :form="$formId">{{ $confirmLabel }}</x-ui.button>
                 </div>
             </div>
         </div>

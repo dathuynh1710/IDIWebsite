@@ -1,0 +1,9 @@
+<!DOCTYPE html>
+<html lang="{{ $locale }}">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ $position->getTranslation('seo_title', $locale, false) ?: $position->getTranslation('title', $locale, false) }}</title>
+    <style>body{margin:0;background:#f2f6f8;color:#17354d;font:16px/1.65 Arial,sans-serif}.page{max-width:920px;margin:40px auto;background:#fff;box-shadow:0 12px 40px #17354d1a}.hero{padding:42px 50px;background:#083b5c;color:#fff}.hero small{color:#8bd1bf;text-transform:uppercase;letter-spacing:.12em}.hero h1{margin:8px 0 10px;font-size:38px}.meta{display:flex;flex-wrap:wrap;gap:18px;color:#d8e7ef}.content{padding:38px 50px}.content section+section{margin-top:34px}.content h2{color:#0d775e}.summary{font-size:19px;color:#496678}.apply{display:inline-block;margin-top:28px;padding:12px 20px;border-radius:6px;background:#df9a3d;color:#fff;text-decoration:none;font-weight:bold}@media(max-width:700px){.page{margin:0}.hero,.content{padding:28px 22px}}</style>
+</head>
+<body><main class="page"><header class="hero"><small>{{ $position->department ?: 'IDI Seafood' }}</small><h1>{{ $position->getTranslation('title', $locale, false) }}</h1><div class="meta"><span>📍 {{ $position->getTranslation('location', $locale, false) }}</span><span>👥 {{ $position->quantity }}</span><span>📅 {{ $position->expires_at?->format('d/m/Y') ?: '—' }}</span></div></header><article class="content"><p class="summary">{{ $position->getTranslation('summary', $locale, false) }}</p>@foreach(['description' => 'Mô tả công việc', 'requirements' => 'Yêu cầu công việc', 'benefits' => 'Phúc lợi'] as $field => $label)@if($position->getTranslation($field, $locale, false))<section><h2>{{ $label }}</h2>{!! $position->getTranslation($field, $locale, false) !!}</section>@endif@endforeach<a class="apply" href="#">Ứng tuyển vị trí này</a></article></main></body>
+</html>

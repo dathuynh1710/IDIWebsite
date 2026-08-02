@@ -1,9 +1,9 @@
 ﻿/**
  * inquiry.service.js
- * Handles trade inquiry form submissions.
- * Phase 1: Logs to console + simulates success
- * Phase 2: POST to VITE_INQUIRY_ENDPOINT
+ * Handles contact form submissions through the Laravel API.
  */
+import api from './api'
+
 const INQUIRY_ENDPOINT = import.meta.env.VITE_INQUIRY_ENDPOINT
 
 export const inquiryService = {
@@ -13,19 +13,10 @@ export const inquiryService = {
    * @returns {Promise<{ success: boolean, referenceId: string }>}
    */
   submitTrade: async (formData) => {
-    if (!INQUIRY_ENDPOINT) {
-      // Phase 1: Log and simulate success
-      await new Promise(resolve => setTimeout(resolve, 800)) // Simulate network
-      return { success: true, referenceId: `IDI-${Date.now().toString().slice(-8)}` }
-    }
-
-    const response = await fetch(INQUIRY_ENDPOINT, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ type: 'trade', ...formData }),
+    const response = await api.post(INQUIRY_ENDPOINT || '/contacts', {
+      ...formData,
+      locale: document.documentElement.lang?.split('-')[0] || 'vi',
     })
-
-    if (!response.ok) throw new Error('Failed to submit inquiry')
-    return response.json()
+    return response.data
   },
 }

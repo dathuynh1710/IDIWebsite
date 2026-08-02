@@ -86,6 +86,7 @@
     .recipe-desktop-list { display: none; }.recipe-mobile-list { display: grid; }
     .recipe-meta-grid, .recipe-ingredient-fields { grid-template-columns: 1fr; }
     .recipe-builder-heading { align-items: stretch; flex-direction: column; }
+    .recipe-builder-actions { justify-content: space-between; }
     .recipe-builder-row { grid-template-columns: 26px minmax(0, 1fr); }
     .recipe-builder-row > .icon-button { grid-column: 2; margin-top: 0; justify-self: end; }
     .category-filter-grid { grid-template-columns: 1fr; }.category-filter-grid .filter-actions { justify-content: stretch; }.category-filter-grid .filter-actions .button { flex: 1; }

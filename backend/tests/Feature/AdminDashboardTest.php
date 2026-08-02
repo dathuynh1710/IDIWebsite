@@ -62,6 +62,17 @@ class AdminDashboardTest extends TestCase
             ->assertDontSee('role="dialog"', false);
     }
 
+    public function test_sidebar_parent_menus_share_a_single_accordion_state(): void
+    {
+        $this->actingAs($this->productEditor())
+            ->get('/admin/products')
+            ->assertOk()
+            ->assertSee('x-data="{ openMenu: null }"', false)
+            ->assertSee('openMenu = openMenu ===', false)
+            ->assertSee('x-bind:class="{ \'is-expanded\': openMenu ===', false)
+            ->assertSee('x-collapse.duration.220ms', false);
+    }
+
     public function test_user_without_product_permission_is_forbidden(): void
     {
         $this->actingAs(User::factory()->create())->get('/admin/products')->assertForbidden();

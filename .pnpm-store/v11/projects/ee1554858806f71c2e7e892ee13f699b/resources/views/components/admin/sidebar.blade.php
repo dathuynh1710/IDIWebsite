@@ -9,7 +9,7 @@
         </button>
     </div>
 
-    <nav class="sidebar-nav">
+    <nav class="sidebar-nav" x-data="{ openMenu: null }">
         @foreach(config('admin-menu') as $group)
             @if($group['section'])
                 <p class="sidebar-section">{{ $group['section'] }}</p>

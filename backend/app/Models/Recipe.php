@@ -23,7 +23,8 @@ class Recipe extends Model
         'featured_media_id', 'video_media_id', 'code', 'title', 'slug', 'summary',
         'content', 'servings', 'preparation_time', 'cooking_time', 'difficulty',
         'seo_title', 'meta_description', 'translation_status', 'locale_published_at',
-        'sort_order', 'is_featured', 'is_active', 'created_by', 'updated_by',
+        'sort_order', 'is_featured', 'is_active', 'show_ingredients', 'show_steps',
+        'created_by', 'updated_by',
     ];
 
     protected function casts(): array
@@ -39,6 +40,8 @@ class Recipe extends Model
             'locale_published_at' => 'array',
             'is_featured' => 'boolean',
             'is_active' => 'boolean',
+            'show_ingredients' => 'boolean',
+            'show_steps' => 'boolean',
         ];
     }
 

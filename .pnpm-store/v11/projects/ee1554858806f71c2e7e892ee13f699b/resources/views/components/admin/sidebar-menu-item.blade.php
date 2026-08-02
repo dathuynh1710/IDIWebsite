@@ -4,15 +4,19 @@
     $activePattern = $item['active'] ?? ($item['route'] ?? '');
     $isActive = $activePattern && request()->routeIs($activePattern);
     $href = isset($item['route']) ? route($item['route']) : ($item['url'] ?? '#');
+    $menuKey = $item['key'] ?? $activePattern ?: \Illuminate\Support\Str::slug($item['label']);
 @endphp
-<li @if($hasChildren) x-data="{ open: {{ $isActive ? 'true' : 'false' }} }" @endif>
+<li @if($hasChildren && $isActive) x-init="openMenu = @js($menuKey)" @endif>
     @if($hasChildren)
-        <button type="button" class="sidebar-link {{ $isActive ? 'is-active' : '' }}" @click="open = !open" :aria-expanded="open.toString()">
+        <button type="button" class="sidebar-link {{ $isActive ? 'is-active' : '' }}"
+            @click="openMenu = openMenu === @js($menuKey) ? null : @js($menuKey)"
+            x-bind:class="{ 'is-expanded': openMenu === @js($menuKey) }"
+            :aria-expanded="(openMenu === @js($menuKey)).toString()">
             <x-ui.icon :name="$item['icon'] ?? 'info'" />
             <span class="sidebar-label">{{ $item['label'] }}</span>
-            <x-ui.icon name="chevron-down" class="sidebar-chevron" x-bind:class="{ 'is-open': open }" />
+            <x-ui.icon name="chevron-down" class="sidebar-chevron" />
         </button>
-        <ul class="sidebar-submenu" x-show="open" x-transition x-cloak>
+        <ul class="sidebar-submenu" x-show="openMenu === @js($menuKey)" x-collapse.duration.220ms x-cloak>
             @foreach($item['children'] as $child)
                 <li>
                     <a href="{{ route($child['route']) }}" wire:navigate class="{{ request()->routeIs($child['route']) ? 'is-active' : '' }}">

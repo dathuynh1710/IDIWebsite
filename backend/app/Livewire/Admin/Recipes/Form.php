@@ -3,7 +3,6 @@
 namespace App\Livewire\Admin\Recipes;
 
 use App\Models\Media;
-use App\Models\Product;
 use App\Models\Recipe;
 use App\Support\RecipeRoutes;
 use Illuminate\Support\Facades\DB;
@@ -20,43 +19,69 @@ class Form extends Component
     use WithFileUploads;
 
     public ?Recipe $recipe = null;
+
     public string $code = '';
+
     public $featured_image;
+
     public $video_file;
+
     public bool $remove_image = false;
+
     public bool $remove_video = false;
+
     public string $servings = '';
+
     public ?int $preparation_time = null;
+
     public ?int $cooking_time = null;
+
     public string $difficulty = 'easy';
+
     public int $sort_order = 0;
+
     public bool $is_featured = false;
+
     public bool $is_active = true;
-    public array $product_ids = [];
+
+    public bool $show_ingredients = true;
+
+    public bool $show_steps = true;
+
     public array $title = ['vi' => '', 'en' => '', 'zh' => ''];
+
     public array $slug = ['vi' => '', 'en' => '', 'zh' => ''];
+
     public array $summary = ['vi' => '', 'en' => '', 'zh' => ''];
+
     public array $content = ['vi' => '', 'en' => '', 'zh' => ''];
+
     public array $seo_title = ['vi' => '', 'en' => '', 'zh' => ''];
+
     public array $meta_description = ['vi' => '', 'en' => '', 'zh' => ''];
+
     public array $translation_status = ['vi' => 'draft', 'en' => 'draft', 'zh' => 'draft'];
+
     public array $locale_published_at = ['vi' => '', 'en' => '', 'zh' => ''];
+
     public array $ingredients = [];
+
     public array $steps = [];
 
     public function mount(?Recipe $recipe = null): void
     {
         $recipe = $recipe?->exists ? $recipe : null;
         Gate::authorize($recipe ? 'recipes.update' : 'recipes.create');
-        $this->recipe = $recipe?->load(['featuredMedia', 'videoMedia', 'ingredients', 'steps', 'products']);
+        $this->recipe = $recipe?->load(['featuredMedia', 'videoMedia', 'ingredients', 'steps']);
 
         if (! $recipe) {
             $this->addIngredient();
             $this->addStep();
+
             return;
         }
 
-        foreach (['code', 'servings', 'preparation_time', 'cooking_time', 'difficulty', 'sort_order', 'is_featured', 'is_active'] as $field) {
+        foreach (['code', 'servings', 'preparation_time', 'cooking_time', 'difficulty', 'sort_order', 'is_featured', 'is_active', 'show_ingredients', 'show_steps'] as $field) {
             $this->{$field} = $recipe->{$field} ?? $this->{$field};
         }
         foreach (['title', 'slug', 'summary', 'content', 'seo_title', 'meta_description', 'translation_status', 'locale_published_at'] as $field) {
@@ -64,7 +89,6 @@ class Form extends Component
                 $this->{$field}[$locale] = $recipe->getTranslation($field, $locale, false) ?? $this->{$field}[$locale];
             }
         }
-        $this->product_ids = $recipe->products->pluck('id')->map(fn ($id) => (string) $id)->all();
         $this->ingredients = $recipe->ingredients->map(fn ($item) => [
             'quantity' => $item->quantity ?? '',
             'name' => $this->translationsFor($item, 'name'),
@@ -142,7 +166,7 @@ class Form extends Component
             'difficulty' => ['required', 'in:easy,medium,hard'],
             'sort_order' => ['required', 'integer', 'min:0', 'max:999999'],
             'is_featured' => ['required', 'boolean'], 'is_active' => ['required', 'boolean'],
-            'product_ids' => ['array'], 'product_ids.*' => ['integer', 'exists:products,id'],
+            'show_ingredients' => ['required', 'boolean'], 'show_steps' => ['required', 'boolean'],
             'title.vi' => ['required', 'string', 'max:255'],
             'title.en' => ['nullable', 'string', 'max:255'], 'title.zh' => ['nullable', 'string', 'max:255'],
             'slug.vi' => ['required', 'string', 'max:255', 'regex:/^[a-z0-9]+(?:-[a-z0-9]+)*$/'],
@@ -189,6 +213,7 @@ class Form extends Component
                 'preparation_time' => $validated['preparation_time'], 'cooking_time' => $validated['cooking_time'],
                 'difficulty' => $validated['difficulty'], 'sort_order' => $validated['sort_order'],
                 'is_featured' => $validated['is_featured'], 'is_active' => $validated['is_active'],
+                'show_ingredients' => $validated['show_ingredients'], 'show_steps' => $validated['show_steps'],
                 'updated_by' => auth()->id(),
             ]);
 
@@ -199,7 +224,6 @@ class Form extends Component
                 $this->recipe = Recipe::create($data);
             }
 
-            $this->recipe->products()->sync($validated['product_ids'] ?? []);
             $this->recipe->ingredients()->delete();
             foreach ($validated['ingredients'] ?? [] as $sortOrder => $item) {
                 $name = $this->cleanTranslations($item['name'] ?? []);
@@ -223,9 +247,11 @@ class Form extends Component
             RecipeRoutes::sync($this->recipe);
         });
 
-        $this->recipe->refresh()->load(['featuredMedia', 'videoMedia', 'ingredients', 'steps', 'products']);
-        $this->featured_image = null; $this->video_file = null;
-        $this->remove_image = false; $this->remove_video = false;
+        $this->recipe->refresh()->load(['featuredMedia', 'videoMedia', 'ingredients', 'steps']);
+        $this->featured_image = null;
+        $this->video_file = null;
+        $this->remove_image = false;
+        $this->remove_video = false;
         if ($recipeId === null) {
             $this->js("history.replaceState({}, '', '".route('admin.recipes.edit', $this->recipe)."')");
         }
@@ -248,6 +274,7 @@ class Form extends Component
         $fileName = Str::uuid().'.'.$file->extension();
         $file->storeAs($directory, $fileName, 'public');
         $dimensions = str_starts_with((string) $file->getMimeType(), 'image/') ? (@getimagesize($file->getRealPath()) ?: [null, null]) : [null, null];
+
         return Media::create([
             'disk' => 'public', 'directory' => $directory, 'file_name' => $fileName,
             'original_name' => $file->getClientOriginalName(), 'mime_type' => $file->getMimeType(),
@@ -262,16 +289,15 @@ class Form extends Component
         $html = preg_replace('#<(script|style|iframe|object|embed)[^>]*>.*?</\1>#is', '', $html) ?? '';
         $html = preg_replace('/\son\w+\s*=\s*(["\']).*?\1/is', '', $html) ?? '';
         $html = preg_replace('/(href|src)\s*=\s*(["\'])\s*javascript:.*?\2/is', '$1="#"', $html) ?? '';
+
         return trim(strip_tags($html, '<p><br><h2><h3><h4><strong><b><em><i><u><ul><ol><li><a><blockquote><pre><code><table><thead><tbody><tr><th><td><img>'));
     }
 
     public function render()
     {
         return view('livewire.admin.recipes.form', [
-            'products' => Product::orderBy('sort_order')->get(),
             'locales' => config('admin.locales'),
             'difficulties' => ['easy' => 'Dễ', 'medium' => 'Trung bình', 'hard' => 'Khó'],
-            'statuses' => ['draft' => 'Bản nháp', 'translating' => 'Đang dịch', 'review' => 'Chờ duyệt', 'scheduled' => 'Đã lên lịch', 'published' => 'Đã xuất bản', 'hidden' => 'Tạm ẩn', 'archived' => 'Lưu trữ'],
             'breadcrumbs' => [
                 ['label' => 'Bảng điều khiển', 'route' => 'admin.dashboard'],
                 ['label' => 'Quản lý Recipes', 'route' => 'admin.recipes.index'],

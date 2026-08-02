@@ -23,11 +23,28 @@ class RecipeManagementTest extends TestCase
         $recipe = $this->recipe();
 
         $this->actingAs($user)->get('/admin/recipes')
-            ->assertOk()->assertSee('Quản lý Recipes')->assertSee('Tiếng Việt')->assertSee('English')->assertSee('中文');
+            ->assertOk()
+            ->assertSee('Quản lý Recipes')
+            ->assertSee('Tiếng Việt')
+            ->assertSee('English')
+            ->assertSee('中文')
+            ->assertSee('wire:model.live="perPage"', false)
+            ->assertDontSee('RECIPE_GRILLED');
         $this->actingAs($user)->get('/admin/recipes/settings')
-            ->assertOk()->assertSee('Cấu hình Recipes')->assertSee('English')->assertSee('中文');
+            ->assertOk()
+            ->assertSee('Cấu hình Recipes')
+            ->assertSee('English')
+            ->assertSee('中文')
+            ->assertDontSee('Áp dụng cho toàn bộ module Recipes')
+            ->assertDontSee('Số công thức mỗi trang');
         $this->actingAs($user)->get('/admin/recipes/create')
-            ->assertOk()->assertSee('Thêm Recipe mới')->assertSee('Nguyên liệu')->assertSee('Các bước thực hiện');
+            ->assertOk()
+            ->assertSee('Thêm Recipe mới')
+            ->assertSee('Nguyên liệu')
+            ->assertSee('Các bước thực hiện')
+            ->assertSee('ckeditor5-textarea', false)
+            ->assertDontSee('Trạng thái bản dịch')
+            ->assertDontSee('Sản phẩm liên quan');
         $this->actingAs($user)->get("/admin/recipes/{$recipe->id}/edit")->assertOk()->assertSee('Cập nhật Recipe');
         $this->actingAs($user)->get("/admin/recipes/{$recipe->id}/preview?locale=en")->assertOk()->assertSee('Grilled fish');
     }
@@ -48,6 +65,8 @@ class RecipeManagementTest extends TestCase
                 'note' => ['vi' => '', 'en' => '', 'zh' => ''],
             ]])
             ->set('steps', [['instruction' => ['vi' => 'Nấu cá chín.', 'en' => 'Cook the fish.', 'zh' => '把鱼煮熟。']]])
+            ->set('show_ingredients', false)
+            ->set('show_steps', true)
             ->set('servings', '4 người')
             ->set('preparation_time', 15)
             ->set('cooking_time', 25)
@@ -59,6 +78,8 @@ class RecipeManagementTest extends TestCase
         $this->assertStringNotContainsString('<script', $recipe->getTranslation('content', 'vi'));
         $this->assertSame('Fish', $recipe->ingredients()->first()->getTranslation('name', 'en'));
         $this->assertSame('把鱼煮熟。', $recipe->steps()->first()->getTranslation('instruction', 'zh'));
+        $this->assertFalse($recipe->show_ingredients);
+        $this->assertTrue($recipe->show_steps);
         $this->assertDatabaseHas('localized_routes', [
             'routeable_type' => Recipe::class,
             'routeable_id' => $recipe->id,
@@ -101,7 +122,13 @@ class RecipeManagementTest extends TestCase
         $this->assertSame(5, $first->fresh()->sort_order);
         $this->assertSame(1, $second->fresh()->sort_order);
 
-        Livewire::actingAs($user)->test(Index::class)->call('delete', $first->id)->assertHasNoErrors();
+        Livewire::actingAs($user)->test(Index::class)
+            ->call('requestDelete', $first->id)
+            ->assertSet('pendingDeleteId', $first->id)
+            ->assertSee('Xóa Recipe?')
+            ->call('confirmDelete')
+            ->assertSet('pendingDeleteId', null)
+            ->assertHasNoErrors();
         $this->assertSoftDeleted('recipes', ['id' => $first->id]);
     }
 
@@ -147,6 +174,7 @@ class RecipeManagementTest extends TestCase
         $permission = Permission::findOrCreate('recipes.manage', 'web');
         $user = User::factory()->create();
         $user->givePermissionTo($permission);
+
         return $user;
     }
 
@@ -164,6 +192,7 @@ class RecipeManagementTest extends TestCase
         ]);
         $recipe->ingredients()->create(['name' => ['vi' => 'Cá'], 'quantity' => '500', 'unit' => ['vi' => 'g'], 'sort_order' => 0]);
         $recipe->steps()->create(['instruction' => ['vi' => 'Nướng cá.'], 'sort_order' => 0]);
+
         return $recipe;
     }
 }

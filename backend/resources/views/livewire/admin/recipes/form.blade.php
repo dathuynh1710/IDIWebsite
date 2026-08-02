@@ -39,13 +39,6 @@
                             <x-form.input name="preparation_time" label="Chuẩn bị (phút)" type="number" wire:model="preparation_time" min="0" />
                             <x-form.input name="cooking_time" label="Nấu (phút)" type="number" wire:model="cooking_time" min="0" />
                         </div>
-                        <div class="form-field">
-                            <label for="recipe-products">Sản phẩm liên quan</label>
-                            <select id="recipe-products" class="select recipe-product-select" wire:model="product_ids" multiple>
-                                @foreach($products as $product)<option value="{{ $product->id }}">{{ $product->getTranslation('title', 'vi', false) ?: $product->sku }}</option>@endforeach
-                            </select>
-                            <p class="field-help">Giữ Ctrl để chọn nhiều sản phẩm.</p>
-                        </div>
                         <x-form.input name="sort_order" label="Thứ tự hiển thị" type="number" wire:model="sort_order" min="0" required />
                         <div class="switch-group">
                             <x-form.switch name="is_featured" label="Công thức nổi bật" wire:model="is_featured" />
@@ -64,37 +57,65 @@
                                     <x-form.input name="title[{{ $locale }}]" label="Tiêu đề" wire:model.blur="title.{{ $locale }}" :required="$locale === 'vi'" />
                                     <div class="form-field"><label for="recipe-slug-{{ $locale }}">Đường dẫn thân thiện</label><div class="slug-input"><span>/{{ $locale }}/{{ $locale === 'vi' ? 'cong-thuc' : ($locale === 'en' ? 'recipes' : 'shipu') }}/</span><input id="recipe-slug-{{ $locale }}" class="input" wire:model.blur="slug.{{ $locale }}"><button type="button" wire:click="generateSlug('{{ $locale }}')">Tạo lại</button></div><x-form.field-error name="slug.{{ $locale }}" /></div>
                                     <x-form.textarea name="summary[{{ $locale }}]" label="Mô tả ngắn" wire:model.blur="summary.{{ $locale }}" rows="4" maxlength="2000" />
-                                    <div class="form-field rich-editor"><label for="recipe-content-{{ $locale }}">Nội dung giới thiệu</label><textarea id="recipe-content-{{ $locale }}" class="textarea rich-text-textarea" rows="10" wire:model="content.{{ $locale }}"></textarea><x-form.field-error name="content.{{ $locale }}" /></div>
+                                    <x-form.ckeditor5-editor name="content[{{ $locale }}]" label="Nội dung giới thiệu" :model="'content.'.$locale" :value="$content[$locale] ?? ''" rows="10" />
 
                                     <section class="recipe-builder">
-                                        <div class="recipe-builder-heading"><div><h3>Nguyên liệu</h3><p>Nhập tên, lượng, đơn vị và ghi chú bằng {{ $label }}.</p></div><button class="button button-secondary" type="button" wire:click="addIngredient"><x-ui.icon name="plus" size="16" /> Thêm nguyên liệu</button></div>
-                                        <div class="recipe-builder-list">
-                                            @foreach($ingredients as $index => $ingredient)
-                                                <article class="recipe-builder-row" wire:key="ingredient-{{ $index }}">
-                                                    <span class="recipe-builder-number">{{ $index + 1 }}</span>
-                                                    <div class="recipe-ingredient-fields">
-                                                        <x-form.input name="ingredients[{{ $index }}][name][{{ $locale }}]" label="Tên nguyên liệu" wire:model.blur="ingredients.{{ $index }}.name.{{ $locale }}" />
-                                                        <x-form.input name="ingredients[{{ $index }}][quantity]" label="Số lượng" wire:model.blur="ingredients.{{ $index }}.quantity" />
-                                                        <x-form.input name="ingredients[{{ $index }}][unit][{{ $locale }}]" label="Đơn vị" wire:model.blur="ingredients.{{ $index }}.unit.{{ $locale }}" />
-                                                        <x-form.input name="ingredients[{{ $index }}][note][{{ $locale }}]" label="Ghi chú" wire:model.blur="ingredients.{{ $index }}.note.{{ $locale }}" />
-                                                    </div>
-                                                    <button class="icon-button is-danger" type="button" wire:click="removeIngredient({{ $index }})" aria-label="Xóa nguyên liệu"><x-ui.icon name="trash" size="17" /></button>
-                                                </article>
-                                            @endforeach
+                                        <div class="recipe-builder-heading">
+                                            <div><h3>Nguyên liệu</h3><p>Nhập tên, lượng, đơn vị và ghi chú bằng {{ $label }}.</p></div>
+                                            <div class="recipe-builder-actions">
+                                                <div class="switch-field recipe-builder-toggle">
+                                                    <label for="show-ingredients-{{ $locale }}">
+                                                        <input id="show-ingredients-{{ $locale }}" type="checkbox" wire:model.live="show_ingredients">
+                                                        <span class="switch-track" aria-hidden="true"><span></span></span>
+                                                        <span><strong>Hiển thị</strong></span>
+                                                    </label>
+                                                </div>
+                                                @if($show_ingredients)<button class="button button-secondary" type="button" wire:click="addIngredient"><x-ui.icon name="plus" size="16" /> Thêm nguyên liệu</button>@endif
+                                            </div>
                                         </div>
+                                        @if($show_ingredients)
+                                            <div class="recipe-builder-list">
+                                                @foreach($ingredients as $index => $ingredient)
+                                                    <article class="recipe-builder-row" wire:key="ingredient-{{ $index }}">
+                                                        <span class="recipe-builder-number">{{ $index + 1 }}</span>
+                                                        <div class="recipe-ingredient-fields">
+                                                            <x-form.input name="ingredients[{{ $index }}][name][{{ $locale }}]" label="Tên nguyên liệu" wire:model.blur="ingredients.{{ $index }}.name.{{ $locale }}" />
+                                                            <x-form.input name="ingredients[{{ $index }}][quantity]" label="Số lượng" wire:model.blur="ingredients.{{ $index }}.quantity" />
+                                                            <x-form.input name="ingredients[{{ $index }}][unit][{{ $locale }}]" label="Đơn vị" wire:model.blur="ingredients.{{ $index }}.unit.{{ $locale }}" />
+                                                            <x-form.input name="ingredients[{{ $index }}][note][{{ $locale }}]" label="Ghi chú" wire:model.blur="ingredients.{{ $index }}.note.{{ $locale }}" />
+                                                        </div>
+                                                        <button class="icon-button is-danger" type="button" wire:click="removeIngredient({{ $index }})" aria-label="Xóa nguyên liệu"><x-ui.icon name="trash" size="17" /></button>
+                                                    </article>
+                                                @endforeach
+                                            </div>
+                                        @endif
                                     </section>
 
                                     <section class="recipe-builder">
-                                        <div class="recipe-builder-heading"><div><h3>Các bước thực hiện</h3><p>Sắp xếp theo thứ tự từ trên xuống.</p></div><button class="button button-secondary" type="button" wire:click="addStep"><x-ui.icon name="plus" size="16" /> Thêm bước</button></div>
-                                        <div class="recipe-builder-list">
-                                            @foreach($steps as $index => $step)
-                                                <article class="recipe-builder-row recipe-step-row" wire:key="step-{{ $index }}">
-                                                    <span class="recipe-builder-number">{{ $index + 1 }}</span>
-                                                    <x-form.textarea name="steps[{{ $index }}][instruction][{{ $locale }}]" label="Hướng dẫn bước {{ $index + 1 }}" wire:model.blur="steps.{{ $index }}.instruction.{{ $locale }}" rows="3" maxlength="5000" />
-                                                    <button class="icon-button is-danger" type="button" wire:click="removeStep({{ $index }})" aria-label="Xóa bước"><x-ui.icon name="trash" size="17" /></button>
-                                                </article>
-                                            @endforeach
+                                        <div class="recipe-builder-heading">
+                                            <div><h3>Các bước thực hiện</h3><p>Sắp xếp theo thứ tự từ trên xuống.</p></div>
+                                            <div class="recipe-builder-actions">
+                                                <div class="switch-field recipe-builder-toggle">
+                                                    <label for="show-steps-{{ $locale }}">
+                                                        <input id="show-steps-{{ $locale }}" type="checkbox" wire:model.live="show_steps">
+                                                        <span class="switch-track" aria-hidden="true"><span></span></span>
+                                                        <span><strong>Hiển thị</strong></span>
+                                                    </label>
+                                                </div>
+                                                @if($show_steps)<button class="button button-secondary" type="button" wire:click="addStep"><x-ui.icon name="plus" size="16" /> Thêm bước</button>@endif
+                                            </div>
                                         </div>
+                                        @if($show_steps)
+                                            <div class="recipe-builder-list">
+                                                @foreach($steps as $index => $step)
+                                                    <article class="recipe-builder-row recipe-step-row" wire:key="step-{{ $index }}">
+                                                        <span class="recipe-builder-number">{{ $index + 1 }}</span>
+                                                        <x-form.textarea name="steps[{{ $index }}][instruction][{{ $locale }}]" label="Hướng dẫn bước {{ $index + 1 }}" wire:model.blur="steps.{{ $index }}.instruction.{{ $locale }}" rows="3" maxlength="5000" />
+                                                        <button class="icon-button is-danger" type="button" wire:click="removeStep({{ $index }})" aria-label="Xóa bước"><x-ui.icon name="trash" size="17" /></button>
+                                                    </article>
+                                                @endforeach
+                                            </div>
+                                        @endif
                                     </section>
 
                                     <details class="seo-panel" open><summary>Search Engine Optimization (SEO)</summary><div class="seo-grid">
@@ -102,10 +123,6 @@
                                         <x-form.textarea name="meta_description[{{ $locale }}]" label="Meta description" wire:model.blur="meta_description.{{ $locale }}" rows="3" maxlength="500" />
                                         <div class="snippet-preview"><small>Xem trước kết quả tìm kiếm</small><strong>{{ $seo_title[$locale] ?: ($title[$locale] ?: 'Tên công thức') }}</strong><span>idiseafood.com/{{ $locale }}/{{ $locale === 'vi' ? 'cong-thuc' : ($locale === 'en' ? 'recipes' : 'shipu') }}/{{ $slug[$locale] ?: 'duong-dan' }}</span><p>{{ $meta_description[$locale] ?: ($summary[$locale] ?: 'Mô tả công thức sẽ hiển thị tại đây.') }}</p></div>
                                     </div></details>
-                                    <div class="publication-grid">
-                                        <x-form.select name="translation_status[{{ $locale }}]" label="Trạng thái bản dịch" :options="$statuses" wire:model.live="translation_status.{{ $locale }}" required />
-                                        @if(($translation_status[$locale] ?? '') === 'scheduled')<x-form.input name="locale_published_at[{{ $locale }}]" label="Ngày xuất bản" type="datetime-local" wire:model="locale_published_at.{{ $locale }}" required />@endif
-                                    </div>
                                 </div>
                             </x-form.section>
                         </section>

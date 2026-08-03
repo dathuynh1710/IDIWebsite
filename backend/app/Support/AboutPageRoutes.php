@@ -16,8 +16,6 @@ class AboutPageRoutes
     public static function sync(Page $page): void
     {
         $slugs = $page->getTranslations('slug');
-        $statuses = $page->getTranslations('translation_status');
-        $publishedDates = $page->getTranslations('locale_published_at');
         $keptLocales = [];
 
         foreach (self::PREFIXES as $locale => $prefix) {
@@ -27,7 +25,7 @@ class AboutPageRoutes
             }
 
             $keptLocales[] = $locale;
-            $status = $page->is_active ? ($statuses[$locale] ?? 'draft') : 'hidden';
+            $status = $page->is_active ? 'published' : 'hidden';
             DB::table('localized_routes')->updateOrInsert([
                 'routeable_type' => Page::class,
                 'routeable_id' => $page->id,
@@ -37,7 +35,7 @@ class AboutPageRoutes
                 'slug' => $slug,
                 'full_path' => "/{$locale}/{$prefix}/{$slug}",
                 'status' => $status,
-                'published_at' => $publishedDates[$locale] ?? null,
+                'published_at' => null,
                 'robots_index' => $status === 'published',
                 'robots_follow' => true,
                 'include_in_sitemap' => $status === 'published',

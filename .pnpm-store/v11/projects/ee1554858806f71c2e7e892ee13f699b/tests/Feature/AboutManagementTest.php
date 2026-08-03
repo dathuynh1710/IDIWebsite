@@ -23,11 +23,14 @@ class AboutManagementTest extends TestCase
         $page = $this->aboutPage();
 
         $this->actingAs($user)->get('/admin/about')
-            ->assertOk()->assertSee('Quản lý giới thiệu')->assertSee('Tiếng Việt')->assertSee('English')->assertSee('中文');
+            ->assertOk()->assertSee('Quản lý giới thiệu')->assertSee('Tiếng Việt')->assertSee('English')->assertSee('中文')
+            ->assertSee('Mở trang xem trước')->assertSee('Ẩn khỏi website');
         $this->actingAs($user)->get('/admin/about/settings')
             ->assertOk()->assertSee('Cấu hình giới thiệu')->assertSee('English')->assertSee('中文');
         $this->actingAs($user)->get('/admin/about/create')
-            ->assertOk()->assertSee('Thêm giới thiệu mới')->assertSee('English')->assertSee('中文');
+            ->assertOk()->assertSee('Thêm giới thiệu mới')->assertSee('English')->assertSee('中文')
+            ->assertSee('ckeditor5-textarea', false)->assertDontSee('Chia sẻ Facebook / Open Graph')
+            ->assertDontSee('Trạng thái bản dịch');
         $this->actingAs($user)->get("/admin/about/{$page->id}/edit")
             ->assertOk()->assertSee('Cập nhật giới thiệu');
         $this->actingAs($user)->get("/admin/about/{$page->id}/preview?locale=en")
@@ -43,7 +46,7 @@ class AboutManagementTest extends TestCase
             ->set('slug', ['vi' => 'lich-su-phat-trien', 'en' => 'our-history', 'zh' => 'fazhan-licheng'])
             ->set('summary.vi', 'Hành trình phát triển của IDI.')
             ->set('content.vi', '<p>Nội dung an toàn</p><script>alert(1)</script>')
-            ->set('translation_status', ['vi' => 'published', 'en' => 'review', 'zh' => 'draft'])
+            ->set('meta_keywords.vi', 'IDI Seafood, lịch sử phát triển')
             ->set('sort_order', 2)
             ->set('is_active', true)
             ->call('save')
@@ -51,6 +54,7 @@ class AboutManagementTest extends TestCase
 
         $page = Page::where('code', 'ABOUT_HISTORY')->firstOrFail();
         $this->assertSame('Our history', $page->getTranslation('title', 'en'));
+        $this->assertSame('IDI Seafood, lịch sử phát triển', $page->getTranslation('meta_keywords', 'vi'));
         $this->assertStringNotContainsString('<script', $page->getTranslation('content', 'vi'));
         $this->assertDatabaseHas('localized_routes', [
             'routeable_type' => Page::class,
@@ -75,7 +79,6 @@ class AboutManagementTest extends TestCase
             'code' => 'ABOUT_VALUES',
             'title' => ['vi' => 'Giá trị cốt lõi'],
             'slug' => ['vi' => 'gia-tri-cot-loi'],
-            'translation_status' => ['vi' => 'draft', 'en' => 'draft', 'zh' => 'draft'],
             'sort_order' => 8,
             'is_active' => true,
         ]);
@@ -95,7 +98,13 @@ class AboutManagementTest extends TestCase
         $this->assertSame(5, $first->fresh()->sort_order);
         $this->assertSame(1, $second->fresh()->sort_order);
 
-        Livewire::actingAs($user)->test(Index::class)->call('delete', $first->id)->assertHasNoErrors();
+        Livewire::actingAs($user)->test(Index::class)
+            ->call('requestDelete', $first->id)
+            ->assertSet('pendingDeleteId', $first->id)
+            ->assertSee('Xóa nội dung giới thiệu?')
+            ->call('confirmDelete')
+            ->assertSet('pendingDeleteId', null)
+            ->assertHasNoErrors();
         $this->assertSoftDeleted('pages', ['id' => $first->id]);
         Livewire::actingAs($user)->test(Index::class)->call('restore', $first->id)->assertHasNoErrors();
         $this->assertNotSoftDeleted('pages', ['id' => $first->id]);
@@ -109,17 +118,32 @@ class AboutManagementTest extends TestCase
             ->set('page_title', ['vi' => 'Giới thiệu', 'en' => 'About us', 'zh' => '关于我们'])
             ->set('description.en', 'About IDI Seafood')
             ->set('seo_title.zh', '关于 IDI Seafood')
-            ->set('items_per_page', 12)
             ->call('save')
             ->assertHasNoErrors();
 
         $module = DB::table('modules')->where('code', 'about')->first();
         $this->assertSame('About us', json_decode($module->page_title, true)['en']);
-        $this->assertDatabaseHas('module_settings', [
-            'module_id' => $module->id,
-            'setting_key' => 'items_per_page',
-            'setting_value' => '12',
-        ]);
+        $this->assertDatabaseMissing('module_settings', ['module_id' => $module->id]);
+    }
+
+    public function test_about_index_uses_default_pagination_and_can_change_page_size(): void
+    {
+        $user = $this->pageEditor();
+        foreach (range(1, 7) as $index) {
+            Page::create([
+                'template' => 'about',
+                'title' => ['vi' => "Giới thiệu {$index}"],
+                'slug' => ['vi' => "gioi-thieu-{$index}"],
+                'sort_order' => $index,
+                'is_active' => true,
+            ]);
+        }
+
+        Livewire::actingAs($user)->test(Index::class)
+            ->assertSet('perPage', 10)
+            ->assertViewHas('pages', fn ($pages) => $pages->count() === 7 && $pages->total() === 7)
+            ->set('perPage', 5)
+            ->assertViewHas('pages', fn ($pages) => $pages->count() === 5 && $pages->total() === 7);
     }
 
     public function test_user_without_page_permission_is_forbidden(): void
@@ -158,8 +182,6 @@ class AboutManagementTest extends TestCase
             'slug' => ['vi' => 'thong-diep-cong-ty', 'en' => 'about-idi', 'zh' => 'gongsi-jianjie'],
             'summary' => ['vi' => 'Thông điệp từ công ty.'],
             'content' => ['vi' => '<p>Nội dung giới thiệu.</p>'],
-            'translation_status' => ['vi' => 'published', 'en' => 'published', 'zh' => 'review'],
-            'locale_published_at' => [],
             'sort_order' => 0,
             'is_active' => true,
         ]);

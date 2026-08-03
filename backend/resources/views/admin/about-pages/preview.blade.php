@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ $page->getTranslation('seo_title', $locale, false) ?: $page->getTranslation('title', $locale, false) }}</title>
     <meta name="description" content="{{ $page->getTranslation('meta_description', $locale, false) }}">
+    <meta name="keywords" content="{{ $page->getTranslation('meta_keywords', $locale, false) }}">
     <style>
         body{margin:0;color:#243649;background:#f3f6f8;font-family:Arial,sans-serif}.preview-bar{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 24px;color:#fff;background:#173f68}.preview-bar a{color:#fff;text-decoration:none}.preview-languages{display:flex;gap:8px}.preview-languages a{padding:7px 11px;border:1px solid #ffffff55;border-radius:5px}.preview-languages a.active{color:#173f68;background:#fff}.preview-page{max-width:1040px;margin:32px auto;padding:48px;background:#fff;border-radius:12px;box-shadow:0 12px 35px #15314a18}.preview-page img{width:100%;max-height:460px;object-fit:cover;border-radius:9px}.preview-page h1{margin:26px 0 12px;font-size:40px}.preview-summary{color:#617387;font-size:18px;line-height:1.65}.preview-content{margin-top:30px;line-height:1.75}.preview-status{padding:3px 8px;border-radius:999px;color:#815d00;background:#fff2c6;font-size:12px}@media(max-width:700px){.preview-page{margin:14px;padding:24px}.preview-page h1{font-size:30px}}
     </style>

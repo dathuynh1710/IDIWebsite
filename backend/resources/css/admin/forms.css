@@ -75,8 +75,8 @@
 .product-locale-selector small { margin-top: 2px; color: var(--admin-muted); font-size: 10px; }
 .mobile-form-actions { display: none; }
 .category-form-grid { display: grid; grid-template-columns: 320px minmax(0, 1fr); align-items: start; gap: 20px; }
-.about-settings-grid { display: grid; grid-template-columns: minmax(0, 1fr) 340px; align-items: start; gap: 20px; }
-.about-settings-grid > aside { position: sticky; top: calc(var(--admin-header-height) + 12px); }
+.about-settings-content { width: 100%; min-width: 0; }
+.about-settings-content .language-tabs > .tab-list { position: static; top: auto; }
 .contact-settings-grid { display: block; }
 .contact-settings-content { width: 100%; min-width: 0; }
 .contact-settings-grid .language-tabs > .tab-list { position: static; top: auto; }

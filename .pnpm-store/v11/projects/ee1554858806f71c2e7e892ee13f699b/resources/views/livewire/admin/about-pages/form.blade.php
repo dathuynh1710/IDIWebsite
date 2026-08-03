@@ -9,7 +9,7 @@
         </x-slot:actions>
     </x-admin.page-header>
 
-    <form id="about-page-form" wire:submit="save">
+    <form id="about-page-form" wire:submit="save" data-dirty-form>
         @if($errors->any())
             <div class="validation-summary" role="alert"><x-ui.icon name="alert" /><div><strong>Vui lòng kiểm tra lại thông tin.</strong><p>Có {{ $errors->count() }} trường cần chỉnh sửa.</p></div></div>
         @endif
@@ -60,16 +60,13 @@
                                         <x-form.field-error name="slug.{{ $locale }}" />
                                     </div>
                                     <x-form.textarea name="summary[{{ $locale }}]" label="Mô tả ngắn" wire:model.blur="summary.{{ $locale }}" rows="4" maxlength="2000" />
-                                    <div class="form-field rich-editor">
-                                        <label for="about-content-{{ $locale }}">Nội dung</label>
-                                        <textarea id="about-content-{{ $locale }}" class="textarea rich-text-textarea" rows="16" wire:model="content.{{ $locale }}"></textarea>
-                                        <x-form.field-error name="content.{{ $locale }}" />
-                                    </div>
+                                    <x-form.ckeditor5-editor name="content[{{ $locale }}]" label="Nội dung" :model="'content.'.$locale" :value="$content[$locale] ?? ''" rows="16" />
                                     <details class="seo-panel" open>
                                         <summary>Search Engine Optimization (SEO)</summary>
                                         <div class="seo-grid">
                                             <x-form.input name="seo_title[{{ $locale }}]" label="Tiêu đề SEO" wire:model.blur="seo_title.{{ $locale }}" maxlength="255" />
                                             <x-form.textarea name="meta_description[{{ $locale }}]" label="Meta description" wire:model.blur="meta_description.{{ $locale }}" rows="3" maxlength="500" />
+                                            <x-form.input name="meta_keywords[{{ $locale }}]" label="Từ khóa SEO" wire:model.blur="meta_keywords.{{ $locale }}" maxlength="1000" placeholder="Ví dụ: IDI Seafood, giới thiệu, lịch sử phát triển" />
                                             <div class="snippet-preview">
                                                 <small>Xem trước kết quả tìm kiếm</small>
                                                 <strong>{{ $seo_title[$locale] ?: ($title[$locale] ?: 'Tiêu đề giới thiệu') }}</strong>
@@ -78,12 +75,6 @@
                                             </div>
                                         </div>
                                     </details>
-                                    <div class="publication-grid">
-                                        <x-form.select name="translation_status[{{ $locale }}]" label="Trạng thái bản dịch" :options="$statuses" wire:model.live="translation_status.{{ $locale }}" required />
-                                        @if(($translation_status[$locale] ?? '') === 'scheduled')
-                                            <x-form.input name="locale_published_at[{{ $locale }}]" label="Ngày xuất bản" type="datetime-local" wire:model="locale_published_at.{{ $locale }}" required />
-                                        @endif
-                                    </div>
                                 </div>
                             </x-form.section>
                         </section>

@@ -2,8 +2,6 @@
 
 namespace App\Livewire\Admin\AboutPages;
 
-use App\Models\Page;
-use App\Support\AboutPageRoutes;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Livewire\Attributes\Layout;
@@ -22,18 +20,6 @@ class Settings extends Component
 
     public array $meta_description = ['vi' => '', 'en' => '', 'zh' => ''];
 
-    public bool $is_active = true;
-
-    public int $items_per_page = 10;
-
-    public bool $show_placeholder_image = true;
-
-    public int $thumbnail_size = 150;
-
-    public int $max_upload_width = 1200;
-
-    private ?int $moduleId = null;
-
     public function mount(): void
     {
         Gate::authorize('pages.update');
@@ -41,16 +27,8 @@ class Settings extends Component
         if (! $module) {
             return;
         }
-        $this->moduleId = (int) $module->id;
         foreach (['page_title', 'description', 'seo_title', 'meta_description'] as $field) {
             $this->{$field} = array_replace($this->{$field}, json_decode($module->{$field} ?: '[]', true) ?: []);
-        }
-        $this->is_active = (bool) $module->is_active;
-        $settings = DB::table('module_settings')->where('module_id', $module->id)->pluck('setting_value', 'setting_key');
-        foreach (['items_per_page', 'show_placeholder_image', 'thumbnail_size', 'max_upload_width'] as $key) {
-            if ($settings->has($key)) {
-                $this->{$key} = json_decode($settings[$key], true);
-            }
         }
     }
 
@@ -64,11 +42,6 @@ class Settings extends Component
             'description.*' => ['nullable', 'string', 'max:1000'],
             'seo_title.*' => ['nullable', 'string', 'max:255'],
             'meta_description.*' => ['nullable', 'string', 'max:500'],
-            'is_active' => ['required', 'boolean'],
-            'items_per_page' => ['required', 'integer', 'min:1', 'max:100'],
-            'show_placeholder_image' => ['required', 'boolean'],
-            'thumbnail_size' => ['required', 'integer', 'min:50', 'max:1000'],
-            'max_upload_width' => ['required', 'integer', 'min:320', 'max:5000'],
         ]);
 
         DB::transaction(function () use ($validated): void {
@@ -79,36 +52,11 @@ class Settings extends Component
                 'description' => json_encode($validated['description'], JSON_UNESCAPED_UNICODE),
                 'seo_title' => json_encode($validated['seo_title'], JSON_UNESCAPED_UNICODE),
                 'meta_description' => json_encode($validated['meta_description'], JSON_UNESCAPED_UNICODE),
-                'is_active' => $validated['is_active'],
                 'updated_at' => now(),
             ];
             DB::table('modules')->updateOrInsert(['code' => 'about'], $values + ['created_at' => now()]);
-            $this->moduleId = (int) DB::table('modules')->where('code', 'about')->value('id');
-            foreach ([
-                'items_per_page' => 'number',
-                'show_placeholder_image' => 'boolean',
-                'thumbnail_size' => 'number',
-                'max_upload_width' => 'number',
-            ] as $key => $type) {
-                DB::table('module_settings')->updateOrInsert([
-                    'module_id' => $this->moduleId,
-                    'setting_key' => $key,
-                ], [
-                    'setting_value' => json_encode($validated[$key], JSON_THROW_ON_ERROR),
-                    'setting_type' => $type,
-                    'updated_at' => now(),
-                    'created_at' => now(),
-                ]);
-            }
         });
         $this->dispatch('admin-toast', message: 'Đã cập nhật cấu hình giới thiệu.', type: 'success');
-    }
-
-    public function rebuildSeoLinks(): void
-    {
-        Gate::authorize('pages.update');
-        Page::query()->about()->get()->each(fn (Page $page) => AboutPageRoutes::sync($page));
-        $this->dispatch('admin-toast', message: 'Đã đồng bộ liên kết SEO cho 3 ngôn ngữ.', type: 'success');
     }
 
     public function render()

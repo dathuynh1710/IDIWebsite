@@ -25,25 +25,32 @@ class Index extends Component
     #[Url(except: '')]
     public string $template = '';
 
-    #[Url(except: '')]
-    public string $status = '';
-
     #[Url(except: 'vi')]
     public string $locale = 'vi';
+
+    #[Url(as: 'per_page', except: 10, history: true)]
+    public int $perPage = 10;
 
     public array $selected = [];
 
     public array $sortOrders = [];
 
+    public ?int $pendingDeleteId = null;
+
+    public string $pendingDeleteName = '';
+
+    public bool $pendingBulkDelete = false;
+
     public function mount(): void
     {
         Gate::authorize('pages.view');
         abort_unless(in_array($this->locale, ['vi', 'en', 'zh'], true), 404);
+
     }
 
     public function updated($property): void
     {
-        if (in_array($property, ['search', 'template', 'status', 'locale'], true)) {
+        if (in_array($property, ['search', 'template', 'locale'], true)) {
             $this->resetPage();
             $this->selected = [];
         }
@@ -51,8 +58,15 @@ class Index extends Component
 
     public function resetFilters(): void
     {
-        $this->reset('search', 'template', 'status');
+        $this->reset('search', 'template');
         $this->locale = 'vi';
+        $this->resetPage();
+    }
+
+    public function updatedPerPage($value): void
+    {
+        $this->perPage = max(1, min(100, (int) $value));
+        $this->selected = [];
         $this->resetPage();
     }
 
@@ -75,8 +89,6 @@ class Index extends Component
             $copy->code = $source->code ? Str::limit($source->code.'_COPY_'.$suffix, 100, '') : null;
             $copy->title = collect($source->getTranslations('title'))->map(fn ($title) => $title.' (Bản sao)')->all();
             $copy->slug = collect($source->getTranslations('slug'))->map(fn ($slug) => Str::limit($slug.'-copy-'.$suffix, 255, ''))->all();
-            $copy->translation_status = ['vi' => 'draft', 'en' => 'draft', 'zh' => 'draft'];
-            $copy->locale_published_at = [];
             $copy->is_active = false;
             $copy->created_by = auth()->id();
             $copy->updated_by = auth()->id();
@@ -96,6 +108,61 @@ class Index extends Component
         $page->delete();
         DB::table('localized_routes')->where('routeable_type', Page::class)->where('routeable_id', $page->id)->delete();
         $this->toast('Đã chuyển nội dung giới thiệu vào thùng rác.');
+    }
+
+    public function requestDelete(int $pageId): void
+    {
+        Gate::authorize('pages.delete');
+        $page = Page::query()->about()->findOrFail($pageId);
+
+        $this->pendingDeleteId = $page->id;
+        $this->pendingDeleteName = $page->getTranslation('title', $this->locale, false)
+            ?: $page->getTranslation('title', 'vi', false)
+            ?: '#'.$page->id;
+        $this->pendingBulkDelete = false;
+    }
+
+    public function requestBulkDelete(): void
+    {
+        Gate::authorize('pages.delete');
+        $this->validate([
+            'selected' => ['required', 'array', 'min:1'],
+            'selected.*' => ['integer', 'distinct', 'exists:pages,id'],
+        ], ['selected.required' => 'Vui lòng chọn ít nhất một nội dung.']);
+
+        $this->pendingDeleteId = null;
+        $this->pendingDeleteName = '';
+        $this->pendingBulkDelete = true;
+    }
+
+    public function cancelDelete(): void
+    {
+        $this->resetDeleteConfirmation();
+    }
+
+    public function confirmDelete(): void
+    {
+        Gate::authorize('pages.delete');
+
+        if ($this->pendingBulkDelete) {
+            $this->bulk('delete');
+            $this->resetDeleteConfirmation();
+
+            return;
+        }
+
+        abort_unless($this->pendingDeleteId, 422);
+        $pageId = $this->pendingDeleteId;
+        $this->delete($pageId);
+        $this->selected = array_values(array_diff($this->selected, [$pageId, (string) $pageId]));
+        $this->resetDeleteConfirmation();
+    }
+
+    private function resetDeleteConfirmation(): void
+    {
+        $this->pendingDeleteId = null;
+        $this->pendingDeleteName = '';
+        $this->pendingBulkDelete = false;
     }
 
     public function restore(int $pageId): void
@@ -149,12 +216,6 @@ class Index extends Component
     public function render()
     {
         $query = Page::query()->about()->with(['parent', 'featuredMedia']);
-        match ($this->status) {
-            'trashed' => $query->onlyTrashed(),
-            'active' => $query->where('is_active', true),
-            'hidden' => $query->where('is_active', false),
-            default => null,
-        };
         if ($this->template !== '') {
             $query->where('template', $this->template);
         }
@@ -165,7 +226,7 @@ class Index extends Component
                 ->orWhere("slug->{$locale}", 'like', "%{$search}%"));
         }
 
-        $pages = $query->orderBy('sort_order')->latest('updated_at')->paginate(15);
+        $pages = $query->orderBy('sort_order')->latest('updated_at')->paginate($this->perPage);
         foreach ($pages as $page) {
             $this->sortOrders[$page->id] ??= $page->sort_order;
         }
@@ -173,6 +234,7 @@ class Index extends Component
         return view('livewire.admin.about-pages.index', [
             'pages' => $pages,
             'templates' => Page::ABOUT_TEMPLATES,
+            'perPageOptions' => collect([5, 10, 20, 50, 100, $this->perPage])->unique()->sort()->values()->all(),
             'breadcrumbs' => [
                 ['label' => 'Bảng điều khiển', 'route' => 'admin.dashboard'],
                 ['label' => 'Quản lý giới thiệu'],

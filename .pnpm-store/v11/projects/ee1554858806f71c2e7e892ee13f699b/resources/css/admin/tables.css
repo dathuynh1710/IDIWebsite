@@ -30,7 +30,7 @@
 .mobile-product-list { display: none; }
 
 .category-filter-grid { display: grid; grid-template-columns: minmax(260px, 1fr) minmax(190px, .45fr) auto; align-items: end; gap: 12px; }
-.about-filter-grid { grid-template-columns: minmax(260px, 1fr) minmax(190px, .6fr) minmax(160px, .5fr) auto; }
+.about-filter-grid { grid-template-columns: minmax(260px, 1fr) minmax(190px, .6fr) auto; }
 .recipe-filter-grid { display: grid; grid-template-columns: minmax(230px, 1.4fr) repeat(4, minmax(135px, .65fr)) auto; align-items: end; gap: 12px; }
 .recipe-mobile-list { display: none; }
 .news-filter-grid { display: grid; grid-template-columns: minmax(230px, 1.5fr) minmax(170px, .8fr) repeat(4, minmax(125px, .55fr)); align-items: end; gap: 12px; }

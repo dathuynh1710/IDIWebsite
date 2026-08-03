@@ -48,3 +48,9 @@ lerna-debug.log*
 # Coverage
 coverage/
 *.lcov
+
+# pnpm local store
+.pnpm-store/
+
+# GitHub Actions workflows
+.github/workflows/

@@ -1,6 +1,4 @@
 @media (max-width: 1199px) {
-    .about-settings-grid { grid-template-columns: 1fr; }
-    .about-settings-grid > aside { position: static; }
     .stat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .filter-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .filter-search { grid-column: span 2; }

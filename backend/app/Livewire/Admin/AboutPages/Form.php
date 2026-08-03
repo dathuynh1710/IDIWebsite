@@ -46,9 +46,7 @@ class Form extends Component
 
     public array $meta_description = ['vi' => '', 'en' => '', 'zh' => ''];
 
-    public array $translation_status = ['vi' => 'draft', 'en' => 'draft', 'zh' => 'draft'];
-
-    public array $locale_published_at = ['vi' => '', 'en' => '', 'zh' => ''];
+    public array $meta_keywords = ['vi' => '', 'en' => '', 'zh' => ''];
 
     public function mount(?Page $page = null): void
     {
@@ -64,7 +62,7 @@ class Form extends Component
         foreach (['parent_id', 'template', 'code', 'sort_order', 'is_active'] as $field) {
             $this->{$field} = $page->{$field} ?? $this->{$field};
         }
-        foreach (['title', 'slug', 'summary', 'content', 'seo_title', 'meta_description', 'translation_status', 'locale_published_at'] as $field) {
+        foreach (['title', 'slug', 'summary', 'content', 'seo_title', 'meta_description', 'meta_keywords'] as $field) {
             foreach (['vi', 'en', 'zh'] as $locale) {
                 $this->{$field}[$locale] = $page->getTranslation($field, $locale, false) ?? $this->{$field}[$locale];
             }
@@ -86,8 +84,6 @@ class Form extends Component
     {
         $this->slug = collect($this->slug)->map(fn ($value) => Str::slug((string) $value))->all();
         $pageId = $this->page?->id;
-        $statuses = 'draft,translating,review,scheduled,published,hidden,archived';
-
         $validated = $this->validate([
             'parent_id' => ['nullable', 'integer', 'exists:pages,id', Rule::notIn(array_filter([$pageId]))],
             'template' => ['required', Rule::in(array_keys(Page::ABOUT_TEMPLATES))],
@@ -106,15 +102,11 @@ class Form extends Component
             'content.*' => ['nullable', 'string', 'max:100000'],
             'seo_title.*' => ['nullable', 'string', 'max:255'],
             'meta_description.*' => ['nullable', 'string', 'max:500'],
-            'translation_status.*' => ['required', "in:{$statuses}"],
-            'locale_published_at.*' => ['nullable', 'date'],
-            'locale_published_at.vi' => ['required_if:translation_status.vi,scheduled'],
-            'locale_published_at.en' => ['required_if:translation_status.en,scheduled'],
-            'locale_published_at.zh' => ['required_if:translation_status.zh,scheduled'],
+            'meta_keywords.*' => ['nullable', 'string', 'max:1000'],
         ], [], ['title.vi' => 'tiêu đề tiếng Việt', 'slug.vi' => 'đường dẫn tiếng Việt']);
 
         $localized = [];
-        foreach (['title', 'slug', 'summary', 'seo_title', 'meta_description', 'translation_status', 'locale_published_at'] as $field) {
+        foreach (['title', 'slug', 'summary', 'seo_title', 'meta_description', 'meta_keywords'] as $field) {
             $localized[$field] = collect($validated[$field] ?? [])
                 ->map(fn ($value) => is_string($value) ? trim($value) : $value)
                 ->filter(fn ($value) => $value !== null && $value !== '')
@@ -186,7 +178,6 @@ class Form extends Component
             'parents' => Page::query()->about()->when($this->page, fn ($query) => $query->whereKeyNot($this->page->id))->orderBy('sort_order')->get(),
             'templates' => Page::ABOUT_TEMPLATES,
             'locales' => ['vi' => 'Tiếng Việt', 'en' => 'English', 'zh' => '中文'],
-            'statuses' => ['draft' => 'Bản nháp', 'translating' => 'Đang dịch', 'review' => 'Chờ duyệt', 'scheduled' => 'Đã lên lịch', 'published' => 'Đã xuất bản', 'hidden' => 'Tạm ẩn', 'archived' => 'Lưu trữ'],
             'breadcrumbs' => [
                 ['label' => 'Bảng điều khiển', 'route' => 'admin.dashboard'],
                 ['label' => 'Quản lý giới thiệu', 'route' => 'admin.about-pages.index'],

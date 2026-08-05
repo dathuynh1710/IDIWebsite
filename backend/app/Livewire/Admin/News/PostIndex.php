@@ -24,8 +24,12 @@ class PostIndex extends Component
     #[Url(except: '')] public string $date_from = '';
     #[Url(except: '')] public string $date_to = '';
     #[Url(except: 'vi')] public string $locale = 'vi';
+    #[Url(as: 'per_page', except: 10, history: true)] public int $perPage = 10;
     public array $selected = [];
     public array $sortOrders = [];
+    public ?int $pendingDeleteId = null;
+    public string $pendingDeleteName = '';
+    public bool $pendingBulkDelete = false;
 
     public function mount(): void
     {
@@ -38,6 +42,14 @@ class PostIndex extends Component
             $this->resetPage();
             $this->selected = [];
         }
+    }
+
+    public function updatedPerPage($value): void
+    {
+        $perPage = (int) $value;
+        $this->perPage = in_array($perPage, [10, 20, 50, 100], true) ? $perPage : 10;
+        $this->selected = [];
+        $this->resetPage();
     }
 
     public function toggleVisibility(int $id): void
@@ -75,6 +87,76 @@ class PostIndex extends Component
         $this->dispatch('admin-toast', message: 'Đã chuyển tin vào thùng rác.', type: 'success');
     }
 
+    public function requestDelete(int $id): void
+    {
+        Gate::authorize('posts.delete');
+        $post = Post::findOrFail($id);
+
+        $this->pendingDeleteId = $post->id;
+        $this->pendingDeleteName = $post->getTranslation('title', $this->locale, false)
+            ?: $post->getTranslation('title', 'vi', false)
+            ?: '#'.$post->id;
+        $this->pendingBulkDelete = false;
+    }
+
+    public function requestBulkDelete(): void
+    {
+        Gate::authorize('posts.delete');
+        $this->validate([
+            'selected' => ['required', 'array', 'min:1'],
+            'selected.*' => ['integer', 'distinct', 'exists:posts,id'],
+        ], ['selected.required' => 'Vui lòng chọn ít nhất một tin tức.']);
+
+        $this->pendingDeleteId = null;
+        $this->pendingDeleteName = '';
+        $this->pendingBulkDelete = true;
+    }
+
+    public function cancelDelete(): void
+    {
+        $this->resetDeleteConfirmation();
+    }
+
+    public function confirmDelete(): void
+    {
+        Gate::authorize('posts.delete');
+
+        if ($this->pendingBulkDelete) {
+            $this->validate([
+                'selected' => ['required', 'array', 'min:1'],
+                'selected.*' => ['integer', 'distinct', 'exists:posts,id'],
+            ]);
+
+            DB::transaction(function (): void {
+                foreach (Post::whereKey($this->selected)->get() as $post) {
+                    $post->delete();
+                    DB::table('localized_routes')->where('routeable_type', Post::class)->where('routeable_id', $post->id)->delete();
+                }
+            });
+            $this->selected = [];
+            $this->resetDeleteConfirmation();
+            $this->dispatch('admin-toast', message: 'Đã chuyển các tin được chọn vào thùng rác.', type: 'success');
+
+            return;
+        }
+
+        abort_unless($this->pendingDeleteId, 422);
+        $postId = $this->pendingDeleteId;
+        $this->delete($postId);
+        $this->selected = array_values(array_filter(
+            $this->selected,
+            fn ($selectedId) => (int) $selectedId !== $postId,
+        ));
+        $this->resetDeleteConfirmation();
+    }
+
+    private function resetDeleteConfirmation(): void
+    {
+        $this->pendingDeleteId = null;
+        $this->pendingDeleteName = '';
+        $this->pendingBulkDelete = false;
+    }
+
     public function bulk(string $action): void
     {
         $this->validate(['selected' => ['required', 'array', 'min:1'], 'sortOrders.*' => ['nullable', 'integer', 'min:0']]);
@@ -95,16 +177,15 @@ class PostIndex extends Component
 
     public function render()
     {
-        $perPage = (int) (DB::table('module_settings')->join('modules', 'modules.id', '=', 'module_settings.module_id')
-            ->where('modules.code', 'news')->where('setting_key', 'items_per_page')->value('setting_value') ?: 12);
         $posts = Post::with(['category', 'featuredMedia', 'author'])
             ->filtered(['search' => trim($this->search), 'category' => $this->category, 'active' => $this->active, 'date_from' => $this->date_from, 'date_to' => $this->date_to, 'locale' => $this->locale])
-            ->orderByDesc('sort_order')->latest('updated_at')->paginate($perPage);
+            ->orderByDesc('sort_order')->latest('updated_at')->paginate($this->perPage);
         foreach ($posts as $post) {
             $this->sortOrders[$post->id] ??= $post->sort_order;
         }
         return view('livewire.admin.news.post-index', [
             'posts' => $posts, 'categories' => PostCategory::orderBy('sort_order')->get(),
+            'perPageOptions' => [10, 20, 50, 100],
             'breadcrumbs' => [['label' => 'Bảng điều khiển', 'route' => 'admin.dashboard'], ['label' => 'Quản lý tin tức']],
         ]);
     }

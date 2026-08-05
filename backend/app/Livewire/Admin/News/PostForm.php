@@ -26,6 +26,7 @@ class PostForm extends Component
     public int $sort_order = 0;
     public bool $is_featured = false;
     public bool $is_active = true;
+    public array $enabled_locales = ['vi'];
     public array $title = ['vi' => '', 'en' => '', 'zh' => ''];
     public array $slug = ['vi' => '', 'en' => '', 'zh' => ''];
     public array $excerpt = ['vi' => '', 'en' => '', 'zh' => ''];
@@ -34,7 +35,6 @@ class PostForm extends Component
     public array $meta_description = ['vi' => '', 'en' => '', 'zh' => ''];
     public array $og_title = ['vi' => '', 'en' => '', 'zh' => ''];
     public array $og_description = ['vi' => '', 'en' => '', 'zh' => ''];
-    public array $translation_status = ['vi' => 'published', 'en' => 'draft', 'zh' => 'draft'];
     public array $locale_published_at = ['vi' => '', 'en' => '', 'zh' => ''];
 
     public function mount(?Post $post = null): void
@@ -42,13 +42,38 @@ class PostForm extends Component
         Gate::authorize($post?->exists ? 'posts.update' : 'posts.create');
         $this->post = $post?->exists ? $post : null;
         if ($this->post) {
-            foreach (['title', 'slug', 'excerpt', 'content', 'seo_title', 'meta_description', 'og_title', 'og_description', 'translation_status', 'locale_published_at'] as $field) {
+            foreach (['title', 'slug', 'excerpt', 'content', 'seo_title', 'meta_description', 'og_title', 'og_description', 'locale_published_at'] as $field) {
                 $this->{$field} = array_merge($this->{$field}, $this->post->getTranslations($field));
             }
             foreach (['post_category_id', 'code', 'sort_order', 'is_featured', 'is_active'] as $field) {
-                $this->{$field} = $field === 'code' ? (string) ($this->post->{$field} ?? '') : $this->post->{$field};
+                $this->{$field} = $field === 'code'
+                    ? (string) ($this->post->{$field} ?? '')
+                    : ($this->post->{$field} ?? $this->{$field});
             }
+            $this->enabled_locales = collect(['vi', 'en', 'zh'])
+                ->filter(function (string $locale): bool {
+                    if ($locale === 'vi') {
+                        return true;
+                    }
+
+                    $status = $this->post->getTranslation('translation_status', $locale, false);
+
+                    return $status === 'published' || (blank($status) && $this->hasLocalizedContent($locale));
+                })
+                ->values()
+                ->all();
         }
+    }
+
+    public function updatedEnabledLocales(): void
+    {
+        $this->enabled_locales = collect($this->enabled_locales)
+            ->push('vi')
+            ->intersect(['vi', 'en', 'zh'])
+            ->unique()
+            ->sortBy(fn (string $locale): int => array_search($locale, ['vi', 'en', 'zh'], true))
+            ->values()
+            ->all();
     }
 
     public function generateSlug(string $locale): void
@@ -65,29 +90,47 @@ class PostForm extends Component
     public function save()
     {
         Gate::authorize($this->post ? 'posts.update' : 'posts.create');
-        foreach (['vi', 'en', 'zh'] as $locale) {
+        $this->updatedEnabledLocales();
+        foreach ($this->enabled_locales as $locale) {
             if ($this->title[$locale] !== '' && $this->slug[$locale] === '') {
                 $this->generateSlug($locale);
             }
         }
-        $data = $this->validate([
+        $rules = [
             'post_category_id' => ['required', Rule::exists('post_categories', 'id')->whereNull('deleted_at')],
             'code' => ['nullable', 'string', 'max:100', Rule::unique('posts', 'code')->ignore($this->post?->id)],
             'featured_image' => [$this->post?->featured_media_id && ! $this->remove_image ? 'nullable' : 'required', 'image', 'max:8192'],
-            'title.vi' => ['required', 'string', 'max:255'], 'title.en' => ['nullable', 'string', 'max:255'], 'title.zh' => ['nullable', 'string', 'max:255'],
-            'slug.vi' => ['required', 'string', 'max:255'], 'slug.en' => ['nullable', 'string', 'max:255'], 'slug.zh' => ['nullable', 'string', 'max:255'],
+            'enabled_locales' => ['required', 'array', 'min:1'],
+            'enabled_locales.*' => ['required', Rule::in(['vi', 'en', 'zh'])],
             'excerpt.*' => ['nullable', 'string', 'max:2000'], 'content.*' => ['nullable', 'string'],
             'seo_title.*' => ['nullable', 'string', 'max:255'], 'meta_description.*' => ['nullable', 'string', 'max:500'],
             'og_title.*' => ['nullable', 'string', 'max:255'], 'og_description.*' => ['nullable', 'string', 'max:500'],
-            'translation_status.*' => ['required', Rule::in(['draft', 'scheduled', 'published'])],
             'locale_published_at.*' => ['nullable', 'date'], 'sort_order' => ['required', 'integer', 'min:0'],
             'is_featured' => ['boolean'], 'is_active' => ['boolean'],
-        ]);
-        foreach (['title', 'slug', 'excerpt', 'seo_title', 'meta_description', 'og_title', 'og_description'] as $field) {
-            $data[$field] = collect($data[$field] ?? [])->map(fn ($value) => trim((string) $value))->filter(fn ($value) => $value !== '')->all();
+        ];
+        foreach ($this->enabled_locales as $locale) {
+            $rules["title.{$locale}"] = ['required', 'string', 'max:255'];
+            $rules["slug.{$locale}"] = ['required', 'string', 'max:255'];
         }
-        $data['content'] = collect($data['content'] ?? [])->map(fn ($html) => $this->sanitizeHtml((string) $html))->filter()->all();
-        unset($data['featured_image']);
+        $data = $this->validate($rules);
+        $enabledLocales = collect($data['enabled_locales'])->flip();
+        foreach (['title', 'slug', 'excerpt', 'seo_title', 'meta_description', 'og_title', 'og_description'] as $field) {
+            $submitted = collect($data[$field] ?? [])->intersectByKeys($enabledLocales)
+                ->map(fn ($value) => trim((string) $value))->filter(fn ($value) => $value !== '')->all();
+            $data[$field] = $this->mergeEnabledTranslations($field, $submitted);
+        }
+        $submittedPublishedAt = collect($data['locale_published_at'] ?? [])->intersectByKeys($enabledLocales)
+            ->map(fn ($value) => trim((string) $value))
+            ->filter(fn ($value) => $value !== '')
+            ->all();
+        $data['locale_published_at'] = $this->mergeEnabledTranslations('locale_published_at', $submittedPublishedAt);
+        $data['translation_status'] = collect(['vi', 'en', 'zh'])->mapWithKeys(fn ($locale) => [
+            $locale => $enabledLocales->has($locale) ? 'published' : 'draft',
+        ])->all();
+        $submittedContent = collect($data['content'] ?? [])->intersectByKeys($enabledLocales)
+            ->map(fn ($html) => $this->sanitizeHtml((string) $html))->filter()->all();
+        $data['content'] = $this->mergeEnabledTranslations('content', $submittedContent);
+        unset($data['featured_image'], $data['enabled_locales']);
         if ($this->featured_image) {
             $path = $this->featured_image->store('news', 'public');
             $data['featured_media_id'] = Media::create([
@@ -117,12 +160,37 @@ class PostForm extends Component
         return trim(strip_tags($html, '<p><br><h2><h3><h4><strong><b><em><i><u><ul><ol><li><a><blockquote><pre><code><table><thead><tbody><tr><th><td><img>'));
     }
 
+    private function mergeEnabledTranslations(string $field, array $submitted): array
+    {
+        $translations = $this->post?->getTranslations($field) ?? [];
+
+        foreach ($this->enabled_locales as $locale) {
+            if (array_key_exists($locale, $submitted)) {
+                $translations[$locale] = $submitted[$locale];
+            } else {
+                unset($translations[$locale]);
+            }
+        }
+
+        return $translations;
+    }
+
+    private function hasLocalizedContent(string $locale): bool
+    {
+        foreach (['title', 'slug', 'excerpt', 'content', 'seo_title', 'meta_description', 'og_title', 'og_description'] as $field) {
+            if (filled($this->post?->getTranslation($field, $locale, false))) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public function render()
     {
         return view('livewire.admin.news.post-form', [
             'categories' => PostCategory::where('is_active', true)->orderBy('sort_order')->get(),
             'locales' => ['vi' => 'Tiếng Việt', 'en' => 'English', 'zh' => '中文'],
-            'statuses' => ['draft' => 'Bản nháp', 'scheduled' => 'Hẹn giờ', 'published' => 'Xuất bản'],
             'breadcrumbs' => [['label' => 'Bảng điều khiển', 'route' => 'admin.dashboard'], ['label' => 'Tin tức', 'route' => 'admin.news.posts.index'], ['label' => $this->post ? 'Cập nhật' : 'Thêm mới']],
         ]);
     }

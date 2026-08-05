@@ -23,8 +23,38 @@
                 <td>{{ $item->parent?->getTranslation('name', $locale, false) ?: '— Gốc —' }}</td><td><span class="category-product-count">{{ $item->posts_count }}</span></td>
                 <td><div class="translation-dots">@foreach(['vi','en','zh'] as $code)<span class="{{ filled($item->getTranslation('name', $code, false)) ? 'is-complete' : '' }}">{{ strtoupper($code) }}</span>@endforeach</div></td>
                 <td><x-ui.badge :tone="$item->is_active ? 'success' : 'neutral'">{{ $item->is_active ? 'Hiện' : 'Ẩn' }}</x-ui.badge></td>
-                <td><div class="row-actions"><a class="icon-button" href="{{ route('admin.news.categories.edit', $item) }}" wire:navigate title="Sửa"><x-ui.icon name="edit" size="18" /></a><button class="icon-button is-dark" wire:click="toggleVisibility({{ $item->id }})" title="Ẩn/hiện"><x-ui.icon :name="$item->is_active ? 'eye-off' : 'eye'" size="18" /></button><button class="icon-button is-danger" wire:click="delete({{ $item->id }})" wire:confirm="Xóa danh mục này?" title="Xóa"><x-ui.icon name="trash" size="18" /></button></div></td>
+                <td><div class="row-actions"><a class="icon-button" href="{{ route('admin.news.categories.edit', $item) }}" wire:navigate title="Sửa"><x-ui.icon name="edit" size="18" /></a><button class="icon-button is-dark" wire:click="toggleVisibility({{ $item->id }})" title="Ẩn/hiện"><x-ui.icon :name="$item->is_active ? 'eye-off' : 'eye'" size="18" /></button><button class="icon-button is-danger" type="button" wire:click="requestDelete({{ $item->id }})" title="Xóa" aria-label="Xóa danh mục {{ $item->getTranslation('name', $locale, false) }}"><x-ui.icon name="trash" size="18" /></button></div></td>
             </tr>@endforeach
-        </tbody></table></div><x-ui.pagination :paginator="$categories" />@endif
+        </tbody></table></div><x-ui.pagination :paginator="$categories" :per-page-options="$perPageOptions" />@endif
     </section>
+
+    @if($pendingDeleteId)
+        <div
+            class="modal-backdrop contact-delete-modal"
+            wire:key="news-category-delete-confirmation"
+            wire:click.self="cancelDelete"
+            x-data
+            x-init="$nextTick(() => $refs.cancelButton.focus())"
+            x-on:keydown.escape.window="$wire.cancelDelete()"
+        >
+            <section class="modal-card contact-delete-card" role="alertdialog" aria-modal="true" aria-labelledby="news-category-delete-title" aria-describedby="news-category-delete-description">
+                <div class="modal-icon contact-delete-icon"><x-ui.icon name="alert" size="30" /></div>
+                <h2 id="news-category-delete-title">Xóa danh mục tin tức?</h2>
+                <p id="news-category-delete-description">Bạn sắp chuyển danh mục <strong>“{{ $pendingDeleteName }}”</strong> vào thùng rác.</p>
+                @if($pendingDeletePostsCount > 0)
+                    <p class="contact-delete-warning">Danh mục đang chứa <strong>{{ $pendingDeletePostsCount }} tin tức</strong>. Các bài viết này sẽ được chuyển sang trạng thái <strong>Chưa phân loại</strong>.</p>
+                @else
+                    <p class="contact-delete-warning">Danh mục sẽ không còn xuất hiện trong danh sách quản lý.</p>
+                @endif
+                <div class="modal-actions contact-delete-actions">
+                    <button class="button button-secondary" type="button" wire:click="cancelDelete" x-ref="cancelButton">Không, giữ lại</button>
+                    <button class="button button-danger" type="button" wire:click="confirmDelete" wire:loading.attr="disabled" wire:target="confirmDelete">
+                        <x-ui.icon name="trash" size="17" />
+                        <span wire:loading.remove wire:target="confirmDelete">Có, xóa danh mục</span>
+                        <span wire:loading wire:target="confirmDelete">Đang xóa...</span>
+                    </button>
+                </div>
+            </section>
+        </div>
+    @endif
 </div>

@@ -5,13 +5,18 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Post;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class NewsController extends Controller
 {
     public function index(Request $request)
     {
+        $this->ensureModuleEnabled();
         $locale = $this->locale($request);
-        $limit = min(100, max(1, $request->integer('limit', 12)));
+        $defaultLimit = $request->filled('category')
+            ? $this->setting('category_items_per_page', 10)
+            : $this->setting('items_per_page', 12);
+        $limit = min(100, max(1, $request->integer('limit', $defaultLimit)));
         $posts = Post::query()
             ->with(['category', 'featuredMedia', 'author'])
             ->where('is_active', true)
@@ -34,6 +39,7 @@ class NewsController extends Controller
 
     public function show(Request $request, string $slug)
     {
+        $this->ensureModuleEnabled();
         $locale = $this->locale($request);
         $post = Post::with(['category', 'featuredMedia', 'author'])
             ->where('is_active', true)->where("slug->{$locale}", $slug)->firstOrFail();
@@ -45,6 +51,23 @@ class NewsController extends Controller
     {
         $locale = $request->string('locale', $request->string('lang', 'vi')->toString())->toString();
         return in_array($locale, ['vi', 'en', 'zh'], true) ? $locale : 'vi';
+    }
+
+    private function ensureModuleEnabled(): void
+    {
+        $enabled = DB::table('modules')->where('code', 'news')->value('is_active');
+        abort_if($enabled !== null && ! $enabled, 404);
+    }
+
+    private function setting(string $key, int $default): int
+    {
+        $value = DB::table('module_settings')
+            ->join('modules', 'modules.id', '=', 'module_settings.module_id')
+            ->where('modules.code', 'news')
+            ->where('module_settings.setting_key', $key)
+            ->value('module_settings.setting_value');
+
+        return $value === null ? $default : (int) json_decode($value, true);
     }
 
     private function article(Post $post, string $locale): array

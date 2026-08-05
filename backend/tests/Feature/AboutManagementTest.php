@@ -70,6 +70,22 @@ class AboutManagementTest extends TestCase
         ]);
     }
 
+    public function test_about_page_short_description_can_be_cleared_for_one_language(): void
+    {
+        $page = $this->aboutPage();
+        $page->setTranslation('summary', 'en', 'Company message.')->save();
+
+        Livewire::actingAs($this->pageEditor())->test(Form::class, ['page' => $page])
+            ->set('summary.vi', '')
+            ->call('save')
+            ->assertHasNoErrors();
+
+        $translations = $page->fresh()->getTranslations('summary');
+        $this->assertArrayNotHasKey('vi', $translations);
+        $this->assertSame('', $page->fresh()->getTranslation('summary', 'vi', false));
+        $this->assertSame('Company message.', $translations['en']);
+    }
+
     public function test_about_page_supports_visibility_duplicate_delete_restore_and_bulk_order(): void
     {
         $user = $this->pageEditor();

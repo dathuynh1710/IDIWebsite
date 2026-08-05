@@ -23,14 +23,13 @@ class CategoryForm extends Component
     public array $description = ['vi' => '', 'en' => '', 'zh' => ''];
     public array $seo_title = ['vi' => '', 'en' => '', 'zh' => ''];
     public array $meta_description = ['vi' => '', 'en' => '', 'zh' => ''];
-    public array $translation_status = ['vi' => 'published', 'en' => 'draft', 'zh' => 'draft'];
 
     public function mount(?PostCategory $category = null): void
     {
         Gate::authorize($category?->exists ? 'posts.update' : 'posts.create');
         $this->category = $category?->exists ? $category : null;
         if ($this->category) {
-            foreach (['name', 'slug', 'description', 'seo_title', 'meta_description', 'translation_status'] as $field) {
+            foreach (['name', 'slug', 'description', 'seo_title', 'meta_description'] as $field) {
                 $this->{$field} = array_merge($this->{$field}, $this->category->getTranslations($field));
             }
             foreach (['parent_id', 'code', 'sort_order', 'is_active'] as $field) {
@@ -58,9 +57,12 @@ class CategoryForm extends Component
             'name.vi' => ['required', 'string', 'max:255'], 'name.en' => ['nullable', 'string', 'max:255'], 'name.zh' => ['nullable', 'string', 'max:255'],
             'slug.vi' => ['required', 'string', 'max:255'], 'slug.en' => ['nullable', 'string', 'max:255'], 'slug.zh' => ['nullable', 'string', 'max:255'],
             'description.*' => ['nullable', 'string', 'max:2000'], 'seo_title.*' => ['nullable', 'string', 'max:255'],
-            'meta_description.*' => ['nullable', 'string', 'max:500'], 'translation_status.*' => ['required', Rule::in(['draft', 'published'])],
+            'meta_description.*' => ['nullable', 'string', 'max:500'],
             'sort_order' => ['required', 'integer', 'min:0'], 'is_active' => ['boolean'],
         ]);
+        $data['translation_status'] = collect(['vi', 'en', 'zh'])->mapWithKeys(fn ($locale) => [
+            $locale => filled($data['slug'][$locale] ?? null) ? 'published' : 'draft',
+        ])->all();
         $data['created_by'] = $this->category?->created_by ?? auth()->id();
         $data['updated_by'] = auth()->id();
         $this->category = PostCategory::updateOrCreate(['id' => $this->category?->id], $data);
@@ -74,7 +76,6 @@ class CategoryForm extends Component
         return view('livewire.admin.news.category-form', [
             'parents' => PostCategory::whereKeyNot($this->category?->id)->orderBy('sort_order')->get(),
             'locales' => ['vi' => 'Tiếng Việt', 'en' => 'English', 'zh' => '中文'],
-            'statuses' => ['draft' => 'Bản nháp', 'published' => 'Xuất bản'],
             'breadcrumbs' => [['label' => 'Bảng điều khiển', 'route' => 'admin.dashboard'], ['label' => 'Danh mục tin tức', 'route' => 'admin.news.categories.index'], ['label' => $this->category ? 'Cập nhật' : 'Thêm mới']],
         ]);
     }

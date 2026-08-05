@@ -14,7 +14,6 @@
                 <div class="form-field"><label>Friendly URL</label><div class="slug-input"><span>/{{ $locale }}/tin-tuc/</span><input class="input" wire:model="slug.{{ $locale }}"><button type="button" wire:click="generateSlug('{{ $locale }}')">Tạo lại</button></div></div>
                 <x-form.textarea name="description[{{ $locale }}]" label="Mô tả" wire:model="description.{{ $locale }}" rows="5" />
                 <details class="seo-panel" open><summary>Search Engine Optimization</summary><div class="seo-grid"><x-form.input name="seo_title[{{ $locale }}]" label="Tiêu đề SEO" wire:model="seo_title.{{ $locale }}" /><x-form.textarea name="meta_description[{{ $locale }}]" label="Meta description" wire:model="meta_description.{{ $locale }}" rows="3" /></div></details>
-                <x-form.select name="translation_status[{{ $locale }}]" label="Trạng thái bản dịch" :options="$statuses" wire:model="translation_status.{{ $locale }}" />
             </div></x-form.section>
         </section>@endforeach</x-form.language-tabs></div>
     </div></form>

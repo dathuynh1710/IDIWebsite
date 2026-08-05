@@ -4,7 +4,65 @@
 .news-settings-columns { display: grid; grid-template-columns: minmax(300px, .75fr) minmax(0, 1.25fr); gap: 20px; }
 .news-settings-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }.news-settings-grid > :last-child { grid-column: 1 / -1; }
 .news-number-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.news-settings-status { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 20px; border-left: 4px solid var(--admin-primary); }
+.news-settings-status-copy { min-width: 0; }
+.news-settings-eyebrow { display: block; margin-bottom: 5px; color: var(--admin-primary); font-size: 10px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
+.news-settings-status h2, .news-settings-status p { margin: 0; }.news-settings-status h2 { color: var(--admin-text); font-size: 18px; }.news-settings-status p { max-width: 760px; margin-top: 5px; color: var(--admin-muted); font-size: 12px; line-height: 1.55; }
+.news-settings-status-switch { width: min(100%, 330px); flex: 0 0 330px; }
+.news-settings-stack { display: grid; align-content: start; gap: 20px; min-width: 0; }
+.news-settings-snippet { grid-column: 1 / -1; }
+.news-social-panel { margin-top: 20px; }
+.news-social-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.news-image-switches { margin-top: 18px; }
 .news-media-preview { min-height: 170px; }
+.news-post-form-content > .language-tabs > .tab-list { position: static; top: auto; }
+.news-post-form-content .ckeditor5-field .ck.ck-editor__main > .ck-editor__editable { min-height: 460px; }
+.news-locale-selector > label { position: relative; }
+.news-locale-selector > label > input { position: absolute; opacity: 0; pointer-events: none; }
+.news-locale-selector .news-locale-copy { min-width: 0; flex: 1; }
+.news-locale-selector .switch-track { margin-left: auto; }
+.news-locale-selector input:checked ~ .switch-track { background: var(--admin-primary); }
+.news-locale-selector input:checked ~ .switch-track > span { transform: translateX(18px); }
+.news-locale-selector input:focus-visible ~ .switch-track { outline: 3px solid rgba(36,104,179,.25); outline-offset: 2px; }
+.news-locale-selector label.is-required .switch-track { opacity: .7; }
+.settings-tab-list { position: sticky; z-index: 20; top: calc(var(--admin-header-height) + 12px); display: flex; gap: 4px; overflow-x: auto; padding: 6px; border: 1px solid var(--admin-border); border-radius: 12px; background: rgba(255,255,255,.96); box-shadow: var(--admin-shadow); scrollbar-width: thin; backdrop-filter: blur(10px); }
+.settings-tab-list button { min-width: 128px; height: 44px; display: inline-flex; align-items: center; justify-content: center; gap: 7px; border: 0; border-radius: 8px; padding: 0 14px; color: var(--admin-muted); background: transparent; font-size: 13px; font-weight: 700; white-space: nowrap; transition: color var(--admin-transition), background var(--admin-transition), box-shadow var(--admin-transition); }
+.settings-tab-list button:hover { color: var(--admin-primary); background: var(--admin-primary-soft); }
+.settings-tab-list button.is-active { color: #fff; background: var(--admin-primary); box-shadow: 0 4px 12px rgba(36,104,179,.24); }
+.settings-tab-list button:focus-visible { outline: 3px solid rgba(36,104,179,.25); outline-offset: 2px; }
+.settings-tab-panels > [role="tabpanel"] { min-width: 0; }
+.settings-panel-grid { display: grid; gap: 20px; }
+.settings-panel-two-columns { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; }
+.settings-wide-card { grid-column: 1 / -1; }
+.settings-field-list { display: grid; gap: 0; }
+.settings-field-list > .form-field { display: grid; grid-template-columns: minmax(190px, .55fr) minmax(0, 1fr); align-items: start; gap: 5px 24px; padding: 15px 0; }
+.settings-field-list > .form-field + .form-field { border-top: 1px solid var(--admin-border); }
+.settings-field-list > .form-field > label { grid-column: 1; margin: 10px 0 0; }
+.settings-field-list > .form-field > .input,
+.settings-field-list > .form-field > .textarea { grid-column: 2; }
+.settings-field-list > .form-field > .field-help,
+.settings-field-list > .form-field > .field-error { grid-column: 2; }
+.settings-inline-fields { display: grid; grid-template-columns: minmax(190px, .55fr) minmax(0, 1fr); align-items: start; gap: 24px; padding: 15px 0; }
+.settings-inline-fields + .settings-inline-fields { border-top: 1px solid var(--admin-border); }
+.settings-inline-fields > span { padding-top: 9px; }
+.settings-inline-fields > span strong, .settings-inline-fields > span small { display: block; }
+.settings-inline-fields > span strong { color: #314256; font-size: 13px; }
+.settings-inline-fields > span small { margin-top: 4px; color: var(--admin-muted); font-size: 11px; line-height: 1.45; }
+.settings-inline-fields > div { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.news-settings-switch-list .switch-field > label { gap: 18px; }
+.news-settings-switch-list .switch-field > label > span:last-child { min-width: 0; }
+.news-settings-switch-list .switch-track { order: 2; margin-left: auto; }
+.settings-switch-columns { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.settings-switch-columns .switch-field + .switch-field { border-top: 0; }
+.settings-switch-columns .switch-field:nth-child(n+3) { border-top: 1px solid var(--admin-border); }
+.settings-switch-columns .switch-field:nth-child(even) { border-left: 1px solid var(--admin-border); }
+.settings-footer-group { margin-top: 18px; }
+.settings-advanced { border: 1px solid var(--admin-border); border-radius: 9px; background: #fbfcfd; }
+.settings-advanced summary { padding: 14px 16px; color: #314256; font-size: 13px; font-weight: 700; cursor: pointer; }
+.settings-advanced[open] summary { border-bottom: 1px solid var(--admin-border); }
+.settings-advanced > .switch-group, .settings-advanced > .settings-field-list { margin: 14px; }
+.settings-advanced > .settings-field-list { margin-top: 0; }
+.news-settings-form .language-tabs > .tab-list { position: static; top: auto; margin-bottom: 16px; box-shadow: none; }
 .form-field { min-width: 0; }
 .form-field > label, .filter-grid label { display: block; margin-bottom: 6px; color: #314256; font-size: 13px; font-weight: 650; }
 .form-field label > span { color: var(--admin-danger); }

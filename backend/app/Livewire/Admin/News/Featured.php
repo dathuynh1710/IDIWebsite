@@ -7,6 +7,7 @@ use App\Models\PostCategory;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Livewire\Attributes\Layout;
+use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -15,9 +16,10 @@ class Featured extends Component
 {
     use WithPagination;
 
-    public string $search = '';
-    public string $category = '';
-    public string $locale = 'vi';
+    #[Url(except: '')] public string $search = '';
+    #[Url(except: '')] public string $category = '';
+    #[Url(except: 'vi')] public string $locale = 'vi';
+    #[Url(as: 'per_page', except: 10, history: true)] public int $perPage = 10;
     public array $selected = [];
     public array $featuredSelected = [];
     public array $sortOrders = [];
@@ -27,27 +29,53 @@ class Featured extends Component
         Gate::authorize('posts.update');
     }
 
+    public function updated($property): void
+    {
+        if (in_array($property, ['search', 'category', 'locale'], true)) {
+            $this->selected = [];
+            $this->resetPage('availablePage');
+        }
+    }
+
+    public function updatedPerPage($value): void
+    {
+        $perPage = (int) $value;
+        $this->perPage = in_array($perPage, [10, 20, 50, 100], true) ? $perPage : 10;
+        $this->selected = [];
+        $this->resetPage('availablePage');
+    }
+
     public function addFeatured(): void
     {
+        Gate::authorize('posts.update');
+        if ($this->selected === []) {
+            return;
+        }
         $limit = $this->limit();
         $current = Post::where('is_featured', true)->count();
         $ids = array_slice(array_values(array_diff($this->selected, Post::where('is_featured', true)->pluck('id')->all())), 0, max(0, $limit - $current));
         Post::whereKey($ids)->update(['is_featured' => true]);
         $this->selected = [];
-        $this->dispatch('admin-toast', message: 'Đã cập nhật danh sách tin tiêu điểm.', type: 'success');
+        $this->resetPage('availablePage');
+        $message = $ids === [] ? 'Danh sách tin tiêu điểm đã đủ vị trí.' : 'Đã thêm '.count($ids).' tin vào khu vực tiêu điểm.';
+        $this->dispatch('admin-toast', message: $message, type: $ids === [] ? 'error' : 'success');
     }
 
     public function removeFeatured(): void
     {
+        Gate::authorize('posts.update');
         Post::whereKey($this->featuredSelected)->update(['is_featured' => false]);
         $this->featuredSelected = [];
+        $this->dispatch('admin-toast', message: 'Đã bỏ các tin được chọn khỏi khu vực tiêu điểm.', type: 'success');
     }
 
     public function updateOrder(): void
     {
+        Gate::authorize('posts.update');
         foreach ($this->sortOrders as $id => $order) {
             Post::whereKey($id)->where('is_featured', true)->update(['sort_order' => max(0, (int) $order)]);
         }
+        $this->dispatch('admin-toast', message: 'Đã cập nhật thứ tự tin tiêu điểm.', type: 'success');
     }
 
     private function limit(): int
@@ -65,9 +93,13 @@ class Featured extends Component
         $available = Post::with(['featuredMedia', 'category'])->where('is_active', true)->where('is_featured', false)
             ->when($this->search, fn ($q) => $q->where("title->{$this->locale}", 'like', "%{$this->search}%"))
             ->when($this->category, fn ($q) => $q->where('post_category_id', $this->category))
-            ->latest()->paginate(12);
+            ->where("translation_status->{$this->locale}", 'published')
+            ->latest('updated_at')->paginate($this->perPage, ['*'], 'availablePage');
+        $limit = $this->limit();
         return view('livewire.admin.news.featured', [
-            'featured' => $featured, 'available' => $available, 'limit' => $this->limit(),
+            'featured' => $featured, 'available' => $available, 'limit' => $limit,
+            'remainingSlots' => max(0, $limit - $featured->count()),
+            'perPageOptions' => [10, 20, 50, 100],
             'categories' => PostCategory::where('is_active', true)->get(),
             'breadcrumbs' => [['label' => 'Bảng điều khiển', 'route' => 'admin.dashboard'], ['label' => 'Tin tức'], ['label' => 'Tin tiêu điểm']],
         ]);

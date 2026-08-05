@@ -113,9 +113,35 @@
 @media (max-width: 1100px) {
     .news-filter-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
     .news-settings-columns { grid-template-columns: 1fr; }
+    .settings-tab-list button { min-width: 116px; }
+    .featured-slot-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .featured-filter-bar { grid-template-columns: 1fr 1fr; }.featured-filter-search { grid-column: 1 / -1; }
 }
 @media (max-width: 700px) {
     .news-filter-grid, .news-number-grid, .news-settings-grid { grid-template-columns: 1fr; }
     .news-settings-grid > :last-child { grid-column: auto; }
+    .news-settings-status { align-items: stretch; flex-direction: column; }.news-settings-status-switch { width: 100%; flex-basis: auto; }
+    .news-settings-snippet { grid-column: auto; }.news-social-grid { grid-template-columns: 1fr; }
     .featured-heading { align-items: flex-start; flex-direction: column; }
+    .featured-manager-header, .featured-library-header { align-items: stretch; flex-direction: column; padding: 18px 16px; }
+    .featured-capacity { width: 100%; flex-basis: auto; }
+    .featured-slot-grid { grid-template-columns: 1fr; padding: 14px; }
+    .featured-slot-card.is-empty { min-height: 180px; }
+    .featured-manager-actions, .featured-selection-toolbar { align-items: stretch; flex-direction: column; padding: 13px 14px; }.featured-manager-actions > div { display: grid; grid-template-columns: 1fr 1fr; }.featured-manager-actions .button, .featured-selection-toolbar .button { justify-content: center; }
+    .featured-library-summary { padding: 12px 0 0; border-top: 1px solid var(--admin-border); border-left: 0; }
+    .featured-filter-bar { grid-template-columns: 1fr; padding: 15px; }.featured-filter-search { grid-column: auto; }
+    .featured-available-desktop { display: none; }.featured-available-mobile { display: grid; }
+    .featured-mobile-item { display: grid; grid-template-columns: 20px 52px minmax(0, 1fr); align-items: center; gap: 10px; padding: 12px 14px; border-bottom: 1px solid var(--admin-border); cursor: pointer; }.featured-mobile-item > input { width: 17px; height: 17px; accent-color: var(--admin-primary); }.featured-mobile-item .product-thumb { width: 52px; height: 42px; }.featured-mobile-item strong, .featured-mobile-item small { display: block; }.featured-mobile-item strong { color: var(--admin-text); font-size: 12px; }.featured-mobile-item small { margin-top: 3px; color: var(--admin-muted); font-size: 10px; }
+    .news-post-form-content .ckeditor5-field .ck.ck-editor__main > .ck-editor__editable { min-height: 340px; }
+    .settings-tab-list { top: var(--admin-header-height); margin-inline: -14px; padding-inline: 14px; border-radius: 0; border-inline: 0; }
+    .settings-tab-list button { min-width: 112px; }
+    .settings-panel-two-columns { grid-template-columns: 1fr; }
+    .settings-wide-card { grid-column: auto; }
+    .settings-field-list > .form-field, .settings-inline-fields { grid-template-columns: 1fr; gap: 7px; }
+    .settings-field-list > .form-field > label, .settings-field-list > .form-field > .input, .settings-field-list > .form-field > .textarea, .settings-field-list > .form-field > .field-help, .settings-field-list > .form-field > .field-error { grid-column: 1; }
+    .settings-field-list > .form-field > label { margin-top: 0; }
+    .settings-inline-fields > span { padding-top: 0; }
+    .settings-inline-fields > div, .settings-switch-columns { grid-template-columns: 1fr; }
+    .settings-switch-columns .switch-field:nth-child(even) { border-left: 0; }
+    .settings-switch-columns .switch-field + .switch-field { border-top: 1px solid var(--admin-border); }
 }

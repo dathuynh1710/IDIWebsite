@@ -107,10 +107,12 @@ class Form extends Component
 
         $localized = [];
         foreach (['title', 'slug', 'summary', 'seo_title', 'meta_description', 'meta_keywords'] as $field) {
-            $localized[$field] = collect($validated[$field] ?? [])
-                ->map(fn ($value) => is_string($value) ? trim($value) : $value)
-                ->filter(fn ($value) => $value !== null && $value !== '')
-                ->all();
+            $values = collect($validated[$field] ?? [])
+                ->map(fn ($value) => is_string($value) ? trim($value) : $value);
+
+            $localized[$field] = $field === 'summary'
+                ? $values->map(fn ($value) => $value ?? '')->all()
+                : $values->filter(fn ($value) => $value !== null && $value !== '')->all();
         }
         $localized['content'] = collect($validated['content'] ?? [])
             ->map(fn ($html) => $this->sanitizeHtml((string) $html))->filter()->all();

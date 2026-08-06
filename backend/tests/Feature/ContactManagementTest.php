@@ -39,6 +39,8 @@ class ContactManagementTest extends TestCase
 
         $response->assertCreated()
             ->assertJsonPath('success', true)
+            ->assertJsonPath('toast.type', 'success')
+            ->assertJsonPath('toast.message', 'Gửi liên hệ thành công.')
             ->assertJsonStructure(['message', 'referenceId']);
 
         $this->assertDatabaseHas('contact_messages', [

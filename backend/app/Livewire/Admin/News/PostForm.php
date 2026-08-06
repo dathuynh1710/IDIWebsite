@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Admin\News;
 
+use App\Livewire\AdminComponent;
 use App\Models\Media;
 use App\Models\Post;
 use App\Models\PostCategory;
@@ -10,31 +11,47 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Livewire\Attributes\Layout;
-use Livewire\Component;
 use Livewire\Features\SupportFileUploads\WithFileUploads;
 
 #[Layout('layouts.admin')]
-class PostForm extends Component
+class PostForm extends AdminComponent
 {
     use WithFileUploads;
 
     public ?Post $post = null;
+
     public ?int $post_category_id = null;
+
     public string $code = '';
+
     public $featured_image;
+
     public bool $remove_image = false;
+
     public int $sort_order = 0;
+
     public bool $is_featured = false;
+
     public bool $is_active = true;
+
     public array $enabled_locales = ['vi'];
+
     public array $title = ['vi' => '', 'en' => '', 'zh' => ''];
+
     public array $slug = ['vi' => '', 'en' => '', 'zh' => ''];
+
     public array $excerpt = ['vi' => '', 'en' => '', 'zh' => ''];
+
     public array $content = ['vi' => '', 'en' => '', 'zh' => ''];
+
     public array $seo_title = ['vi' => '', 'en' => '', 'zh' => ''];
+
     public array $meta_description = ['vi' => '', 'en' => '', 'zh' => ''];
+
     public array $og_title = ['vi' => '', 'en' => '', 'zh' => ''];
+
     public array $og_description = ['vi' => '', 'en' => '', 'zh' => ''];
+
     public array $locale_published_at = ['vi' => '', 'en' => '', 'zh' => ''];
 
     public function mount(?Post $post = null): void
@@ -99,7 +116,7 @@ class PostForm extends Component
         $rules = [
             'post_category_id' => ['required', Rule::exists('post_categories', 'id')->whereNull('deleted_at')],
             'code' => ['nullable', 'string', 'max:100', Rule::unique('posts', 'code')->ignore($this->post?->id)],
-            'featured_image' => [$this->post?->featured_media_id && ! $this->remove_image ? 'nullable' : 'required', 'image', 'max:8192'],
+            'featured_image' => [$this->post ? 'nullable' : 'required', 'image', 'max:8192'],
             'enabled_locales' => ['required', 'array', 'min:1'],
             'enabled_locales.*' => ['required', Rule::in(['vi', 'en', 'zh'])],
             'excerpt.*' => ['nullable', 'string', 'max:2000'], 'content.*' => ['nullable', 'string'],
@@ -147,7 +164,8 @@ class PostForm extends Component
         $data['updated_by'] = auth()->id();
         $this->post = Post::updateOrCreate(['id' => $this->post?->id], $data);
         PostRoutes::syncPost($this->post);
-        session()->flash('success', 'Đã lưu bài viết.');
+        $this->flashToast('Đã lưu bài viết.');
+
         return $this->redirectRoute('admin.news.posts.index', navigate: true);
     }
 

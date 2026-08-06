@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router'
 import PageHead from '@components/common/PageHead'
 import { careersService } from '@services/careers.service'
+import toast from '@/utils/toast'
 import { useLanguage } from '@hooks/useLanguage'
 
 const HERO_IMAGE =
@@ -93,7 +94,6 @@ export default function CareersPage() {
   const [isLoadingOpenings, setIsLoadingOpenings] = useState(true)
   const [errors, setErrors] = useState({})
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [submitError, setSubmitError] = useState('')
   const [referenceId, setReferenceId] = useState('')
   const fileInputRef = useRef(null)
 
@@ -148,13 +148,12 @@ export default function CareersPage() {
 
     if (Object.keys(nextErrors).length) {
       setErrors(nextErrors)
+      toast.validation(nextErrors)
       document.querySelector(`[name="${Object.keys(nextErrors)[0]}"]`)?.focus()
       return
     }
 
     setIsSubmitting(true)
-    setSubmitError('')
-
     try {
       const result = await careersService.submitApplication(form)
       setReferenceId(result.referenceId)
@@ -162,9 +161,7 @@ export default function CareersPage() {
       setErrors({})
       if (fileInputRef.current) fileInputRef.current.value = ''
     } catch {
-      setSubmitError(
-        'Chưa thể gửi hồ sơ lúc này. Vui lòng thử lại hoặc gửi CV trực tiếp đến info@idiseafood.com.',
-      )
+      // The shared Axios interceptor displays upload, validation, and server errors.
     } finally {
       setIsSubmitting(false)
     }
@@ -172,7 +169,6 @@ export default function CareersPage() {
 
   const startNewApplication = () => {
     setReferenceId('')
-    setSubmitError('')
   }
 
   return (
@@ -485,15 +481,6 @@ export default function CareersPage() {
                         </div>
                       </FormField>
                     </div>
-
-                    {submitError && (
-                      <div className="mt-6 rounded-xl border border-[#E7B4AC] bg-[#FFF4F1] px-4 py-3 text-sm text-[#9D3022]" role="alert">
-                        {submitError}{' '}
-                        <a href="mailto:info@idiseafood.com" className="font-bold underline underline-offset-2">
-                          Gửi email ngay
-                        </a>
-                      </div>
-                    )}
 
                     <div className="mt-8 flex flex-col gap-4 border-t border-light-mist pt-7 sm:flex-row sm:items-center sm:justify-between">
                       <p className="text-xs leading-6 text-storm-grey">

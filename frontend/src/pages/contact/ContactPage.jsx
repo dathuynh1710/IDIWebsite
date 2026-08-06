@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router'
 import PageHead from '@components/common/PageHead'
 import { inquiryService } from '@services/inquiry.service'
+import toast from '@/utils/toast'
 
 const INITIAL_FORM = {
   inquiryType: 'Báo giá xuất khẩu',
@@ -91,7 +92,6 @@ export default function ContactPage() {
   const [form, setForm] = useState(INITIAL_FORM)
   const [errors, setErrors] = useState({})
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [submitError, setSubmitError] = useState('')
   const [referenceId, setReferenceId] = useState('')
 
   const fieldClass = (name) => [
@@ -131,20 +131,20 @@ export default function ContactPage() {
 
     if (Object.keys(nextErrors).length) {
       setErrors(nextErrors)
+      toast.validation(nextErrors)
       const firstInvalidField = document.querySelector(`[name="${Object.keys(nextErrors)[0]}"]`)
       firstInvalidField?.focus()
       return
     }
 
     setIsSubmitting(true)
-    setSubmitError('')
     try {
       const result = await inquiryService.submitTrade(form)
       setReferenceId(result.referenceId)
       setForm(INITIAL_FORM)
       setErrors({})
     } catch {
-      setSubmitError('Chưa thể gửi liên hệ lúc này. Vui lòng thử lại hoặc liên hệ trực tiếp qua email.')
+      // The shared Axios interceptor displays the server or network error.
     } finally {
       setIsSubmitting(false)
     }
@@ -152,7 +152,6 @@ export default function ContactPage() {
 
   const startNewInquiry = () => {
     setReferenceId('')
-    setSubmitError('')
     setForm(INITIAL_FORM)
   }
 
@@ -406,12 +405,6 @@ export default function ContactPage() {
                         </span>
                       )}
                     </div>
-
-                    {submitError && (
-                      <div className="mt-6 rounded-xl border border-[#E7B4AC] bg-[#FFF4F1] px-4 py-3 text-sm text-[#9D3022]" role="alert">
-                        {submitError}
-                      </div>
-                    )}
 
                     <div className="mt-8 flex flex-col gap-4 border-t border-light-mist pt-7 sm:flex-row sm:items-center sm:justify-between">
                       <p className="text-xs text-storm-grey">

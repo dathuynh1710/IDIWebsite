@@ -2,26 +2,35 @@
 
 namespace App\Livewire\Admin\News;
 
+use App\Livewire\AdminComponent;
 use App\Models\PostCategory;
 use App\Support\PostRoutes;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Livewire\Attributes\Layout;
-use Livewire\Component;
 
 #[Layout('layouts.admin')]
-class CategoryForm extends Component
+class CategoryForm extends AdminComponent
 {
     public ?PostCategory $category = null;
+
     public ?int $parent_id = null;
+
     public string $code = '';
+
     public int $sort_order = 0;
+
     public bool $is_active = true;
+
     public array $name = ['vi' => '', 'en' => '', 'zh' => ''];
+
     public array $slug = ['vi' => '', 'en' => '', 'zh' => ''];
+
     public array $description = ['vi' => '', 'en' => '', 'zh' => ''];
+
     public array $seo_title = ['vi' => '', 'en' => '', 'zh' => ''];
+
     public array $meta_description = ['vi' => '', 'en' => '', 'zh' => ''];
 
     public function mount(?PostCategory $category = null): void
@@ -67,7 +76,8 @@ class CategoryForm extends Component
         $data['updated_by'] = auth()->id();
         $this->category = PostCategory::updateOrCreate(['id' => $this->category?->id], $data);
         PostRoutes::syncCategory($this->category);
-        session()->flash('success', 'Đã lưu danh mục tin tức.');
+        $this->flashToast('Đã lưu danh mục tin tức.');
+
         return $this->redirectRoute('admin.news.categories.index', navigate: true);
     }
 

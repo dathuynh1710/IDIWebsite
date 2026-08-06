@@ -76,6 +76,31 @@ class NewsManagementTest extends TestCase
         ]);
     }
 
+    public function test_existing_post_without_featured_image_can_be_updated(): void
+    {
+        $post = $this->makePost($this->category());
+
+        Livewire::actingAs($this->editor())->test(PostForm::class, ['post' => $post])
+            ->set('title.vi', 'Tiêu đề đã cập nhật')
+            ->call('save')
+            ->assertHasNoErrors()
+            ->assertRedirect(route('admin.news.posts.index'));
+
+        $this->assertSame('Tiêu đề đã cập nhật', $post->refresh()->getTranslation('title', 'vi'));
+        $this->assertNull($post->featured_media_id);
+    }
+
+    public function test_new_post_without_featured_image_has_a_vietnamese_validation_message(): void
+    {
+        Livewire::actingAs($this->editor())->test(PostForm::class)
+            ->set('post_category_id', $this->category()->id)
+            ->set('title.vi', 'Tin mới')
+            ->set('slug.vi', 'tin-moi')
+            ->call('save')
+            ->assertHasErrors(['featured_image' => 'required'])
+            ->assertSee('Vui lòng chọn ảnh đại diện.');
+    }
+
     public function test_news_language_toggles_follow_available_translations(): void
     {
         $post = $this->makePost($this->category());
@@ -283,6 +308,7 @@ class NewsManagementTest extends TestCase
         }
         $user = User::factory()->create();
         $user->givePermissionTo(Permission::findOrCreate('posts.manage', 'web'));
+
         return $user;
     }
 

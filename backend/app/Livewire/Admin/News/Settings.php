@@ -2,64 +2,114 @@
 
 namespace App\Livewire\Admin\News;
 
+use App\Livewire\AdminComponent;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Livewire\Attributes\Layout;
-use Livewire\Component;
 
 #[Layout('layouts.admin')]
-class Settings extends Component
+class Settings extends AdminComponent
 {
     public array $page_title = ['vi' => '', 'en' => '', 'zh' => ''];
+
     public array $description = ['vi' => '', 'en' => '', 'zh' => ''];
+
     public array $seo_title = ['vi' => '', 'en' => '', 'zh' => ''];
+
     public array $meta_description = ['vi' => '', 'en' => '', 'zh' => ''];
+
     public array $meta_keywords = ['vi' => '', 'en' => '', 'zh' => ''];
+
     public array $og_title = ['vi' => '', 'en' => '', 'zh' => ''];
+
     public array $og_description = ['vi' => '', 'en' => '', 'zh' => ''];
+
     public bool $module_enabled = true;
+
     public int $items_per_page = 12;
+
     public int $category_items_per_page = 10;
+
     public int $archive_items_per_page = 10;
+
     public int $featured_limit = 3;
+
     public int $related_limit = 6;
+
     public int $thumbnail_size = 320;
+
     public int $thumbnail_height = 200;
+
     public int $max_upload_width = 1600;
+
     public int $image_quality = 85;
+
     public int $detail_image_width = 1200;
+
     public int $detail_image_height = 675;
+
     public bool $crop_images = true;
+
     public bool $watermark_enabled = false;
+
     public bool $show_featured_section = true;
+
     public bool $show_category_navigation = true;
+
     public bool $show_related_articles = true;
+
     public bool $show_author = true;
+
     public bool $show_published_date = true;
+
     public bool $show_view_count = true;
+
     public bool $show_reading_time = true;
+
     public bool $show_tags = true;
+
     public bool $show_article_source = true;
+
     public bool $show_breadcrumb = true;
+
     public bool $show_social_share = true;
+
     public bool $show_previous_next = true;
+
     public bool $show_placeholder_image = true;
+
     public bool $allow_print = true;
+
     public bool $allow_comments = false;
+
     public bool $moderate_comments = true;
+
     public bool $comment_spam_protection = true;
+
     public bool $fetch_remote_images = false;
+
     public int $max_upload_size = 10;
+
     public string $allowed_file_types = 'jpg, jpeg, png, webp';
+
     public bool $auto_rename_files = true;
+
     public bool $allow_webp = true;
+
     public bool $allow_svg = false;
+
     public bool $rebuild_seo_links = false;
+
     public bool $cache_homepage = true;
+
     public bool $cache_category = true;
+
     public bool $cache_detail = true;
+
     public bool $lazy_load_images = true;
+
     public bool $performance_webp = true;
+
     public bool $sitemap_enabled = true;
 
     public function mount(): void
@@ -125,7 +175,7 @@ class Settings extends Component
                 ['setting_value' => json_encode($value, JSON_UNESCAPED_UNICODE), 'setting_type' => $type, 'updated_at' => now(), 'created_at' => now()]
             );
         }
-        $this->dispatch('admin-toast', message: 'Đã lưu cấu hình tin tức.', type: 'success');
+        $this->toast('Đã lưu cấu hình tin tức.');
     }
 
     public function render()

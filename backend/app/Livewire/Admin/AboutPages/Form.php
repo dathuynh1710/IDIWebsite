@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Admin\AboutPages;
 
+use App\Livewire\AdminComponent;
 use App\Models\Media;
 use App\Models\Page;
 use App\Support\AboutPageRoutes;
@@ -10,11 +11,10 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Livewire\Attributes\Layout;
-use Livewire\Component;
 use Livewire\Features\SupportFileUploads\WithFileUploads;
 
 #[Layout('layouts.admin')]
-class Form extends Component
+class Form extends AdminComponent
 {
     use WithFileUploads;
 
@@ -162,7 +162,7 @@ class Form extends Component
         if ($pageId === null) {
             $this->js("history.replaceState({}, '', '".route('admin.about-pages.edit', $this->page)."')");
         }
-        $this->dispatch('admin-toast', message: $pageId ? 'Cập nhật nội dung giới thiệu thành công.' : 'Tạo nội dung giới thiệu thành công.', type: 'success');
+        $this->toast($pageId ? 'Cập nhật nội dung giới thiệu thành công.' : 'Tạo nội dung giới thiệu thành công.');
     }
 
     private function sanitizeHtml(string $html): string

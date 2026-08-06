@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Admin\News;
 
+use App\Livewire\AdminComponent;
 use App\Models\Post;
 use App\Models\PostCategory;
 use App\Support\PostRoutes;
@@ -9,22 +10,33 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Url;
-use Livewire\Component;
 use Livewire\WithPagination;
 
 #[Layout('layouts.admin')]
-class CategoryIndex extends Component
+class CategoryIndex extends AdminComponent
 {
     use WithPagination;
 
-    #[Url(except: '')] public string $search = '';
-    #[Url(except: '')] public string $active = '';
-    #[Url(except: 'vi')] public string $locale = 'vi';
-    #[Url(as: 'per_page', except: 10, history: true)] public int $perPage = 10;
+    #[Url(except: '')]
+    public string $search = '';
+
+    #[Url(except: '')]
+    public string $active = '';
+
+    #[Url(except: 'vi')]
+    public string $locale = 'vi';
+
+    #[Url(as: 'per_page', except: 10, history: true)]
+    public int $perPage = 10;
+
     public array $selected = [];
+
     public array $sortOrders = [];
+
     public ?int $pendingDeleteId = null;
+
     public string $pendingDeleteName = '';
+
     public int $pendingDeletePostsCount = 0;
 
     public function mount(): void
@@ -54,6 +66,7 @@ class CategoryIndex extends Component
         $category = PostCategory::findOrFail($id);
         $category->update(['is_active' => ! $category->is_active, 'updated_by' => auth()->id()]);
         PostRoutes::syncCategory($category);
+        $this->toastState($category->is_active, 'danh mục tin tức');
     }
 
     public function requestDelete(int $id): void
@@ -83,7 +96,7 @@ class CategoryIndex extends Component
         $category = PostCategory::findOrFail($this->pendingDeleteId);
         $this->deleteCategorySafely($category);
         $this->cancelDelete();
-        $this->dispatch('admin-toast', message: 'Đã chuyển danh mục vào thùng rác.', type: 'success');
+        $this->toast('Đã chuyển danh mục vào thùng rác.');
     }
 
     public function bulk(string $action): void
@@ -102,6 +115,7 @@ class CategoryIndex extends Component
             }
         }
         $this->selected = [];
+        $this->toastBulk($action, 'danh mục tin tức');
     }
 
     private function deleteCategorySafely(PostCategory $category): void

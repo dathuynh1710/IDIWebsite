@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Admin\Products;
 
+use App\Livewire\AdminComponent;
 use App\Models\Media;
 use App\Models\Product;
 use App\Models\ProductCategory;
@@ -10,11 +11,10 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Livewire\Attributes\Layout;
-use Livewire\Component;
 use Livewire\Features\SupportFileUploads\WithFileUploads;
 
 #[Layout('layouts.admin')]
-class Form extends Component
+class Form extends AdminComponent
 {
     use WithFileUploads;
 
@@ -194,7 +194,7 @@ class Form extends Component
         if ($productId === null && ! $this->modal) {
             $this->js("history.replaceState({}, '', '".route('admin.products.edit', $this->product)."')");
         }
-        $this->dispatch('admin-toast', message: $productId ? 'Cập nhật sản phẩm thành công.' : 'Tạo sản phẩm thành công.', type: 'success');
+        $this->toast($productId ? 'Cập nhật sản phẩm thành công.' : 'Tạo sản phẩm thành công.');
         $this->dispatch('product-saved');
     }
 

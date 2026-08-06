@@ -2,15 +2,15 @@
 
 namespace App\Livewire\Admin\Investors;
 
+use App\Livewire\AdminComponent;
 use App\Models\DocumentCategory;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Livewire\Attributes\Layout;
-use Livewire\Component;
 
 #[Layout('layouts.admin')]
-class CategoryForm extends Component
+class CategoryForm extends AdminComponent
 {
     public ?DocumentCategory $category = null;
 
@@ -71,7 +71,7 @@ class CategoryForm extends Component
         $data['created_by'] = $this->category?->created_by ?? auth()->id();
         $data['updated_by'] = auth()->id();
         $this->category = DocumentCategory::updateOrCreate(['id' => $this->category?->id], $data);
-        session()->flash('success', 'Đã lưu danh mục quan hệ cổ đông.');
+        $this->flashToast('Đã lưu danh mục quan hệ cổ đông.');
 
         return $this->redirectRoute('admin.investors.categories.index', navigate: true);
     }

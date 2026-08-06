@@ -3,17 +3,17 @@
 namespace App\Livewire\Admin\Contacts;
 
 use App\Enums\ContactStatus;
+use App\Livewire\AdminComponent;
 use App\Models\ContactMessage;
 use Illuminate\Support\Facades\Gate;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Attributes\Url;
-use Livewire\Component;
 use Livewire\WithPagination;
 
 #[Layout('layouts.admin')]
 #[Title('Quản lý liên lạc')]
-class Index extends Component
+class Index extends AdminComponent
 {
     use WithPagination;
 
@@ -155,7 +155,7 @@ class Index extends Component
             ContactMessage::whereKey($this->selected)->delete();
             $this->selected = [];
             $this->resetDeleteConfirmation();
-            $this->toast('Đã xóa các thư liên hệ đã chọn.');
+            $this->toast('Đã xóa vĩnh viễn các thư liên hệ đã chọn.');
 
             return;
         }
@@ -171,7 +171,7 @@ class Index extends Component
         }
 
         $this->resetDeleteConfirmation();
-        $this->toast('Đã xóa thư liên hệ.');
+        $this->toast('Đã xóa vĩnh viễn thư liên hệ.');
     }
 
     private function resetDeleteConfirmation(): void
@@ -179,11 +179,6 @@ class Index extends Component
         $this->pendingDeleteId = null;
         $this->pendingDeleteName = '';
         $this->pendingBulkDelete = false;
-    }
-
-    private function toast(string $message): void
-    {
-        $this->dispatch('admin-toast', message: $message, type: 'success');
     }
 
     public function render()
@@ -195,6 +190,7 @@ class Index extends Component
             'dateTo' => $this->dateTo,
             'locale' => $this->locale,
         ];
+
         return view('livewire.admin.contacts.index', [
             'messages' => ContactMessage::query()
                 ->with('assignee')

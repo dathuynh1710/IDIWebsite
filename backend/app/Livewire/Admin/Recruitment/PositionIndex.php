@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Admin\Recruitment;
 
+use App\Livewire\AdminComponent;
 use App\Models\JobPosition;
 use App\Support\JobPositionRoutes;
 use Illuminate\Support\Facades\DB;
@@ -9,20 +10,30 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Url;
-use Livewire\Component;
 use Livewire\WithPagination;
 
 #[Layout('layouts.admin')]
-class PositionIndex extends Component
+class PositionIndex extends AdminComponent
 {
     use WithPagination;
 
-    #[Url(except: '')] public string $search = '';
-    #[Url(except: '')] public string $active = '';
-    #[Url(except: '')] public string $date_from = '';
-    #[Url(except: '')] public string $date_to = '';
-    #[Url(except: 'vi')] public string $locale = 'vi';
+    #[Url(except: '')]
+    public string $search = '';
+
+    #[Url(except: '')]
+    public string $active = '';
+
+    #[Url(except: '')]
+    public string $date_from = '';
+
+    #[Url(except: '')]
+    public string $date_to = '';
+
+    #[Url(except: 'vi')]
+    public string $locale = 'vi';
+
     public array $selected = [];
+
     public array $sortOrders = [];
 
     public function mount(): void
@@ -44,6 +55,7 @@ class PositionIndex extends Component
         $position = JobPosition::findOrFail($id);
         $position->update(['is_active' => ! $position->is_active, 'updated_by' => auth()->id()]);
         JobPositionRoutes::sync($position);
+        $this->toastState($position->is_active, 'vị trí tuyển dụng');
     }
 
     public function duplicate(int $id): void
@@ -62,7 +74,7 @@ class PositionIndex extends Component
         $copy->updated_by = auth()->id();
         $copy->save();
         JobPositionRoutes::sync($copy);
-        $this->dispatch('admin-toast', message: 'Đã nhân bản vị trí tuyển dụng.', type: 'success');
+        $this->toast('Đã nhân bản vị trí tuyển dụng.');
     }
 
     public function delete(int $id): void
@@ -70,7 +82,7 @@ class PositionIndex extends Component
         Gate::authorize('recruitment.delete');
         JobPosition::findOrFail($id)->delete();
         DB::table('localized_routes')->where('routeable_type', JobPosition::class)->where('routeable_id', $id)->delete();
-        $this->dispatch('admin-toast', message: 'Đã xóa vị trí tuyển dụng.', type: 'success');
+        $this->toast('Đã chuyển vị trí tuyển dụng vào thùng rác.');
     }
 
     public function bulk(string $action): void
@@ -89,6 +101,7 @@ class PositionIndex extends Component
             }
         }
         $this->selected = [];
+        $this->toastBulk($action, 'vị trí tuyển dụng');
     }
 
     public function render()
@@ -101,6 +114,7 @@ class PositionIndex extends Component
         foreach ($positions as $position) {
             $this->sortOrders[$position->id] ??= $position->sort_order;
         }
+
         return view('livewire.admin.recruitment.position-index', [
             'positions' => $positions,
             'breadcrumbs' => [['label' => 'Bảng điều khiển', 'route' => 'admin.dashboard'], ['label' => 'Quản lý tuyển dụng']],

@@ -5,8 +5,6 @@
 .button-danger { color: #fff; background: var(--admin-danger); }.button-danger:hover { background: #bb3434; }
 .badge { display: inline-flex; align-items: center; min-height: 24px; padding: 3px 8px; border-radius: 999px; font-size: 11px; font-weight: 650; white-space: nowrap; }
 .badge-neutral { color: #5d6c7a; background: #edf1f4; }.badge-success { color: #197244; background: #e3f4eb; }.badge-warning { color: #956009; background: #fff0d2; }.badge-info { color: #216da7; background: #e3f1fb; }
-.flash { display: flex; align-items: center; gap: 10px; padding: 12px 14px; margin-bottom: 18px; border: 1px solid; border-radius: 8px; box-shadow: var(--admin-shadow); }.flash > span { flex: 1; }.flash button { border: 0; padding: 4px; color: inherit; background: transparent; }
-.flash-success { color: #176a3e; border-color: #a9dfc2; background: #effaf4; }.flash-error { color: #9f2727; border-color: #efb4b4; background: #fff2f2; }.flash-warning { color: #8a590b; border-color: #edd29e; background: #fff8e9; }.flash-info { color: #1c669d; border-color: #afd1e8; background: #eef8fe; }
 .empty-state { display: grid; justify-items: center; text-align: center; padding: 50px 22px; }.empty-state > span { width: 62px; height: 62px; display: grid; place-items: center; border-radius: 50%; color: var(--admin-primary); background: var(--admin-primary-soft); }.empty-state h3 { margin: 14px 0 4px; }.empty-state p { color: var(--admin-muted); margin-bottom: 18px; }
 .confirm-wrap { display: inline-flex; }
 .modal-backdrop { position: fixed; z-index: 100; inset: 0; display: grid; place-items: center; padding: 20px; background: rgba(7, 23, 39, .6); backdrop-filter: blur(3px); }
@@ -32,20 +30,15 @@
     backdrop-filter: blur(1px);
 }
 
-.admin-toast-region {
-    position: fixed;
-    top: 1rem;
-    right: 1rem;
-    z-index: 1100;
-    width: min(26rem, calc(100vw - 2rem));
+#toast-container {
+    z-index: 1200;
 }
 
-.admin-toast-region .flash-message {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
+#toast-container > .toast {
+    width: min(24rem, calc(100vw - 2rem));
+    border-radius: 8px;
     box-shadow: 0 12px 35px rgb(15 23 42 / 20%);
+    opacity: 1;
 }
 
 .admin-form-modal {

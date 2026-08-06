@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Admin\Products;
 
+use App\Livewire\AdminComponent;
 use App\Models\Product;
 use App\Models\ProductCategory;
 use Illuminate\Support\Facades\DB;
@@ -10,12 +11,11 @@ use Illuminate\Support\Str;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Attributes\Url;
-use Livewire\Component;
 use Livewire\WithPagination;
 
 #[Layout('layouts.admin')]
 #[Title('Sản phẩm')]
-class Index extends Component
+class Index extends AdminComponent
 {
     use WithPagination;
 
@@ -53,7 +53,7 @@ class Index extends Component
     {
         Gate::authorize('products.delete');
         Product::findOrFail($productId)->delete();
-        $this->dispatch('admin-toast', message: 'Đã chuyển sản phẩm vào thùng rác.', type: 'success');
+        $this->toast('Đã chuyển sản phẩm vào thùng rác.');
     }
 
     public function duplicate(int $productId): void
@@ -76,7 +76,7 @@ class Index extends Component
             return $copy;
         });
 
-        $this->dispatch('admin-toast', message: "Đã nhân bản sản phẩm {$copy->sku}.", type: 'success');
+        $this->toast("Đã nhân bản sản phẩm {$copy->sku}.");
     }
 
     public function render()

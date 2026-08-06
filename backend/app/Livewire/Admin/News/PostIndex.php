@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Admin\News;
 
+use App\Livewire\AdminComponent;
 use App\Models\Post;
 use App\Models\PostCategory;
 use App\Support\PostRoutes;
@@ -10,25 +11,42 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Url;
-use Livewire\Component;
 use Livewire\WithPagination;
 
 #[Layout('layouts.admin')]
-class PostIndex extends Component
+class PostIndex extends AdminComponent
 {
     use WithPagination;
 
-    #[Url(except: '')] public string $search = '';
-    #[Url(except: '')] public string $category = '';
-    #[Url(except: '')] public string $active = '';
-    #[Url(except: '')] public string $date_from = '';
-    #[Url(except: '')] public string $date_to = '';
-    #[Url(except: 'vi')] public string $locale = 'vi';
-    #[Url(as: 'per_page', except: 10, history: true)] public int $perPage = 10;
+    #[Url(except: '')]
+    public string $search = '';
+
+    #[Url(except: '')]
+    public string $category = '';
+
+    #[Url(except: '')]
+    public string $active = '';
+
+    #[Url(except: '')]
+    public string $date_from = '';
+
+    #[Url(except: '')]
+    public string $date_to = '';
+
+    #[Url(except: 'vi')]
+    public string $locale = 'vi';
+
+    #[Url(as: 'per_page', except: 10, history: true)]
+    public int $perPage = 10;
+
     public array $selected = [];
+
     public array $sortOrders = [];
+
     public ?int $pendingDeleteId = null;
+
     public string $pendingDeleteName = '';
+
     public bool $pendingBulkDelete = false;
 
     public function mount(): void
@@ -58,6 +76,7 @@ class PostIndex extends Component
         $post = Post::findOrFail($id);
         $post->update(['is_active' => ! $post->is_active, 'updated_by' => auth()->id()]);
         PostRoutes::syncPost($post);
+        $this->toastState($post->is_active, 'tin tức');
     }
 
     public function duplicate(int $id): void
@@ -76,7 +95,7 @@ class PostIndex extends Component
         $post->updated_by = auth()->id();
         $post->save();
         PostRoutes::syncPost($post);
-        $this->dispatch('admin-toast', message: 'Đã nhân bản tin dưới dạng bản nháp.', type: 'success');
+        $this->toast('Đã nhân bản tin dưới dạng bản nháp.');
     }
 
     public function delete(int $id): void
@@ -84,7 +103,7 @@ class PostIndex extends Component
         Gate::authorize('posts.delete');
         Post::findOrFail($id)->delete();
         DB::table('localized_routes')->where('routeable_type', Post::class)->where('routeable_id', $id)->delete();
-        $this->dispatch('admin-toast', message: 'Đã chuyển tin vào thùng rác.', type: 'success');
+        $this->toast('Đã chuyển tin vào thùng rác.');
     }
 
     public function requestDelete(int $id): void
@@ -135,7 +154,7 @@ class PostIndex extends Component
             });
             $this->selected = [];
             $this->resetDeleteConfirmation();
-            $this->dispatch('admin-toast', message: 'Đã chuyển các tin được chọn vào thùng rác.', type: 'success');
+            $this->toast('Đã chuyển các tin được chọn vào thùng rác.');
 
             return;
         }
@@ -173,6 +192,7 @@ class PostIndex extends Component
             }
         }
         $this->selected = [];
+        $this->toastBulk($action, 'tin tức');
     }
 
     public function render()
@@ -183,6 +203,7 @@ class PostIndex extends Component
         foreach ($posts as $post) {
             $this->sortOrders[$post->id] ??= $post->sort_order;
         }
+
         return view('livewire.admin.news.post-index', [
             'posts' => $posts, 'categories' => PostCategory::orderBy('sort_order')->get(),
             'perPageOptions' => [10, 20, 50, 100],

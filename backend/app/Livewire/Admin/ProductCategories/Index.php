@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Admin\ProductCategories;
 
+use App\Livewire\AdminComponent;
 use App\Models\ProductCategory;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
@@ -9,12 +10,11 @@ use Livewire\Attributes\Layout;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Title;
 use Livewire\Attributes\Url;
-use Livewire\Component;
 use Livewire\WithPagination;
 
 #[Layout('layouts.admin')]
 #[Title('Danh mục sản phẩm')]
-class Index extends Component
+class Index extends AdminComponent
 {
     use WithPagination;
 
@@ -134,11 +134,6 @@ class Index extends Component
             'reorder' => 'Đã cập nhật thứ tự danh mục.',
             'delete' => 'Đã chuyển các danh mục đã chọn vào thùng rác.',
         });
-    }
-
-    private function toast(string $message, string $type = 'success'): void
-    {
-        $this->dispatch('admin-toast', message: $message, type: $type);
     }
 
     public function render()

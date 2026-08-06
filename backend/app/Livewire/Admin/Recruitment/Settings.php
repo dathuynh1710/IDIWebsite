@@ -2,20 +2,26 @@
 
 namespace App\Livewire\Admin\Recruitment;
 
+use App\Livewire\AdminComponent;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Livewire\Attributes\Layout;
-use Livewire\Component;
 
 #[Layout('layouts.admin')]
-class Settings extends Component
+class Settings extends AdminComponent
 {
     public array $page_title = ['vi' => '', 'en' => '', 'zh' => ''];
+
     public array $description = ['vi' => '', 'en' => '', 'zh' => ''];
+
     public array $seo_title = ['vi' => '', 'en' => '', 'zh' => ''];
+
     public array $meta_description = ['vi' => '', 'en' => '', 'zh' => ''];
+
     public int $items_per_page = 10;
+
     public bool $application_enabled = true;
+
     public string $notification_email = '';
 
     public function mount(): void
@@ -69,13 +75,14 @@ class Settings extends Component
                 ['setting_value' => json_encode($data[$key]), 'setting_type' => is_bool($data[$key]) ? 'boolean' : (is_int($data[$key]) ? 'number' : 'string'), 'created_at' => now(), 'updated_at' => now()]
             );
         }
-        $this->dispatch('admin-toast', message: 'Đã lưu cấu hình tuyển dụng.', type: 'success');
+        $this->toast('Đã lưu cấu hình tuyển dụng.');
     }
 
     private function sanitizeLocalizedHtml(array $values): array
     {
         return collect($values)->map(function ($html) {
             $html = preg_replace('#<(script|style|iframe|object|embed)\b[^>]*>.*?</\1>#is', '', (string) $html) ?? '';
+
             return trim(strip_tags($html, '<p><br><h2><h3><strong><b><em><i><ul><ol><li><a>'));
         })->filter()->all();
     }

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreProductCategoryRequest;
 use App\Http\Requests\Admin\UpdateProductCategoryRequest;
 use App\Models\ProductCategory;
+use App\Support\Toast;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -76,7 +77,7 @@ class ProductCategoryController extends Controller
 
         return redirect()
             ->route('admin.product-categories.edit', $category)
-            ->with('success', 'Đã thêm danh mục sản phẩm.');
+            ->with(Toast::success('Đã thêm danh mục sản phẩm.'));
     }
 
     public function edit(ProductCategory $category): View
@@ -94,7 +95,7 @@ class ProductCategoryController extends Controller
 
         return redirect()
             ->route('admin.product-categories.edit', $category)
-            ->with('success', 'Đã cập nhật danh mục sản phẩm.');
+            ->with(Toast::success('Đã cập nhật danh mục sản phẩm.'));
     }
 
     public function visibility(Request $request, ProductCategory $category): RedirectResponse
@@ -107,7 +108,7 @@ class ProductCategoryController extends Controller
             'updated_by' => $request->user()->id,
         ]);
 
-        return back()->with('success', $category->is_active ? 'Đã hiển thị danh mục.' : 'Đã ẩn danh mục.');
+        return back()->with(Toast::success($category->is_active ? 'Đã hiển thị danh mục.' : 'Đã ẩn danh mục.'));
     }
 
     public function destroy(ProductCategory $category): RedirectResponse
@@ -121,7 +122,7 @@ class ProductCategoryController extends Controller
 
         return redirect()
             ->route('admin.product-categories.index')
-            ->with('success', 'Đã chuyển danh mục vào thùng rác. Sản phẩm liên quan không bị xóa.');
+            ->with(Toast::success('Đã chuyển danh mục vào thùng rác. Sản phẩm liên quan không bị xóa.'));
     }
 
     public function restore(int $categoryId): RedirectResponse
@@ -131,7 +132,7 @@ class ProductCategoryController extends Controller
         $category = ProductCategory::onlyTrashed()->findOrFail($categoryId);
         $category->restore();
 
-        return back()->with('success', 'Đã khôi phục danh mục sản phẩm.');
+        return back()->with(Toast::success('Đã khôi phục danh mục sản phẩm.'));
     }
 
     public function bulk(Request $request): RedirectResponse
@@ -184,7 +185,7 @@ class ProductCategoryController extends Controller
             'delete' => 'Đã chuyển các danh mục đã chọn vào thùng rác.',
         };
 
-        return back()->with('success', $message);
+        return back()->with(Toast::success($message));
     }
 
     private function formData(?ProductCategory $category = null): array

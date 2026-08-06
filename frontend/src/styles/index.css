@@ -4,6 +4,17 @@
    ═══════════════════════════════════════════════════════════════ */
 
 @import "tailwindcss";
+
+#toast-container {
+  z-index: var(--z-toast, 400);
+}
+
+#toast-container > .toast {
+  width: min(24rem, calc(100vw - 2rem));
+  border-radius: 0.5rem;
+  box-shadow: 0 12px 35px rgb(15 23 42 / 20%);
+  opacity: 1;
+}
 @import "./animations.css";
 
 /* ───────────────────────────────────────────────────────────────

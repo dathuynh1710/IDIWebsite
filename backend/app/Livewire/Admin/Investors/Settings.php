@@ -2,13 +2,13 @@
 
 namespace App\Livewire\Admin\Investors;
 
+use App\Livewire\AdminComponent;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Livewire\Attributes\Layout;
-use Livewire\Component;
 
 #[Layout('layouts.admin')]
-class Settings extends Component
+class Settings extends AdminComponent
 {
     public array $page_title = ['vi' => '', 'en' => '', 'zh' => ''];
 
@@ -78,7 +78,7 @@ class Settings extends Component
             }
         });
 
-        $this->dispatch('admin-toast', message: 'Đã lưu cấu hình quan hệ cổ đông.', type: 'success');
+        $this->toast('Đã lưu cấu hình quan hệ cổ đông.');
     }
 
     public function render()

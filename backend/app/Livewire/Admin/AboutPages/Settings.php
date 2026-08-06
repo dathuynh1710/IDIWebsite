@@ -2,15 +2,15 @@
 
 namespace App\Livewire\Admin\AboutPages;
 
+use App\Livewire\AdminComponent;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
-use Livewire\Component;
 
 #[Layout('layouts.admin')]
 #[Title('Cấu hình giới thiệu')]
-class Settings extends Component
+class Settings extends AdminComponent
 {
     public array $page_title = ['vi' => '', 'en' => '', 'zh' => ''];
 
@@ -56,7 +56,7 @@ class Settings extends Component
             ];
             DB::table('modules')->updateOrInsert(['code' => 'about'], $values + ['created_at' => now()]);
         });
-        $this->dispatch('admin-toast', message: 'Đã cập nhật cấu hình giới thiệu.', type: 'success');
+        $this->toast('Đã cập nhật cấu hình giới thiệu.');
     }
 
     public function render()

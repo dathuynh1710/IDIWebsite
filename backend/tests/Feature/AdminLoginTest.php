@@ -24,6 +24,10 @@ class AdminLoginTest extends TestCase
         ]);
 
         $response->assertRedirect(route('admin.dashboard'));
+        $response->assertSessionHas('toast', fn (array $toast): bool => $toast === [
+            'type' => 'success',
+            'message' => 'Đăng nhập thành công.',
+        ]);
         $this->assertAuthenticatedAs($user);
     }
 

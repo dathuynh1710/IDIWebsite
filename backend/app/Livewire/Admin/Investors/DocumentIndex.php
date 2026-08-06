@@ -2,17 +2,17 @@
 
 namespace App\Livewire\Admin\Investors;
 
+use App\Livewire\AdminComponent;
 use App\Models\DocumentCategory;
 use App\Models\InvestorDocument;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Url;
-use Livewire\Component;
 use Livewire\WithPagination;
 
 #[Layout('layouts.admin')]
-class DocumentIndex extends Component
+class DocumentIndex extends AdminComponent
 {
     use WithPagination;
 
@@ -59,13 +59,14 @@ class DocumentIndex extends Component
         Gate::authorize('investors.update');
         $document = InvestorDocument::findOrFail($id);
         $document->update(['is_active' => ! $document->is_active, 'updated_by' => auth()->id()]);
+        $this->toastState($document->is_active, 'tài liệu');
     }
 
     public function delete(int $id): void
     {
         Gate::authorize('investors.delete');
         InvestorDocument::findOrFail($id)->delete();
-        $this->dispatch('admin-toast', message: 'Đã chuyển tài liệu vào thùng rác.', type: 'success');
+        $this->toast('Đã chuyển tài liệu vào thùng rác.');
     }
 
     public function bulk(string $action): void
@@ -83,6 +84,7 @@ class DocumentIndex extends Component
             }
         }
         $this->selected = [];
+        $this->toastBulk($action, 'tài liệu');
     }
 
     public function render()

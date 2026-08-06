@@ -2,34 +2,51 @@
 
 namespace App\Livewire\Admin\Recruitment;
 
+use App\Livewire\AdminComponent;
 use App\Models\JobPosition;
 use App\Support\JobPositionRoutes;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Livewire\Attributes\Layout;
-use Livewire\Component;
 
 #[Layout('layouts.admin')]
-class PositionForm extends Component
+class PositionForm extends AdminComponent
 {
     public ?JobPosition $position = null;
+
     public string $code = '';
+
     public string $department = '';
+
     public int $quantity = 1;
+
     public string $expires_at = '';
+
     public int $sort_order = 0;
+
     public bool $is_active = true;
+
     public array $title = ['vi' => '', 'en' => '', 'zh' => ''];
+
     public array $slug = ['vi' => '', 'en' => '', 'zh' => ''];
+
     public array $location = ['vi' => '', 'en' => '', 'zh' => ''];
+
     public array $summary = ['vi' => '', 'en' => '', 'zh' => ''];
+
     public array $description = ['vi' => '', 'en' => '', 'zh' => ''];
+
     public array $requirements = ['vi' => '', 'en' => '', 'zh' => ''];
+
     public array $benefits = ['vi' => '', 'en' => '', 'zh' => ''];
+
     public array $seo_title = ['vi' => '', 'en' => '', 'zh' => ''];
+
     public array $meta_description = ['vi' => '', 'en' => '', 'zh' => ''];
+
     public array $translation_status = ['vi' => 'published', 'en' => 'draft', 'zh' => 'draft'];
+
     public array $locale_published_at = ['vi' => '', 'en' => '', 'zh' => ''];
 
     public function mount(?JobPosition $position = null): void
@@ -98,7 +115,8 @@ class PositionForm extends Component
         $data['updated_by'] = auth()->id();
         $this->position = JobPosition::updateOrCreate(['id' => $this->position?->id], $data);
         JobPositionRoutes::sync($this->position);
-        session()->flash('success', 'Đã lưu vị trí tuyển dụng.');
+        $this->flashToast('Đã lưu vị trí tuyển dụng.');
+
         return $this->redirectRoute('admin.recruitment.positions.index', navigate: true);
     }
 
@@ -106,6 +124,7 @@ class PositionForm extends Component
     {
         $html = preg_replace('#<(script|style|iframe|object|embed)\b[^>]*>.*?</\1>#is', '', $html) ?? '';
         $html = preg_replace('/\son\w+\s*=\s*(["\']).*?\1/isu', '', $html) ?? '';
+
         return trim(strip_tags($html, '<p><br><h2><h3><h4><strong><b><em><i><u><ul><ol><li><a><blockquote><table><thead><tbody><tr><th><td>'));
     }
 

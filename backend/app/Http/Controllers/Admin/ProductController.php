@@ -8,8 +8,9 @@ use App\Http\Requests\Admin\UpdateProductRequest;
 use App\Models\Media;
 use App\Models\Product;
 use App\Models\ProductCategory;
-use Illuminate\Http\RedirectResponse;
+use App\Support\Toast;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
@@ -81,7 +82,7 @@ class ProductController extends Controller
 
         return redirect()
             ->route('admin.products.edit', $product)
-            ->with('success', 'Tạo sản phẩm thành công.');
+            ->with(Toast::success('Tạo sản phẩm thành công.'));
     }
 
     public function edit(Product $product): View
@@ -101,7 +102,7 @@ class ProductController extends Controller
 
         return redirect()
             ->route('admin.products.edit', $product)
-            ->with('success', 'Cập nhật sản phẩm thành công.');
+            ->with(Toast::success('Cập nhật sản phẩm thành công.'));
     }
 
     public function destroy(Product $product): RedirectResponse
@@ -111,7 +112,7 @@ class ProductController extends Controller
 
         return redirect()
             ->route('admin.products.index')
-            ->with('success', 'Đã chuyển sản phẩm vào thùng rác.');
+            ->with(Toast::success('Đã chuyển sản phẩm vào thùng rác.'));
     }
 
     public function duplicate(Request $request, Product $product): RedirectResponse
@@ -136,7 +137,7 @@ class ProductController extends Controller
             return $copy;
         });
 
-        return redirect()->route('admin.products.edit', $copy)->with('success', 'Đã nhân bản sản phẩm.');
+        return redirect()->route('admin.products.edit', $copy)->with(Toast::success('Đã nhân bản sản phẩm.'));
     }
 
     public function preview(Product $product): View
@@ -172,7 +173,7 @@ class ProductController extends Controller
             'created_by' => $request->user()->id,
         ]);
 
-        return response()->json(['url' => $media->url]);
+        return Toast::json('Tải ảnh lên thành công.', 'success', ['url' => $media->url]);
     }
 
     private function formData(?Product $product = null): array

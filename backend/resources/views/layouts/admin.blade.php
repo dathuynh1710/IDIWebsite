@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ $title ?? config('admin.name') }}</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js"></script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
 </head>
@@ -40,21 +43,7 @@
         aria-label="Đang xử lý">
         <x-ui.loading-spinner />
     </div>
-    <div class="admin-toast-region"
-        x-data="{ show: false, message: '', type: 'success', timer: null }"
-        x-on:admin-toast.window="
-            message = $event.detail.message;
-            type = $event.detail.type || 'success';
-            show = true;
-            clearTimeout(timer);
-            timer = setTimeout(() => show = false, 3500)
-        "
-        aria-live="polite">
-        <div class="flash-message" :class="'flash-' + type" x-show="show" x-transition x-cloak>
-            <span x-text="message"></span>
-            <button type="button" class="icon-button" x-on:click="show = false" aria-label="Đóng"><x-ui.icon name="x" size="16" /></button>
-        </div>
-    </div>
+    <x-admin.toast />
     @livewireScriptConfig
 </body>
 </html>

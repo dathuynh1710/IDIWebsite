@@ -2,15 +2,15 @@
 
 namespace App\Livewire\Admin\Investors;
 
+use App\Livewire\AdminComponent;
 use App\Models\DocumentCategory;
 use Illuminate\Support\Facades\Gate;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Url;
-use Livewire\Component;
 use Livewire\WithPagination;
 
 #[Layout('layouts.admin')]
-class CategoryIndex extends Component
+class CategoryIndex extends AdminComponent
 {
     use WithPagination;
 
@@ -44,6 +44,7 @@ class CategoryIndex extends Component
         Gate::authorize('investors.update');
         $category = DocumentCategory::findOrFail($id);
         $category->update(['is_active' => ! $category->is_active, 'updated_by' => auth()->id()]);
+        $this->toastState($category->is_active, 'danh mục tài liệu');
     }
 
     public function delete(int $id): void
@@ -52,7 +53,7 @@ class CategoryIndex extends Component
         $category = DocumentCategory::withCount(['documents', 'children'])->findOrFail($id);
         abort_if($category->documents_count > 0 || $category->children_count > 0, 422, 'Danh mục vẫn còn danh mục con hoặc tài liệu.');
         $category->delete();
-        $this->dispatch('admin-toast', message: 'Đã chuyển danh mục vào thùng rác.', type: 'success');
+        $this->toast('Đã chuyển danh mục vào thùng rác.');
     }
 
     public function bulk(string $action): void
@@ -70,6 +71,7 @@ class CategoryIndex extends Component
             }
         }
         $this->selected = [];
+        $this->toastBulk($action, 'danh mục tài liệu');
     }
 
     public function render()

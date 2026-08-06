@@ -2,24 +2,32 @@
 
 namespace App\Livewire\Admin\Recipes;
 
+use App\Livewire\AdminComponent;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
-use Livewire\Component;
 
 #[Layout('layouts.admin')]
 #[Title('Cấu hình Recipes')]
-class Settings extends Component
+class Settings extends AdminComponent
 {
     public array $page_title = ['vi' => '', 'en' => '', 'zh' => ''];
+
     public array $description = ['vi' => '', 'en' => '', 'zh' => ''];
+
     public array $seo_title = ['vi' => '', 'en' => '', 'zh' => ''];
+
     public array $meta_description = ['vi' => '', 'en' => '', 'zh' => ''];
+
     public bool $is_active = true;
+
     public int $items_per_page = 12;
+
     public bool $show_placeholder_image = true;
+
     public int $thumbnail_size = 180;
+
     public int $max_upload_width = 1600;
 
     public function mount(): void
@@ -90,7 +98,7 @@ class Settings extends Component
             }
         });
 
-        $this->dispatch('admin-toast', message: 'Đã cập nhật cấu hình Recipes.', type: 'success');
+        $this->toast('Đã cập nhật cấu hình Recipes.');
     }
 
     public function render()

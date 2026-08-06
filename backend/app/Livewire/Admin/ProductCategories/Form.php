@@ -2,15 +2,15 @@
 
 namespace App\Livewire\Admin\ProductCategories;
 
+use App\Livewire\AdminComponent;
 use App\Models\ProductCategory;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Livewire\Attributes\Layout;
-use Livewire\Component;
 
 #[Layout('layouts.admin')]
-class Form extends Component
+class Form extends AdminComponent
 {
     public ?ProductCategory $category = null;
 
@@ -88,7 +88,7 @@ class Form extends Component
             }
         }
 
-        $this->dispatch('admin-toast', message: $message, type: 'success');
+        $this->toast($message);
         $this->dispatch('category-saved');
     }
 

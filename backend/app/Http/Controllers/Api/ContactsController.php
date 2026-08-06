@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\ContactMessage;
+use App\Support\Toast;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -31,7 +32,7 @@ class ContactsController extends Controller
             ? json_decode($settings['spam_protection'], true)
             : true;
         if ($spamProtection && filled($request->input('companyWebsite'))) {
-            return response()->json([
+            return Toast::json('Gửi liên hệ thành công.', 'success', [
                 'success' => true,
                 'message' => 'Contact received.',
                 'referenceId' => 'IDI-CON-'.now()->format('Ym').'-000000',
@@ -66,7 +67,7 @@ class ContactsController extends Controller
             'consented_at' => now(),
         ]);
 
-        return response()->json([
+        return Toast::json('Gửi liên hệ thành công.', 'success', [
             'success' => true,
             'message' => 'Contact received.',
             'referenceId' => 'IDI-CON-'.now()->format('Ym').'-'.str_pad((string) $message->id, 6, '0', STR_PAD_LEFT),

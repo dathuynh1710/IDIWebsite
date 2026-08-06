@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Admin\Recipes;
 
+use App\Livewire\AdminComponent;
 use App\Models\Media;
 use App\Models\Recipe;
 use App\Support\RecipeRoutes;
@@ -10,11 +11,10 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Livewire\Attributes\Layout;
-use Livewire\Component;
 use Livewire\Features\SupportFileUploads\WithFileUploads;
 
 #[Layout('layouts.admin')]
-class Form extends Component
+class Form extends AdminComponent
 {
     use WithFileUploads;
 
@@ -255,7 +255,7 @@ class Form extends Component
         if ($recipeId === null) {
             $this->js("history.replaceState({}, '', '".route('admin.recipes.edit', $this->recipe)."')");
         }
-        $this->dispatch('admin-toast', message: $recipeId ? 'Cập nhật công thức thành công.' : 'Tạo công thức thành công.', type: 'success');
+        $this->toast($recipeId ? 'Cập nhật công thức thành công.' : 'Tạo công thức thành công.');
     }
 
     private function translationsFor($model, string $field): array

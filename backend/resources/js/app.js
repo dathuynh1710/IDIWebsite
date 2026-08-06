@@ -65,6 +65,7 @@ import {
 } from 'ckeditor5';
 import viTranslations from 'ckeditor5/translations/vi.js';
 import 'ckeditor5/ckeditor5.css';
+import { notify } from './toast';
 
 window.Alpine = Alpine;
 
@@ -170,7 +171,7 @@ window.bulkCategories = () => ({
     validateSelection(event) {
         if (this.selected > 0) return;
         event.preventDefault();
-        window.alert('Vui lòng chọn ít nhất một danh mục.');
+        notify('Vui lòng chọn ít nhất một danh mục.', 'warning');
     },
     confirmDelete(event) {
         if (this.selected === 0) return;
@@ -227,8 +228,13 @@ const uploadEditorImage = async (file) => {
         },
         body,
     });
-    if (!response.ok) throw new Error('Không thể tải ảnh lên.');
+    if (!response.ok) {
+        const error = await response.json().catch(() => ({}));
+        const validationMessage = Object.values(error.errors || {}).flat().find(Boolean);
+        throw new Error(validationMessage || error.message || 'Không thể tải ảnh lên.');
+    }
     const data = await response.json();
+    if (data.toast?.message) notify(data.toast.message, data.toast.type);
     return data.url;
 };
 
@@ -239,7 +245,12 @@ function ckeditorUploadAdapter(editor) {
     editor.plugins.get('FileRepository').createUploadAdapter = (loader) => ({
         async upload() {
             const file = await loader.file;
-            return { default: await uploadEditorImage(file) };
+            try {
+                return { default: await uploadEditorImage(file) };
+            } catch (error) {
+                notify(error.message, 'error');
+                throw error;
+            }
         },
         abort() {},
     });

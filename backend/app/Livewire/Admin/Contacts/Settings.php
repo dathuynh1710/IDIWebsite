@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Admin\Contacts;
 
+use App\Livewire\AdminComponent;
 use App\Models\OfficeLocation;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
@@ -10,12 +11,11 @@ use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
-use Livewire\Component;
 use Livewire\Features\SupportFileUploads\WithFileUploads;
 
 #[Layout('layouts.admin')]
 #[Title('Cấu hình liên lạc')]
-class Settings extends Component
+class Settings extends AdminComponent
 {
     use WithFileUploads;
 
@@ -342,11 +342,6 @@ class Settings extends Component
         $html = preg_replace('/(href|src)\s*=\s*(["\'])\s*javascript:.*?\2/is', '$1="#"', $html) ?? '';
 
         return trim(strip_tags($html, '<p><br><h1><h2><h3><h4><strong><b><em><i><u><s><sub><sup><span><ul><ol><li><a><blockquote><figure><figcaption><img><table><thead><tbody><tfoot><tr><th><td><pre><code><hr><oembed>'));
-    }
-
-    private function toast(string $message): void
-    {
-        $this->dispatch('admin-toast', message: $message, type: 'success');
     }
 
     public function render()

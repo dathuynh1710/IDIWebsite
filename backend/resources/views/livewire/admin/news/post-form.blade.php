@@ -33,7 +33,7 @@
                         <x-form.input name="code" label="Mã quản trị" wire:model="code" helper="Mã nội bộ để tìm kiếm và đối soát; có thể để trống." />
 
                         <div class="form-field">
-                            <label>Ảnh đại diện <span>*</span></label>
+                            <label>Ảnh đại diện @if(! $post)<span>*</span>@endif</label>
                             @if($featured_image)
                                 <div class="media-preview news-media-preview has-image">
                                     <img src="{{ $featured_image->temporaryUrl() }}" alt="Ảnh đại diện đang chọn">

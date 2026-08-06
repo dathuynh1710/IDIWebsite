@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Admin\Recipes;
 
+use App\Livewire\AdminComponent;
 use App\Models\Recipe;
 use App\Support\RecipeRoutes;
 use Illuminate\Support\Facades\DB;
@@ -10,12 +11,11 @@ use Illuminate\Support\Str;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Attributes\Url;
-use Livewire\Component;
 use Livewire\WithPagination;
 
 #[Layout('layouts.admin')]
 #[Title('Quản lý Recipes')]
-class Index extends Component
+class Index extends AdminComponent
 {
     use WithPagination;
 
@@ -218,11 +218,6 @@ class Index extends Component
         });
         $this->selected = [];
         $this->toast('Đã cập nhật các công thức được chọn.');
-    }
-
-    private function toast(string $message): void
-    {
-        $this->dispatch('admin-toast', message: $message, type: 'success');
     }
 
     public function render()

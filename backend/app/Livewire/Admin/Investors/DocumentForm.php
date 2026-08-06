@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Admin\Investors;
 
+use App\Livewire\AdminComponent;
 use App\Models\DocumentCategory;
 use App\Models\InvestorDocument;
 use App\Models\InvestorDocumentFile;
@@ -11,11 +12,10 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Livewire\Attributes\Layout;
-use Livewire\Component;
 use Livewire\Features\SupportFileUploads\WithFileUploads;
 
 #[Layout('layouts.admin')]
-class DocumentForm extends Component
+class DocumentForm extends AdminComponent
 {
     use WithFileUploads;
 
@@ -81,6 +81,8 @@ class DocumentForm extends Component
     public function save()
     {
         Gate::authorize($this->document ? 'investors.update' : 'investors.create');
+        $hasUploads = collect($this->uploads)->contains(fn ($upload) => filled($upload));
+        $hasRemovals = in_array(true, $this->removeFiles, true);
         $maxKilobytes = $this->maxUploadMegabytes() * 1024;
         $data = $this->validate([
             'document_category_id' => ['required', Rule::exists('document_categories', 'id')->whereNull('deleted_at')],
@@ -145,7 +147,12 @@ class DocumentForm extends Component
             }
         });
 
-        session()->flash('success', 'Đã lưu tài liệu quan hệ cổ đông.');
+        $this->flashToast(match (true) {
+            $hasUploads && $hasRemovals => 'Đã tải tệp mới lên và xóa tệp cũ thành công.',
+            $hasUploads => 'Đã tải tệp lên thành công.',
+            $hasRemovals => 'Đã xóa tệp thành công.',
+            default => 'Đã lưu tài liệu quan hệ cổ đông.',
+        });
 
         return $this->redirectRoute('admin.investors.documents.index', navigate: true);
     }

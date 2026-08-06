@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router'
 import PageHead from '@components/common/PageHead'
+import toast from '@/utils/toast'
 import RevealOnScroll from '@components/common/RevealOnScroll'
 import { NEWS_DATA } from '@data/news'
 
@@ -86,7 +87,6 @@ export default function NewsPage() {
   const [sortOrder, setSortOrder] = useState('newest')
   const [currentPage, setCurrentPage] = useState(1)
   const [email, setEmail] = useState('')
-  const [subscribed, setSubscribed] = useState(false)
 
   const featuredArticle = NEWS_DATA.find(article => article.featured) ?? NEWS_DATA[0]
 
@@ -127,9 +127,13 @@ export default function NewsPage() {
 
   const handleSubscribe = (event) => {
     event.preventDefault()
-    if (!email.trim()) return
-    setSubscribed(true)
+    const normalizedEmail = email.trim()
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) {
+      toast.warning('Vui lòng nhập địa chỉ email hợp lệ.')
+      return
+    }
     setEmail('')
+    toast.success('Cảm ơn bạn đã đăng ký nhận tin.')
   }
 
   return (
@@ -387,12 +391,7 @@ export default function NewsPage() {
                 </p>
               </div>
 
-              {subscribed ? (
-                <div className="rounded-xl border border-seafoam-light/30 bg-seafoam/20 px-6 py-4 font-semibold text-white" role="status">
-                  ✓ Cảm ơn bạn đã đăng ký nhận tin.
-                </div>
-              ) : (
-                <form onSubmit={handleSubscribe} className="flex w-full flex-col gap-3 sm:flex-row lg:w-auto">
+                <form onSubmit={handleSubscribe} noValidate className="flex w-full flex-col gap-3 sm:flex-row lg:w-auto">
                   <label className="sr-only" htmlFor="news-email">Địa chỉ email</label>
                   <input
                     id="news-email"
@@ -407,7 +406,6 @@ export default function NewsPage() {
                     Đăng ký nhận tin
                   </button>
                 </form>
-              )}
             </div>
           </div>
         </div>

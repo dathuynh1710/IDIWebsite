@@ -3,25 +3,35 @@
 namespace App\Livewire\Admin\Recruitment;
 
 use App\Enums\JobApplicationStatus;
+use App\Livewire\AdminComponent;
 use App\Models\JobApplication;
+use App\Models\JobPosition;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Url;
-use Livewire\Component;
 use Livewire\WithPagination;
 
 #[Layout('layouts.admin')]
-class ApplicationIndex extends Component
+class ApplicationIndex extends AdminComponent
 {
     use WithPagination;
 
-    #[Url(except: '')] public string $search = '';
-    #[Url(except: '')] public string $status = '';
-    #[Url(except: '')] public string $position = '';
+    #[Url(except: '')]
+    public string $search = '';
+
+    #[Url(except: '')]
+    public string $status = '';
+
+    #[Url(except: '')]
+    public string $position = '';
+
     public array $selected = [];
+
     public ?int $viewingApplicationId = null;
+
     public string $detailStatus = '';
+
     public string $internalNote = '';
 
     public function mount(): void
@@ -67,7 +77,7 @@ class ApplicationIndex extends Component
             'reviewed_by' => auth()->id(),
             'reviewed_at' => now(),
         ]);
-        $this->dispatch('admin-toast', message: 'Đã cập nhật hồ sơ ứng viên.', type: 'success');
+        $this->toast('Đã cập nhật hồ sơ ứng viên.');
     }
 
     public function delete(int $id): void
@@ -78,6 +88,7 @@ class ApplicationIndex extends Component
         if ($this->viewingApplicationId === $id) {
             $this->closeApplication();
         }
+        $this->toast('Đã xóa vĩnh viễn hồ sơ ứng viên.');
     }
 
     public function bulkDelete(): void
@@ -86,7 +97,7 @@ class ApplicationIndex extends Component
         $this->validate(['selected' => ['required', 'array', 'min:1'], 'selected.*' => ['integer', 'exists:job_applications,id']]);
         JobApplication::whereKey($this->selected)->delete();
         $this->selected = [];
-        $this->dispatch('admin-toast', message: 'Đã xóa các hồ sơ được chọn.', type: 'success');
+        $this->toast('Đã xóa vĩnh viễn các hồ sơ được chọn.');
     }
 
     public function render()
@@ -99,9 +110,10 @@ class ApplicationIndex extends Component
             ->when($this->status, fn ($q) => $q->where('status', $this->status))
             ->when($this->position, fn ($q) => $q->where('job_position_id', $this->position))
             ->latest()->paginate(20);
+
         return view('livewire.admin.recruitment.application-index', [
             'applications' => $applications,
-            'positions' => \App\Models\JobPosition::orderByDesc('sort_order')->get(),
+            'positions' => JobPosition::orderByDesc('sort_order')->get(),
             'viewingApplication' => $this->viewingApplicationId ? JobApplication::with(['position', 'cv'])->find($this->viewingApplicationId) : null,
             'statuses' => [
                 'new' => 'Mới', 'reviewing' => 'Đã liên hệ', 'shortlisted' => 'Vào vòng chọn',

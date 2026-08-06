@@ -6,9 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Models\JobApplication;
 use App\Models\JobPosition;
 use App\Models\Media;
+use App\Support\Toast;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 
 class CareersController extends Controller
 {
@@ -33,6 +33,7 @@ class CareersController extends Controller
     {
         $locale = $this->locale($request);
         $position = JobPosition::where('is_active', true)->where("slug->{$locale}", $slug)->firstOrFail();
+
         return response()->json(['data' => $this->position($position, $locale, true)]);
     }
 
@@ -66,7 +67,7 @@ class CareersController extends Controller
             'cover_letter' => trim($data['coverLetter'] ?? ''), 'cv_media_id' => $media->id,
         ]);
 
-        return response()->json([
+        return Toast::json('Tải CV và gửi hồ sơ thành công.', 'success', [
             'message' => 'Application received.',
             'referenceId' => 'IDI-'.now()->format('Ym').'-'.str_pad((string) $application->id, 6, '0', STR_PAD_LEFT),
         ], 201);
@@ -75,6 +76,7 @@ class CareersController extends Controller
     private function locale(Request $request): string
     {
         $locale = $request->string('locale', $request->string('lang', 'vi')->toString())->toString();
+
         return in_array($locale, ['vi', 'en', 'zh'], true) ? $locale : 'vi';
     }
 
@@ -95,6 +97,7 @@ class CareersController extends Controller
                 'seo' => ['title' => $value('seo_title'), 'description' => $value('meta_description')],
             ];
         }
+
         return $result;
     }
 }

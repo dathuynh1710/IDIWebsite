@@ -1,11 +1,7 @@
 <div>
     <x-admin.page-header :title="$category?->exists ? 'Sửa danh mục: '.$name['vi'] : 'Thêm danh mục sản phẩm'" description="Cập nhật tên, đường dẫn, thứ tự và trạng thái hiển thị" :breadcrumbs="$breadcrumbs">
         <x-slot:actions>
-            @if($modal)
-                <button class="button button-secondary" type="button" wire:click="$dispatch('category-saved')"><x-ui.icon name="x" size="18" /> Đóng</button>
-            @else
-                <a class="button button-secondary" href="{{ route('admin.product-categories.index') }}" wire:navigate><x-ui.icon name="arrow-left" size="18" /> Quay lại</a>
-            @endif
+            <a class="button button-secondary" href="{{ route('admin.product-categories.index') }}" wire:navigate><x-ui.icon name="arrow-left" size="18" /> Quay lại</a>
             <x-ui.button type="submit" form="category-form" icon="save">Lưu danh mục</x-ui.button>
         </x-slot:actions>
     </x-admin.page-header>
@@ -43,8 +39,7 @@
             </div>
         </div>
         <div class="mobile-form-actions">
-            @if($modal)<button class="button button-secondary" type="button" wire:click="$dispatch('category-saved')">Hủy</button>
-            @else<a class="button button-secondary" href="{{ route('admin.product-categories.index') }}" wire:navigate>Hủy</a>@endif
+            <a class="button button-secondary" href="{{ route('admin.product-categories.index') }}" wire:navigate>Hủy</a>
             <x-ui.button type="submit" icon="save">Lưu danh mục</x-ui.button>
         </div>
     </form>

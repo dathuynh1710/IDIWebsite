@@ -51,21 +51,18 @@
                 @error('selected')<div class="validation-summary" role="alert">{{ $message }}</div>@enderror
                 <div class="table-responsive">
                     <table class="data-table category-table">
-                        <thead><tr><th class="selection-column"></th><th class="order-column">Thứ tự</th><th>Tên danh mục</th><th>Danh mục cha</th><th>Sản phẩm</th><th>Trạng thái</th><th>Cập nhật</th><th class="table-actions-heading">Thao tác</th></tr></thead>
+                        <thead><tr><th class="selection-column"></th><th class="order-column">Thứ tự</th><th>Tên danh mục</th><th>Sản phẩm</th><th class="table-actions-heading">Thao tác</th></tr></thead>
                         <tbody>
                             @foreach($categories as $category)
                                 @php($name = $category->getTranslation('name', 'vi', false) ?: 'Chưa có tên')
                                 <tr wire:key="category-{{ $category->id }}" class="{{ $category->is_active ? '' : 'is-muted-row' }}">
                                     <td><input class="table-checkbox" type="checkbox" wire:model.live="selected" value="{{ $category->id }}" aria-label="Chọn {{ $name }}"></td>
                                     <td><input class="input order-input" type="number" min="0" max="999999" wire:model="sortOrders.{{ $category->id }}"></td>
-                                    <td><div class="category-name-cell"><strong>{{ $name }}</strong><small>{{ $category->code }}</small></div></td>
-                                    <td>{{ $category->parent?->getTranslation('name', 'vi', false) ?: '—' }}</td>
+                                    <td><div class="category-name-cell"><strong>{{ $name }}</strong><small><span class="category-date-item" title="Ngày tạo"><x-ui.icon name="calendar" size="14" />{{ $category->created_at?->format('H:i - d/m/Y') ?: '—' }}</span><span aria-hidden="true">-</span><span class="category-date-item" title="Ngày cập nhật"><x-ui.icon name="history" size="14" />{{ $category->updated_at?->format('H:i - d/m/Y') ?: '—' }}</span></small></div></td>
                                     <td><span class="category-product-count">{{ $category->products_count }}</span></td>
-                                    <td><x-ui.badge :tone="$category->is_active ? 'success' : 'neutral'">{{ $category->is_active ? 'Đang hiển thị' : 'Đang ẩn' }}</x-ui.badge></td>
-                                    <td>{{ $category->updated_at->diffForHumans() }}</td>
                                     <td><div class="row-actions">
                                         @can('products.update')
-                                            <button class="icon-button is-success" type="button" wire:click="openEditModal({{ $category->id }})" title="Sửa"><x-ui.icon name="edit" size="18" /></button>
+                                            <a class="icon-button is-success" href="{{ route('admin.product-categories.edit', $category) }}" wire:navigate title="Sửa"><x-ui.icon name="edit" size="18" /></a>
                                             <button class="icon-button" type="button" wire:click="toggleVisibility({{ $category->id }})"><x-ui.icon :name="$category->is_active ? 'eye-off' : 'eye'" size="18" /></button>
                                         @endcan
                                         @can('products.delete')
@@ -81,25 +78,12 @@
         @else
             <div class="table-responsive">
                 <table class="data-table category-table">
-                    <thead><tr><th>Tên danh mục</th><th>Mã</th><th>Đã xóa</th><th>Thao tác</th></tr></thead>
-                    <tbody>@foreach($categories as $category)<tr wire:key="trashed-category-{{ $category->id }}"><td><strong>{{ $category->getTranslation('name', 'vi', false) }}</strong></td><td><code>{{ $category->code ?: '—' }}</code></td><td>{{ $category->deleted_at?->format('d/m/Y H:i') }}</td><td><button class="button button-secondary" wire:click="restore({{ $category->id }})"><x-ui.icon name="restore" size="17" /> Khôi phục</button></td></tr>@endforeach</tbody>
+                    <thead><tr><th>Tên danh mục</th><th>Đã xóa</th><th>Thao tác</th></tr></thead>
+                    <tbody>@foreach($categories as $category)<tr wire:key="trashed-category-{{ $category->id }}"><td><div class="category-name-cell"><strong>{{ $category->getTranslation('name', 'vi', false) }}</strong><small><span class="category-date-item" title="Ngày tạo"><x-ui.icon name="calendar" size="14" />{{ $category->created_at?->format('H:i - d/m/Y') ?: '—' }}</span><span aria-hidden="true">-</span><span class="category-date-item" title="Ngày cập nhật"><x-ui.icon name="history" size="14" />{{ $category->updated_at?->format('H:i - d/m/Y') ?: '—' }}</span></small></div></td><td>{{ $category->deleted_at?->format('d/m/Y H:i') }}</td><td><button class="button button-secondary" wire:click="restore({{ $category->id }})"><x-ui.icon name="restore" size="17" /> Khôi phục</button></td></tr>@endforeach</tbody>
                 </table>
             </div>
         @endif
-        <x-ui.pagination :paginator="$categories" />
+        <x-ui.pagination :paginator="$categories" :per-page-options="[10, 20, 50, 100]" />
     </section>
 
-    @if($showFormModal)
-        <div class="admin-form-modal" x-data x-on:keydown.escape.window="$wire.closeFormModal()" role="dialog" aria-modal="true" aria-label="Biểu mẫu danh mục">
-            <button class="admin-form-modal-backdrop" type="button" wire:click="closeFormModal" aria-label="Đóng"></button>
-            <div class="admin-form-modal-panel">
-                <button class="admin-form-modal-close icon-button" type="button" wire:click="closeFormModal" aria-label="Đóng"><x-ui.icon name="x" /></button>
-                <livewire:admin.product-categories.form
-                    :category="$editingCategory"
-                    :modal="true"
-                    :key="'category-modal-'.($editingCategory?->id ?? 'create')"
-                />
-            </div>
-        </div>
-    @endif
 </div>

@@ -196,17 +196,19 @@ class ProductController extends Controller
         $validated = $request->validated();
         $localized = [];
 
-        foreach (['title', 'slug', 'short_description', 'description', 'seo_title', 'meta_description', 'translation_status', 'locale_published_at'] as $field) {
+        foreach (['title', 'slug', 'seo_title', 'meta_description', 'translation_status', 'locale_published_at'] as $field) {
             $localized[$field] = collect($validated[$field] ?? [])
                 ->map(fn ($value) => is_string($value) ? trim($value) : $value)
                 ->filter(fn ($value) => $value !== null && $value !== '')
                 ->all();
         }
 
-        $localized['content'] = collect($validated['content'] ?? [])
-            ->map(fn (?string $html): string => $this->sanitizeHtml((string) $html))
-            ->filter()
-            ->all();
+        foreach (['short_description', 'content'] as $field) {
+            $localized[$field] = collect($validated[$field] ?? [])
+                ->map(fn (?string $html): string => $this->sanitizeHtml((string) $html))
+                ->filter()
+                ->all();
+        }
 
         $mediaId = $product?->featured_media_id;
         if ($request->boolean('remove_image')) {

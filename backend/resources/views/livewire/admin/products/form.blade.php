@@ -1,5 +1,5 @@
 <div>
-    <x-admin.page-header :title="$product?->exists ? 'Sửa sản phẩm #'.$sku : 'Thêm sản phẩm mới'" description="Cập nhật thông tin chung, bản dịch và trạng thái xuất bản" :breadcrumbs="$breadcrumbs">
+    <x-admin.page-header :title="$product?->exists ? 'Sửa sản phẩm #'.$sku : 'Thêm sản phẩm mới'" description="Cập nhật thông tin chung, nội dung và SEO đa ngôn ngữ" :breadcrumbs="$breadcrumbs">
         <x-slot:actions>
             @if($modal)
                 <button class="button button-secondary" type="button" wire:click="$dispatch('product-saved')"><x-ui.icon name="x" size="18" /> Đóng</button>
@@ -11,7 +11,7 @@
         </x-slot:actions>
     </x-admin.page-header>
 
-    <form id="product-form" wire:submit="save">
+    <form id="product-form" wire:submit="save" data-dirty-form>
         @if($errors->any())<div class="validation-summary" role="alert"><x-ui.icon name="alert" /><div><strong>Vui lòng kiểm tra lại thông tin.</strong><p>Có {{ $errors->count() }} trường cần chỉnh sửa.</p></div></div>@endif
         <div class="product-form-grid">
             <div class="product-form-sidebar">
@@ -57,17 +57,31 @@
                                 <fieldset class="localized-fields" @disabled(!in_array($locale, $enabled_locales, true))>
                                     <x-form.input name="title[{{ $locale }}]" label="Tên sản phẩm" wire:model.blur="title.{{ $locale }}" :required="in_array($locale, $enabled_locales, true)" />
                                     <div class="form-field"><label for="slug-{{ $locale }}">Đường dẫn (slug)</label><div class="slug-input"><span>/products/</span><input id="slug-{{ $locale }}" class="input" wire:model.blur="slug.{{ $locale }}" @if(in_array($locale, $enabled_locales, true)) required @endif><button type="button" wire:click="generateSlug('{{ $locale }}')">Tạo lại</button></div><x-form.field-error name="slug.{{ $locale }}" /></div>
-                                    <x-form.textarea name="short_description[{{ $locale }}]" label="Mô tả ngắn" wire:model.blur="short_description.{{ $locale }}" rows="3" />
-                                    <x-form.textarea name="description[{{ $locale }}]" label="Mô tả chi tiết" wire:model.blur="description.{{ $locale }}" rows="4" />
-                                    <div class="form-field rich-editor"><label for="content-{{ $locale }}">Nội dung</label><textarea id="content-{{ $locale }}" class="textarea rich-text-textarea" rows="12" wire:model="content.{{ $locale }}"></textarea><x-form.field-error name="content.{{ $locale }}" /></div>
+                                    <div class="product-editor-tabs" x-data="{ editorTab: 'short' }">
+                                        <div class="product-editor-tab-list" role="tablist" aria-label="Nội dung sản phẩm">
+                                            <button id="product-short-tab-{{ $locale }}" type="button" role="tab"
+                                                :class="{ 'is-active': editorTab === 'short' }"
+                                                :aria-selected="editorTab === 'short'"
+                                                aria-controls="product-short-panel-{{ $locale }}"
+                                                @click="editorTab = 'short'">Mô tả ngắn</button>
+                                            <button id="product-content-tab-{{ $locale }}" type="button" role="tab"
+                                                :class="{ 'is-active': editorTab === 'content' }"
+                                                :aria-selected="editorTab === 'content'"
+                                                aria-controls="product-content-panel-{{ $locale }}"
+                                                @click="editorTab = 'content'">Nội dung</button>
+                                        </div>
+                                        <div id="product-short-panel-{{ $locale }}" role="tabpanel" aria-labelledby="product-short-tab-{{ $locale }}" x-show="editorTab === 'short'">
+                                            <x-form.ckeditor5-editor name="short_description[{{ $locale }}]" label="Mô tả ngắn" :model="'short_description.'.$locale" :value="$short_description[$locale] ?? ''" rows="8" placeholder="Nhập mô tả ngắn..." />
+                                        </div>
+                                        <div id="product-content-panel-{{ $locale }}" role="tabpanel" aria-labelledby="product-content-tab-{{ $locale }}" x-show="editorTab === 'content'" x-cloak>
+                                            <x-form.ckeditor5-editor name="content[{{ $locale }}]" label="Nội dung" :model="'content.'.$locale" :value="$content[$locale] ?? ''" rows="12" />
+                                        </div>
+                                    </div>
                                     <details class="seo-panel" open><summary>Thiết lập SEO</summary><div class="seo-grid">
                                         <x-form.input name="seo_title[{{ $locale }}]" label="Tiêu đề SEO" wire:model.blur="seo_title.{{ $locale }}" maxlength="255" />
                                         <x-form.textarea name="meta_description[{{ $locale }}]" label="Meta description" wire:model.blur="meta_description.{{ $locale }}" rows="3" maxlength="500" />
                                     </div></details>
-                                    <div class="publication-grid">
-                                        <x-form.select name="translation_status[{{ $locale }}]" label="Trạng thái bản dịch" :options="$statuses" wire:model.live="translation_status.{{ $locale }}" required />
-                                        @if(($translation_status[$locale] ?? '') === 'scheduled')<x-form.input name="locale_published_at[{{ $locale }}]" label="Ngày xuất bản" type="datetime-local" wire:model="locale_published_at.{{ $locale }}" required />@endif
-                                    </div>
+                                    <x-form.input name="locale_published_at[{{ $locale }}]" label="Ngày xuất bản" type="datetime-local" wire:model="locale_published_at.{{ $locale }}" helper="Có thể để trống để dùng thời điểm tạo sản phẩm." />
                                 </fieldset>
                             </x-form.section>
                         </section>

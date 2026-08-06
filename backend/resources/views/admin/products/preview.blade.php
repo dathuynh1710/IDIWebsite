@@ -1,7 +1,6 @@
 @php
     $title = $product->getTranslation('title', 'vi', false) ?: $product->sku;
     $shortDescription = $product->getTranslation('short_description', 'vi', false);
-    $description = $product->getTranslation('description', 'vi', false);
     $content = $product->getTranslation('content', 'vi', false);
     $category = $product->category?->getTranslation('name', 'vi', false) ?: 'Chưa phân loại';
     $status = $product->getTranslation('translation_status', 'vi', false) ?: 'draft';
@@ -282,7 +281,7 @@
                     <p class="scientific-name">{{ $product->scientific_name }}</p>
                 @endif
                 @if($shortDescription)
-                    <p class="lead">{{ $shortDescription }}</p>
+                    <div class="lead">{!! $shortDescription !!}</div>
                 @endif
 
                 <div class="product-meta">
@@ -293,14 +292,13 @@
             </div>
         </section>
 
-        @if($description || $content)
+        @if($content)
             <section class="product-body">
                 <div class="section-heading">
                     <span>Thông tin sản phẩm</span>
                     <h2>Nội dung chi tiết</h2>
                 </div>
                 <div class="content">
-                    @if($description)<p class="description">{{ $description }}</p>@endif
                     {!! $content !!}
                 </div>
             </section>

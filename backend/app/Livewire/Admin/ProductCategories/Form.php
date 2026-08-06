@@ -14,8 +14,6 @@ class Form extends AdminComponent
 {
     public ?ProductCategory $category = null;
 
-    public bool $modal = false;
-
     public ?int $parent_id = null;
 
     public string $code = '';
@@ -30,10 +28,9 @@ class Form extends AdminComponent
 
     public bool $is_active = true;
 
-    public function mount(?ProductCategory $category = null, bool $modal = false): void
+    public function mount(?ProductCategory $category = null): void
     {
         $category = $category?->exists ? $category : null;
-        $this->modal = $modal;
         Gate::authorize($category ? 'products.update' : 'products.create');
         $this->category = $category;
 
@@ -83,13 +80,10 @@ class Form extends AdminComponent
             $data['created_by'] = auth()->id();
             $this->category = ProductCategory::create($data);
             $message = 'Đã thêm danh mục sản phẩm.';
-            if (! $this->modal) {
-                $this->js("history.replaceState({}, '', '".route('admin.product-categories.edit', $this->category)."')");
-            }
+            $this->js("history.replaceState({}, '', '".route('admin.product-categories.edit', $this->category)."')");
         }
 
         $this->toast($message);
-        $this->dispatch('category-saved');
     }
 
     public function render()

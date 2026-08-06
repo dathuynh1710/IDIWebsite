@@ -7,7 +7,6 @@ use App\Models\ProductCategory;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Livewire\Attributes\Layout;
-use Livewire\Attributes\On;
 use Livewire\Attributes\Title;
 use Livewire\Attributes\Url;
 use Livewire\WithPagination;
@@ -24,13 +23,12 @@ class Index extends AdminComponent
     #[Url(except: '')]
     public string $status = '';
 
+    #[Url(as: 'per_page', except: 10, history: true)]
+    public int $perPage = 10;
+
     public array $selected = [];
 
     public array $sortOrders = [];
-
-    public bool $showFormModal = false;
-
-    public ?int $editingCategoryId = null;
 
     public function mount(): void
     {
@@ -54,19 +52,12 @@ class Index extends AdminComponent
         $this->resetPage();
     }
 
-    public function openEditModal(int $categoryId): void
+    public function updatedPerPage($value): void
     {
-        Gate::authorize('products.update');
-        ProductCategory::findOrFail($categoryId);
-        $this->editingCategoryId = $categoryId;
-        $this->showFormModal = true;
-    }
-
-    #[On('category-saved')]
-    public function closeFormModal(): void
-    {
-        $this->showFormModal = false;
-        $this->editingCategoryId = null;
+        $perPage = (int) $value;
+        $this->perPage = in_array($perPage, [10, 20, 50, 100], true) ? $perPage : 10;
+        $this->selected = [];
+        $this->resetPage();
     }
 
     public function toggleVisibility(int $categoryId): void
@@ -154,16 +145,13 @@ class Index extends AdminComponent
                 ->orWhere('slug->vi', 'like', "%{$search}%"));
         }
 
-        $categories = $query->orderBy('sort_order')->latest('updated_at')->paginate(20);
+        $categories = $query->orderBy('sort_order')->latest('updated_at')->paginate($this->perPage);
         foreach ($categories as $category) {
             $this->sortOrders[$category->id] ??= $category->sort_order;
         }
 
         return view('livewire.admin.product-categories.index', [
             'categories' => $categories,
-            'editingCategory' => $this->editingCategoryId
-                ? ProductCategory::find($this->editingCategoryId)
-                : null,
             'breadcrumbs' => [
                 ['label' => 'Bảng điều khiển', 'route' => 'admin.dashboard'],
                 ['label' => 'Danh mục sản phẩm'],

@@ -86,6 +86,7 @@ class Product extends Model
             })
             ->when($filters['category'] ?? null, fn (Builder $query, mixed $category) => $query->where('product_category_id', $category))
             ->when(isset($filters['active']) && $filters['active'] !== '', fn (Builder $query) => $query->where('is_active', $filters['active']))
+            ->when(isset($filters['featured']) && $filters['featured'] !== '', fn (Builder $query) => $query->where('is_featured', $filters['featured']))
             ->when($filters['date_from'] ?? null, fn (Builder $query, string $date) => $query->whereDate('updated_at', '>=', $date));
     }
 }

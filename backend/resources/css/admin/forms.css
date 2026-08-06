@@ -111,6 +111,13 @@
 .rich-editor .tox-tinymce { border-color: var(--admin-border-strong); border-radius: 6px; }
 .rich-editor .tox .tox-toolbar-overlord, .rich-editor .tox .tox-toolbar__primary { background-color: #f8fafc; }
 .ckeditor5-field .ck.ck-editor { width: 100%; }.ckeditor5-field .ck.ck-toolbar { padding: 6px; border-color: var(--admin-border-strong); border-radius: 7px 7px 0 0; background: #f8fafc; }.ckeditor5-field .ck.ck-toolbar > .ck-toolbar__items { flex-wrap: wrap !important; row-gap: 3px; }.ckeditor5-field .ck.ck-editor__main > .ck-editor__editable { min-height: 320px; border-color: var(--admin-border-strong); border-radius: 0 0 7px 7px; color: var(--admin-text); font-family: inherit; font-size: 14px; line-height: 1.65; }.ckeditor5-field .ck.ck-editor__editable.ck-focused:not(.ck-editor__nested-editable) { border-color: var(--admin-primary); box-shadow: 0 0 0 3px var(--admin-primary-soft); }.ckeditor5-field .ck.ck-editor__editable img { max-width: 100%; height: auto; }.ckeditor5-field .ck.ck-editor__editable table { width: 100%; }
+.product-editor-tabs { overflow: hidden; border: 1px solid var(--admin-border); border-radius: 9px; background: #fff; }
+.product-editor-tab-list { display: flex; gap: 2px; padding: 8px 10px 0; border-bottom: 1px solid var(--admin-border); background: #f8fafc; }
+.product-editor-tab-list button { margin-bottom: -1px; padding: 10px 16px; border: 1px solid transparent; border-bottom-color: var(--admin-border); border-radius: 7px 7px 0 0; color: var(--admin-muted); background: transparent; font: inherit; font-weight: 700; cursor: pointer; }
+.product-editor-tab-list button:hover { color: var(--admin-primary); background: var(--admin-primary-soft); }
+.product-editor-tab-list button.is-active { color: var(--admin-primary); border-color: var(--admin-border); border-bottom-color: #fff; background: #fff; }
+.product-editor-tabs [role="tabpanel"] { padding: 16px; }
+.product-editor-tabs .ckeditor5-field > label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; }
 .seo-panel { border: 1px solid var(--admin-border); border-radius: 8px; background: #fbfcfd; }
 .seo-panel summary { padding: 13px 15px; color: #2e465d; font-weight: 650; cursor: pointer; }
 .seo-grid { display: grid; gap: 16px; padding: 2px 15px 16px; }

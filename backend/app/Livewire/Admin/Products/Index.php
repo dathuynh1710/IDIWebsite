@@ -29,7 +29,17 @@ class Index extends AdminComponent
     public string $active = '';
 
     #[Url(except: '')]
+    public string $featured = '';
+
+    #[Url(except: '')]
     public string $date_from = '';
+
+    #[Url(as: 'per_page', except: 10, history: true)]
+    public int $perPage = 10;
+
+    public array $selected = [];
+
+    public array $sortOrders = [];
 
     public function mount(): void
     {
@@ -38,15 +48,87 @@ class Index extends AdminComponent
 
     public function updated($property): void
     {
-        if (in_array($property, ['search', 'category', 'active', 'date_from'], true)) {
+        if (in_array($property, ['search', 'category', 'active', 'featured', 'date_from'], true)) {
+            $this->selected = [];
             $this->resetPage();
         }
     }
 
     public function resetFilters(): void
     {
-        $this->reset('search', 'category', 'active', 'date_from');
+        $this->reset('search', 'category', 'active', 'featured', 'date_from');
+        $this->selected = [];
         $this->resetPage();
+    }
+
+    public function updatedPerPage($value): void
+    {
+        $perPage = (int) $value;
+        $this->perPage = in_array($perPage, [10, 20, 50, 100], true) ? $perPage : 10;
+        $this->selected = [];
+        $this->resetPage();
+    }
+
+    public function saveSortOrders(): void
+    {
+        Gate::authorize('products.update');
+        $validated = $this->validate([
+            'sortOrders' => ['required', 'array'],
+            'sortOrders.*' => ['required', 'integer', 'min:0', 'max:999999'],
+        ]);
+
+        DB::transaction(function () use ($validated): void {
+            foreach ($validated['sortOrders'] as $productId => $sortOrder) {
+                Product::whereKey((int) $productId)->update([
+                    'sort_order' => (int) $sortOrder,
+                    'updated_by' => auth()->id(),
+                ]);
+            }
+        });
+
+        $this->toast('Đã cập nhật thứ tự sản phẩm.');
+    }
+
+    public function toggleFeatured(int $productId): void
+    {
+        Gate::authorize('products.update');
+        $product = Product::findOrFail($productId);
+        $product->update([
+            'is_featured' => ! $product->is_featured,
+            'updated_by' => auth()->id(),
+        ]);
+
+        $this->toast($product->is_featured ? 'Đã đánh dấu sản phẩm nổi bật.' : 'Đã bỏ đánh dấu sản phẩm nổi bật.');
+    }
+
+    public function bulk(string $action): void
+    {
+        $this->validate([
+            'selected' => ['required', 'array', 'min:1'],
+            'selected.*' => ['integer', 'distinct'],
+        ], ['selected.required' => 'Vui lòng chọn ít nhất một sản phẩm.']);
+
+        Gate::authorize($action === 'delete' ? 'products.delete' : 'products.update');
+        abort_unless(in_array($action, ['show', 'hide', 'delete'], true), 422);
+
+        DB::transaction(function () use ($action): void {
+            if (in_array($action, ['show', 'hide'], true)) {
+                Product::whereKey($this->selected)->update([
+                    'is_active' => $action === 'show',
+                    'updated_by' => auth()->id(),
+                    'updated_at' => now(),
+                ]);
+            } else {
+                Product::whereKey($this->selected)->get()->each->delete();
+            }
+        });
+
+        $this->selected = [];
+        $this->toast(match ($action) {
+            'show' => 'Đã hiển thị các sản phẩm đã chọn.',
+            'hide' => 'Đã ẩn các sản phẩm đã chọn.',
+            'delete' => 'Đã chuyển các sản phẩm đã chọn vào thùng rác.',
+        });
     }
 
     public function delete(int $productId): void
@@ -85,12 +167,18 @@ class Index extends AdminComponent
             'search' => trim($this->search),
             'category' => $this->category,
             'active' => $this->active,
+            'featured' => $this->featured,
             'date_from' => $this->date_from,
         ];
 
+        $products = Product::query()->with(['category', 'featuredMedia'])
+            ->filtered($filters)->orderBy('sort_order')->latest('updated_at')->paginate($this->perPage);
+        foreach ($products as $product) {
+            $this->sortOrders[$product->id] ??= $product->sort_order;
+        }
+
         return view('livewire.admin.products.index', [
-            'products' => Product::query()->with(['category', 'featuredMedia'])
-                ->filtered($filters)->orderBy('sort_order')->latest('updated_at')->paginate(15),
+            'products' => $products,
             'categories' => ProductCategory::orderBy('sort_order')->get(),
             'breadcrumbs' => [
                 ['label' => 'Bảng điều khiển', 'route' => 'admin.dashboard'],

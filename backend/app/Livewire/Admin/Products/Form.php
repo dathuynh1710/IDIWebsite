@@ -46,15 +46,11 @@ class Form extends AdminComponent
 
     public array $short_description = ['vi' => '', 'en' => '', 'zh' => ''];
 
-    public array $description = ['vi' => '', 'en' => '', 'zh' => ''];
-
     public array $content = ['vi' => '', 'en' => '', 'zh' => ''];
 
     public array $seo_title = ['vi' => '', 'en' => '', 'zh' => ''];
 
     public array $meta_description = ['vi' => '', 'en' => '', 'zh' => ''];
-
-    public array $translation_status = ['vi' => 'draft', 'en' => 'draft', 'zh' => 'draft'];
 
     public array $locale_published_at = ['vi' => '', 'en' => '', 'zh' => ''];
 
@@ -71,7 +67,7 @@ class Form extends AdminComponent
         foreach (['sku', 'scientific_name', 'product_category_id', 'sort_order', 'is_featured', 'is_active'] as $field) {
             $this->{$field} = $product->{$field} ?? $this->{$field};
         }
-        foreach (['title', 'slug', 'short_description', 'description', 'content', 'seo_title', 'meta_description', 'translation_status', 'locale_published_at'] as $field) {
+        foreach (['title', 'slug', 'short_description', 'content', 'seo_title', 'meta_description', 'locale_published_at'] as $field) {
             foreach (['vi', 'en', 'zh'] as $locale) {
                 $this->{$field}[$locale] = $product->getTranslation($field, $locale, false) ?? $this->{$field}[$locale];
             }
@@ -110,8 +106,6 @@ class Form extends AdminComponent
         $this->updatedEnabledLocales();
         $this->slug = collect($this->slug)->map(fn ($value) => Str::slug((string) $value))->all();
         $productId = $this->product?->id;
-        $statuses = 'draft,translating,review,scheduled,published,hidden,archived';
-
         $rules = [
             'sku' => ['required', 'string', 'max:100', Rule::unique('products', 'sku')->ignore($productId)],
             'scientific_name' => ['nullable', 'string', 'max:255'],
@@ -128,26 +122,29 @@ class Form extends AdminComponent
         foreach ($this->enabled_locales as $locale) {
             $rules["title.{$locale}"] = ['required', 'string', 'max:255'];
             $rules["slug.{$locale}"] = ['required', 'string', 'max:255', 'regex:/^[a-z0-9]+(?:-[a-z0-9]+)*$/'];
-            $rules["short_description.{$locale}"] = ['nullable', 'string', 'max:1000'];
-            $rules["description.{$locale}"] = ['nullable', 'string', 'max:5000'];
+            $rules["short_description.{$locale}"] = ['nullable', 'string', 'max:5000'];
             $rules["content.{$locale}"] = ['nullable', 'string', 'max:100000'];
             $rules["seo_title.{$locale}"] = ['nullable', 'string', 'max:255'];
             $rules["meta_description.{$locale}"] = ['nullable', 'string', 'max:500'];
-            $rules["translation_status.{$locale}"] = ['required', "in:{$statuses}"];
-            $rules["locale_published_at.{$locale}"] = ['nullable', 'date', "required_if:translation_status.{$locale},scheduled"];
+            $rules["locale_published_at.{$locale}"] = ['nullable', 'date'];
         }
 
         $validated = $this->validate($rules);
         $enabledLocales = collect($validated['enabled_locales'])->flip();
 
         $localized = [];
-        foreach (['title', 'slug', 'short_description', 'description', 'seo_title', 'meta_description', 'translation_status', 'locale_published_at'] as $field) {
+        foreach (['title', 'slug', 'seo_title', 'meta_description', 'locale_published_at'] as $field) {
             $localized[$field] = collect($validated[$field] ?? [])->intersectByKeys($enabledLocales)
                 ->map(fn ($value) => is_string($value) ? trim($value) : $value)
                 ->filter(fn ($value) => $value !== null && $value !== '')->all();
         }
-        $localized['content'] = collect($validated['content'] ?? [])->intersectByKeys($enabledLocales)
-            ->map(fn ($html) => $this->sanitizeHtml((string) $html))->filter()->all();
+        foreach (['short_description', 'content'] as $field) {
+            $localized[$field] = collect($validated[$field] ?? [])->intersectByKeys($enabledLocales)
+                ->map(fn ($html) => $this->sanitizeHtml((string) $html))->filter()->all();
+        }
+        $localized['translation_status'] = collect($validated['enabled_locales'])
+            ->mapWithKeys(fn (string $locale): array => [$locale => 'published'])
+            ->all();
 
         DB::transaction(function () use ($validated, $localized): void {
             $mediaId = $this->remove_image ? null : $this->product?->featured_media_id;
@@ -223,7 +220,6 @@ class Form extends AdminComponent
         return view('livewire.admin.products.form', [
             'categories' => ProductCategory::orderBy('sort_order')->get(),
             'locales' => ['vi' => 'Tiếng Việt', 'en' => 'English', 'zh' => '中文'],
-            'statuses' => ['draft' => 'Bản nháp', 'translating' => 'Đang dịch', 'review' => 'Chờ duyệt', 'scheduled' => 'Đã lên lịch', 'published' => 'Đã xuất bản', 'hidden' => 'Tạm ẩn', 'archived' => 'Lưu trữ'],
             'breadcrumbs' => [
                 ['label' => 'Bảng điều khiển', 'route' => 'admin.dashboard'],
                 ['label' => 'Sản phẩm', 'route' => 'admin.products.index'],

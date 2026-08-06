@@ -7,6 +7,7 @@ use App\Livewire\Admin\ProductCategories\Index as ProductCategoryIndex;
 use App\Models\ProductCategory;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Livewire\Livewire;
 use Spatie\Permission\Models\Permission;
 use Tests\TestCase;
@@ -26,7 +27,11 @@ class ProductCategoryManagementTest extends TestCase
             ->assertSee('Thêm danh mục')
             ->assertSee('page-heading card page-heading-card', false);
         $this->actingAs($user)->get('/admin/product-categories/create')->assertOk()->assertSee('Thêm danh mục sản phẩm');
-        $this->actingAs($user)->get("/admin/product-categories/{$category->id}/edit")->assertOk()->assertSee('Sửa danh mục');
+        $this->actingAs($user)->get("/admin/product-categories/{$category->id}/edit")
+            ->assertOk()
+            ->assertSee('Sửa danh mục')
+            ->assertSee('admin-shell', false)
+            ->assertDontSee('admin-form-modal', false);
     }
 
     public function test_category_can_be_created_and_updated_with_livewire(): void
@@ -58,9 +63,56 @@ class ProductCategoryManagementTest extends TestCase
 
     public function test_category_create_button_navigates_to_full_page_form(): void
     {
+        $category = $this->category();
+
         Livewire::actingAs($this->productEditor())
             ->test(ProductCategoryIndex::class)
-            ->assertSeeHtml('href="'.route('admin.product-categories.create').'"');
+            ->assertSeeHtml('href="'.route('admin.product-categories.create').'"')
+            ->assertSeeHtml('href="'.route('admin.product-categories.edit', $category).'"')
+            ->assertDontSee('role="dialog"', false)
+            ->assertDontSee('openEditModal');
+    }
+
+    public function test_category_table_shows_created_and_updated_times_instead_of_category_code(): void
+    {
+        $category = $this->category();
+
+        DB::table('product_categories')->where('id', $category->id)->update([
+            'created_at' => '2020-10-12 10:45:00',
+            'updated_at' => '2024-07-03 15:12:00',
+        ]);
+
+        $this->actingAs($this->productEditor())
+            ->get('/admin/product-categories')
+            ->assertOk()
+            ->assertSee('10:45 - 12/10/2020')
+            ->assertSee('15:12 - 03/07/2024')
+            ->assertSee('title="Ngày tạo"', false)
+            ->assertSee('title="Ngày cập nhật"', false)
+            ->assertDontSee('FILLETS');
+    }
+
+    public function test_category_table_supports_configurable_pagination(): void
+    {
+        $user = $this->productEditor();
+
+        foreach (range(1, 11) as $index) {
+            ProductCategory::create([
+                'code' => "CATEGORY-{$index}",
+                'name' => ['vi' => "Category {$index}"],
+                'slug' => ['vi' => "category-{$index}"],
+                'sort_order' => $index,
+                'is_active' => true,
+            ]);
+        }
+
+        Livewire::actingAs($user)
+            ->test(ProductCategoryIndex::class)
+            ->assertSet('perPage', 10)
+            ->assertSeeHtml('wire:model.live="perPage"')
+            ->assertViewHas('categories', fn ($categories) => $categories->total() === 11 && $categories->count() === 10)
+            ->set('perPage', 20)
+            ->assertViewHas('categories', fn ($categories) => $categories->total() === 11 && $categories->count() === 11);
     }
 
     public function test_category_can_be_hidden_deleted_and_restored_with_livewire(): void

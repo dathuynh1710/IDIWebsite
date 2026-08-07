@@ -204,8 +204,14 @@ class BusinessSeeder extends Seeder
                 'description' => $this->translations(...$position['description']),
                 'requirements' => $this->translations(...$position['requirements']),
                 'benefits' => $this->translations(...$position['benefits']),
+                'contact' => $this->translations(
+                    '<p>Ứng viên vui lòng nộp hồ sơ trực tuyến hoặc liên hệ Phòng Nhân sự IDI Seafood.</p>',
+                    '<p>Please apply online or contact the IDI Seafood Human Resources Department.</p>',
+                    '<p>请在线提交申请或联系 IDI Seafood 人力资源部。</p>'
+                ),
                 'seo_title' => $this->translations(...$position['title']),
                 'meta_description' => $this->translations(...$position['summary']),
+                'meta_keywords' => $this->translations('tuyển dụng, việc làm, IDI Seafood', 'careers, jobs, IDI Seafood', '招聘, 职位, IDI Seafood'),
                 'quantity' => $position['quantity'],
                 'expires_at' => now()->addDays(45 + $position['sort']),
                 'translation_status' => $this->publishedStatus(),
@@ -227,17 +233,19 @@ class BusinessSeeder extends Seeder
     private function seedRecruitmentApplications(int $adminId, array $positionIds): void
     {
         $applications = [
-            ['position' => 'sales', 'name' => 'Nguyễn Minh Trí', 'email' => 'minhtri.sales@example.com', 'phone' => '0908123456', 'address' => 'Quận Bình Thạnh, Thành phố Hồ Chí Minh', 'status' => 'new', 'letter' => 'Tôi có ba năm kinh nghiệm chăm sóc khách hàng xuất khẩu và mong muốn phát triển cùng IDI Seafood.'],
-            ['position' => 'sales', 'name' => 'Trần Ngọc Anh', 'email' => 'ngocanh.export@example.com', 'phone' => '0939456789', 'address' => 'Thành phố Thủ Đức, Thành phố Hồ Chí Minh', 'status' => 'reviewing', 'letter' => 'Tôi sử dụng tốt tiếng Anh và có kinh nghiệm xử lý chứng từ xuất khẩu thủy sản.'],
-            ['position' => 'quality', 'name' => 'Lê Thị Thanh Hương', 'email' => 'thanhhuong.qa@example.com', 'phone' => '0919234567', 'address' => 'Thành phố Cao Lãnh, Đồng Tháp', 'status' => 'shortlisted', 'letter' => 'Tôi đã làm việc bốn năm trong bộ phận QA nhà máy chế biến thực phẩm và am hiểu HACCP.'],
-            ['position' => 'it', 'name' => 'Đỗ Trung Kiên', 'email' => 'trungkien.it@example.com', 'phone' => '0388829090', 'address' => 'Thành phố Long Xuyên, An Giang', 'status' => 'reviewing', 'letter' => 'Tôi có kinh nghiệm vận hành hệ thống mạng, Windows Server, sao lưu và hỗ trợ người dùng.'],
-            ['position' => 'it', 'name' => 'Phạm Thái Thiên', 'email' => 'thaithien.it@example.com', 'phone' => '0862705185', 'address' => 'Quận Cái Răng, Thành phố Cần Thơ', 'status' => 'rejected', 'letter' => 'Tôi mong muốn được làm việc trong môi trường sản xuất quy mô lớn để phát triển chuyên môn IT.'],
-            ['position' => 'hr', 'name' => 'Võ Vân Đăng', 'email' => 'vandang.hr@example.com', 'phone' => '0907628885', 'address' => 'Thành phố Cao Lãnh, Đồng Tháp', 'status' => 'hired', 'letter' => 'Tôi có kinh nghiệm tuyển dụng lao động nhà máy, tổ chức hội nhập và quản lý hồ sơ đào tạo.'],
+            ['position' => 'quality', 'name' => 'Nguyễn Thanh Bình', 'email' => 'thanhbinhdtcc@gmail.com', 'phone' => '0909887205', 'address' => '426B/5, Ấp Tân Thạnh, Xã Lai Vung, Tỉnh Đồng Tháp', 'status' => 'new', 'submitted' => '2026-08-03 09:03:00', 'letter' => null],
+            ['position' => 'quality', 'name' => 'Phạm Nguyễn Thị Thiên Kim', 'email' => 'pthienkim849@gmail.com', 'phone' => '0325219367', 'address' => 'Ấp Phước Lợi, xã Ô Lâm, huyện Tri Tôn, tỉnh An Giang', 'status' => 'new', 'submitted' => '2026-08-01 14:20:00', 'letter' => 'Em xin được ứng tuyển ạ.'],
+            ['position' => 'it', 'name' => 'Đỗ Trung Kiên', 'email' => 'trungkien240398@gmail.com', 'phone' => '0388829090', 'address' => '818 Khóm Tân Thuận, xã Thanh Bình, tỉnh Đồng Tháp', 'status' => 'reviewing', 'submitted' => '2026-06-23 14:34:00', 'letter' => 'Tôi là kỹ sư tốt nghiệp chuyên ngành Kỹ thuật Máy tính, có kinh nghiệm làm việc trong lĩnh vực vận hành hệ thống mạng và thiết bị viễn thông. Tôi mong muốn tiếp tục phát triển chuyên môn và đóng góp vào sự ổn định, hiệu quả của hệ thống tại doanh nghiệp.'],
+            ['position' => 'quality', 'name' => 'Đào Huỳnh Như', 'email' => 'daohuynhnhu2004@gmail.com', 'phone' => '0344242985', 'address' => 'Ấp Bình Hiệp B, xã Lấp Vò, tỉnh Đồng Tháp', 'status' => 'reviewing', 'submitted' => '2026-06-03 16:45:00', 'letter' => null],
+            ['position' => 'sales', 'name' => 'Nguyễn Minh Trí', 'email' => 'nguyentran2008cb@gmail.com', 'phone' => '0363273179', 'address' => 'Ấp Hậu Vĩnh, xã Hội Cư, tỉnh Đồng Tháp', 'status' => 'reviewing', 'submitted' => '2026-05-15 15:19:00', 'letter' => 'Em xin ứng tuyển vị trí nhân viên thống kê kho ạ.'],
+            ['position' => 'quality', 'name' => 'Phạm Thái Thiên', 'email' => 'thaithienca@gmail.com', 'phone' => '0862705185', 'address' => '22 Tôn Đức Thắng, khu vực Bình Hưng, phường Phước Thới, TP Cần Thơ', 'status' => 'reviewing', 'submitted' => '2026-03-31 19:31:00', 'letter' => 'Có kinh nghiệm làm QC sản xuất cá tra được 5,6 năm.'],
+            ['position' => 'hr', 'name' => 'Võ Vân Đăng', 'email' => 'vodangdt@gmail.com', 'phone' => '0907628885', 'address' => 'Thường Lạc, Đồng Tháp', 'status' => 'reviewing', 'submitted' => '2026-03-21 15:29:00', 'letter' => null],
+            ['position' => 'sales', 'name' => 'Lê Thùy Dương', 'email' => 'ltduong2102@gmail.com', 'phone' => '0919995410', 'address' => 'Thành phố Cao Lãnh, Đồng Tháp', 'status' => 'new', 'submitted' => '2026-03-18 10:12:00', 'letter' => 'Tôi mong muốn được làm việc trong môi trường chuyên nghiệp và gắn bó lâu dài cùng IDI Seafood.'],
         ];
 
         foreach ($applications as $index => $application) {
             $isReviewed = $application['status'] !== 'new';
-            $this->upsertId('job_applications', [
+            $applicationId = $this->upsertId('job_applications', [
                 'job_position_id' => $positionIds[$application['position']],
                 'email' => $application['email'],
             ], [
@@ -256,6 +264,8 @@ class BusinessSeeder extends Seeder
                 'reviewed_by' => $isReviewed ? $adminId : null,
                 'reviewed_at' => $isReviewed ? now()->subDays(6 - $index) : null,
             ]);
+
+            DB::table('job_applications')->where('id', $applicationId)->update(['created_at' => $application['submitted']]);
         }
     }
 

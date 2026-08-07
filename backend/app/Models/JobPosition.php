@@ -14,14 +14,14 @@ class JobPosition extends Model
 
     public array $translatable = [
         'title', 'slug', 'location', 'summary', 'description', 'requirements',
-        'benefits', 'seo_title', 'meta_description', 'translation_status',
+        'benefits', 'contact', 'seo_title', 'meta_description', 'meta_keywords', 'translation_status',
         'locale_published_at',
     ];
 
     protected $fillable = [
         'code', 'department', 'title', 'slug', 'location', 'summary',
-        'description', 'requirements', 'benefits', 'seo_title',
-        'meta_description', 'quantity', 'expires_at', 'translation_status',
+        'description', 'requirements', 'benefits', 'contact', 'seo_title',
+        'meta_description', 'meta_keywords', 'quantity', 'expires_at', 'translation_status',
         'locale_published_at', 'sort_order', 'is_active', 'created_by',
         'updated_by',
     ];
@@ -31,8 +31,8 @@ class JobPosition extends Model
         return [
             'title' => 'array', 'slug' => 'array', 'location' => 'array',
             'summary' => 'array', 'description' => 'array',
-            'requirements' => 'array', 'benefits' => 'array',
-            'seo_title' => 'array', 'meta_description' => 'array',
+            'requirements' => 'array', 'benefits' => 'array', 'contact' => 'array',
+            'seo_title' => 'array', 'meta_description' => 'array', 'meta_keywords' => 'array',
             'translation_status' => 'array', 'locale_published_at' => 'array',
             'expires_at' => 'datetime', 'is_active' => 'boolean',
         ];
@@ -46,14 +46,17 @@ class JobPosition extends Model
     public function scopeFiltered(Builder $query, array $filters): Builder
     {
         $locale = $filters['locale'] ?? 'vi';
+        $searchBy = $filters['search_by'] ?? 'title';
 
         return $query
-            ->when($filters['search'] ?? null, fn (Builder $q, string $search) => $q->where(
-                fn (Builder $nested) => $nested
-                    ->where("title->{$locale}", 'like', "%{$search}%")
-                    ->orWhere('code', 'like', "%{$search}%")
-                    ->orWhere('department', 'like', "%{$search}%")
-            ))
+            ->when($filters['search'] ?? null, function (Builder $q, string $search) use ($locale, $searchBy): void {
+                match ($searchBy) {
+                    'code' => $q->where('code', 'like', "%{$search}%"),
+                    'location' => $q->where("location->{$locale}", 'like', "%{$search}%"),
+                    'department' => $q->where('department', 'like', "%{$search}%"),
+                    default => $q->where("title->{$locale}", 'like', "%{$search}%"),
+                };
+            })
             ->when(($filters['active'] ?? '') !== '', fn (Builder $q) => $q->where('is_active', $filters['active']))
             ->when($filters['date_from'] ?? null, fn (Builder $q, string $date) => $q->whereDate('created_at', '>=', $date))
             ->when($filters['date_to'] ?? null, fn (Builder $q, string $date) => $q->whereDate('created_at', '<=', $date));

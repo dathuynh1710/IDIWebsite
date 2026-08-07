@@ -10,6 +10,10 @@
     .recipe-ingredient-fields { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .contact-filter-grid .filter-search { grid-column: span 2; }
     .data-table th:nth-child(4), .data-table td:nth-child(4), .data-table th:nth-child(5), .data-table td:nth-child(5) { display: none; }
+    .application-reference-table th:nth-child(4), .application-reference-table td:nth-child(4) { display: table-cell; }
+    .application-reference-table { min-width: 980px; }
+    .recruitment-compact-table th:nth-child(4), .recruitment-compact-table td:nth-child(4), .recruitment-compact-table th:nth-child(5), .recruitment-compact-table td:nth-child(5) { display: table-cell; }
+    .recruitment-management-filter-grid { grid-template-columns: 1fr 1fr; }.recruitment-keyword-filter { grid-column: 1 / -1; }
 }
 
 @media (max-width: 767px) {
@@ -44,6 +48,11 @@
     .location-map-heading { align-items: flex-start; flex-direction: column; }.location-map-heading > small { text-align: left; }
     .location-map-options { grid-template-columns: 1fr 1fr; }
     .location-map-actions { align-items: stretch; flex-direction: column; }.location-map-actions > span { text-align: center; }.location-map-actions .button { justify-content: center; }
+    .recruitment-application-heading { padding: 14px; }.recruitment-application-heading h1 { font-size: 20px; }
+    .application-search-card { padding: 14px; }.application-search-row { align-items: stretch; flex-direction: column; }.application-search-row .button { justify-content: center; }
+    .application-reference-toolbar { align-items: flex-start; flex-direction: column; }.application-reference-toolbar .category-toolbar-actions { width: 100%; }.application-reference-toolbar .button { flex: 1; }
+    .recruitment-management-filter-card { padding: 14px; }.recruitment-management-filter-grid { grid-template-columns: 1fr; }.recruitment-keyword-filter { grid-column: auto; }.recruitment-date-filter > div, .recruitment-keyword-filter > div { align-items: stretch; flex-direction: column; }.recruitment-date-filter > div > span { text-align: center; }.recruitment-keyword-filter .button { justify-content: center; }
+    .recruitment-compact-toolbar { align-items: flex-start; flex-direction: column; }.recruitment-compact-toolbar .category-toolbar-actions { width: 100%; }.recruitment-compact-toolbar .button { flex: 1 1 calc(50% - 7px); }
 }
 
 @media (max-width: 1023px) {
@@ -57,10 +66,12 @@
     .desktop-collapse-button { display: none; }
     .admin-content { padding: 24px 22px 36px; }
     .product-form-grid { grid-template-columns: minmax(270px, 34%) minmax(0, 1fr); }
+    .recruitment-position-form-grid { grid-template-columns: minmax(280px, 34%) minmax(0, 1fr); }
     .product-form-sidebar { position: static; }
     .category-form-grid { grid-template-columns: minmax(270px, 34%) minmax(0, 1fr); }
     .category-form-sidebar { position: sticky; }
     .dashboard-grid { grid-template-columns: 1fr; }
+    .recruitment-settings-bottom-grid { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 767px) {
@@ -73,6 +84,9 @@
     .page-actions { justify-content: flex-start; }.page-actions .button { flex: 1; }
     .stat-grid { grid-template-columns: 1fr 1fr; gap: 10px; }.stat-card { padding: 14px; gap: 10px; }.stat-card > span { width: 38px; height: 38px; }.stat-card strong { font-size: 21px; }.stat-card p { font-size: 12px; }
     .product-form-grid { display: block; }.product-form-content { margin-top: 14px; }
+    .recruitment-primary-fields { grid-template-columns: 1fr; }
+    .recruitment-editor-tabs .ckeditor5-field .ck.ck-editor__main > .ck-editor__editable { min-height: 320px; }
+    .recruitment-settings-locale-panel { padding: 14px; }.recruitment-settings-editor-tabs .ckeditor5-field .ck.ck-editor__main > .ck-editor__editable { min-height: 300px; }.recruitment-hero-upload-grid { grid-template-columns: 1fr; }.recruitment-image-preview.is-mobile, .recruitment-image-placeholder.is-mobile { max-height: 360px; }.recruitment-gallery-preview { grid-template-columns: 1fr 1fr; }
     .category-form-grid { display: block; }.category-form-content { margin-top: 14px; }
     .product-form-sidebar, .category-form-sidebar { position: static; max-height: none; overflow: visible; }
     .tab-list { top: var(--admin-header-height); margin-inline: -14px; padding-inline: 14px; border-radius: 0; border-inline: 0; }.tab-list button { min-width: 135px; }

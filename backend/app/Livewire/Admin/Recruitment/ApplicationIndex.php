@@ -5,7 +5,7 @@ namespace App\Livewire\Admin\Recruitment;
 use App\Enums\JobApplicationStatus;
 use App\Livewire\AdminComponent;
 use App\Models\JobApplication;
-use App\Models\JobPosition;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
 use Livewire\Attributes\Layout;
@@ -20,13 +20,20 @@ class ApplicationIndex extends AdminComponent
     #[Url(except: '')]
     public string $search = '';
 
+    public string $searchInput = '';
+
     #[Url(except: '')]
     public string $status = '';
 
     #[Url(except: '')]
     public string $position = '';
 
+    #[Url(except: 10)]
+    public int $perPage = 10;
+
     public array $selected = [];
+
+    public array $pendingStatuses = [];
 
     public ?int $viewingApplicationId = null;
 
@@ -37,14 +44,55 @@ class ApplicationIndex extends AdminComponent
     public function mount(): void
     {
         Gate::authorize('recruitment.view');
+        $this->searchInput = $this->search;
     }
 
-    public function updated($property): void
+    public function applySearch(): void
     {
-        if (in_array($property, ['search', 'status', 'position'], true)) {
-            $this->resetPage();
-            $this->selected = [];
+        $this->search = trim($this->searchInput);
+        $this->resetPage();
+        $this->selected = [];
+    }
+
+    public function updatedPerPage($value): void
+    {
+        $this->perPage = max(1, min(100, (int) $value));
+        $this->resetPage();
+        $this->selected = [];
+    }
+
+    public function togglePageSelection(array $ids): void
+    {
+        $ids = array_values(array_map('intval', $ids));
+        $selected = array_values(array_map('intval', $this->selected));
+        $allSelected = $ids !== [] && count(array_intersect($ids, $selected)) === count($ids);
+
+        $this->selected = $allSelected
+            ? array_values(array_diff($selected, $ids))
+            : array_values(array_unique(array_merge($selected, $ids)));
+    }
+
+    public function updateSelected(): void
+    {
+        Gate::authorize('recruitment.update');
+        $this->validate([
+            'selected' => ['required', 'array', 'min:1'],
+            'selected.*' => ['integer', 'exists:job_applications,id'],
+            'pendingStatuses' => ['array'],
+            'pendingStatuses.*' => [Rule::in(['new', 'reviewing'])],
+        ]);
+
+        $applications = JobApplication::whereKey($this->selected)->get();
+        foreach ($applications as $application) {
+            $nextStatus = $this->pendingStatuses[$application->id] ?? $application->status->value;
+            $application->update([
+                'status' => $nextStatus,
+                'reviewed_by' => auth()->id(),
+                'reviewed_at' => now(),
+            ]);
         }
+
+        $this->toast('Đã cập nhật '.count($applications).' hồ sơ ứng viên.');
     }
 
     public function viewApplication(int $id): void
@@ -54,8 +102,9 @@ class ApplicationIndex extends AdminComponent
             $application->update(['status' => JobApplicationStatus::Reviewing, 'reviewed_by' => auth()->id(), 'reviewed_at' => now()]);
         }
         $application->refresh();
+        $this->pendingStatuses[$id] = $application->status === JobApplicationStatus::New ? 'new' : 'reviewing';
         $this->viewingApplicationId = $id;
-        $this->detailStatus = $application->status->value;
+        $this->detailStatus = $application->status === JobApplicationStatus::New ? 'new' : 'reviewing';
         $this->internalNote = (string) ($application->internal_note ?? '');
     }
 
@@ -68,7 +117,7 @@ class ApplicationIndex extends AdminComponent
     {
         Gate::authorize('recruitment.update');
         $data = $this->validate([
-            'detailStatus' => ['required', Rule::enum(JobApplicationStatus::class)],
+            'detailStatus' => ['required', Rule::in(['new', 'reviewing'])],
             'internalNote' => ['nullable', 'string', 'max:10000'],
         ]);
         JobApplication::findOrFail($this->viewingApplicationId)->update([
@@ -77,6 +126,7 @@ class ApplicationIndex extends AdminComponent
             'reviewed_by' => auth()->id(),
             'reviewed_at' => now(),
         ]);
+        $this->pendingStatuses[$this->viewingApplicationId] = $data['detailStatus'];
         $this->toast('Đã cập nhật hồ sơ ứng viên.');
     }
 
@@ -85,10 +135,11 @@ class ApplicationIndex extends AdminComponent
         Gate::authorize('recruitment.delete');
         JobApplication::findOrFail($id)->delete();
         $this->selected = array_values(array_diff($this->selected, [$id, (string) $id]));
+        unset($this->pendingStatuses[$id]);
         if ($this->viewingApplicationId === $id) {
             $this->closeApplication();
         }
-        $this->toast('Đã xóa vĩnh viễn hồ sơ ứng viên.');
+        $this->toast('Đã xóa hồ sơ ứng viên.');
     }
 
     public function bulkDelete(): void
@@ -96,30 +147,43 @@ class ApplicationIndex extends AdminComponent
         Gate::authorize('recruitment.delete');
         $this->validate(['selected' => ['required', 'array', 'min:1'], 'selected.*' => ['integer', 'exists:job_applications,id']]);
         JobApplication::whereKey($this->selected)->delete();
+        foreach ($this->selected as $id) {
+            unset($this->pendingStatuses[$id]);
+        }
         $this->selected = [];
-        $this->toast('Đã xóa vĩnh viễn các hồ sơ được chọn.');
+        $this->toast('Đã xóa các hồ sơ được chọn.');
+    }
+
+    private function applicationQuery(): Builder
+    {
+        return JobApplication::query()
+            ->with(['position', 'cv'])
+            ->when(trim($this->search), fn ($query) => $query->where(fn ($nested) => $nested
+                ->where('full_name', 'like', '%'.trim($this->search).'%')
+                ->orWhere('email', 'like', '%'.trim($this->search).'%')
+                ->orWhere('phone', 'like', '%'.trim($this->search).'%')
+                ->orWhere('address', 'like', '%'.trim($this->search).'%')))
+            ->when($this->status, fn ($query) => $query->where('status', $this->status))
+            ->when($this->position, fn ($query) => $query->where('job_position_id', $this->position));
     }
 
     public function render()
     {
-        $applications = JobApplication::with(['position', 'cv'])
-            ->when(trim($this->search), fn ($q) => $q->where(fn ($n) => $n
-                ->where('full_name', 'like', '%'.trim($this->search).'%')
-                ->orWhere('email', 'like', '%'.trim($this->search).'%')
-                ->orWhere('phone', 'like', '%'.trim($this->search).'%')))
-            ->when($this->status, fn ($q) => $q->where('status', $this->status))
-            ->when($this->position, fn ($q) => $q->where('job_position_id', $this->position))
-            ->latest()->paginate(20);
+        $applications = $this->applicationQuery()->latest()->paginate($this->perPage);
+
+        foreach ($applications as $application) {
+            $this->pendingStatuses[$application->id] ??= $application->status === JobApplicationStatus::New ? 'new' : 'reviewing';
+        }
 
         return view('livewire.admin.recruitment.application-index', [
             'applications' => $applications,
-            'positions' => JobPosition::orderByDesc('sort_order')->get(),
+            'perPageOptions' => collect([5, 10, 20, 50, 100, $this->perPage])->unique()->sort()->values()->all(),
             'viewingApplication' => $this->viewingApplicationId ? JobApplication::with(['position', 'cv'])->find($this->viewingApplicationId) : null,
             'statuses' => [
-                'new' => 'Mới', 'reviewing' => 'Đã liên hệ', 'shortlisted' => 'Vào vòng chọn',
-                'rejected' => 'Chưa liên hệ', 'hired' => 'Đã tuyển',
+                'new' => 'Chưa liên hệ',
+                'reviewing' => 'Đã liên hệ',
             ],
-            'breadcrumbs' => [['label' => 'Bảng điều khiển', 'route' => 'admin.dashboard'], ['label' => 'Tuyển dụng'], ['label' => 'Hồ sơ ứng viên']],
+            'breadcrumbs' => [['label' => 'Bảng điều khiển', 'route' => 'admin.dashboard'], ['label' => 'Quản lý tuyển dụng'], ['label' => 'Quản lý đăng ký']],
         ]);
     }
 }

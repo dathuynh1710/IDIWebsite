@@ -5,9 +5,9 @@ import { careersService } from '@services/careers.service'
 import toast from '@/utils/toast'
 import { useLanguage } from '@hooks/useLanguage'
 
-const HERO_IMAGE =
+const DEFAULT_HERO_IMAGE =
   'https://www.idiseafood.com/vnt_upload/recruitment/gt2.jpg'
-const TEAM_IMAGE =
+const DEFAULT_TEAM_IMAGE =
   'https://www.idiseafood.com/vnt_upload/recruitment/gt3.jpg'
 
 const BENEFITS = [
@@ -91,6 +91,7 @@ export default function CareersPage() {
   const { language } = useLanguage()
   const [form, setForm] = useState(INITIAL_FORM)
   const [openings, setOpenings] = useState([])
+  const [pageConfig, setPageConfig] = useState(null)
   const [isLoadingOpenings, setIsLoadingOpenings] = useState(true)
   const [errors, setErrors] = useState({})
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -102,7 +103,10 @@ export default function CareersPage() {
     setIsLoadingOpenings(true)
     careersService.getOpenings({ locale: language })
       .then(result => {
-        if (active) setOpenings(result.items ?? [])
+        if (active) {
+          setOpenings(result.items ?? [])
+          setPageConfig(result.pageConfig ?? null)
+        }
       })
       .catch(() => {
         if (active) setOpenings([])
@@ -174,23 +178,26 @@ export default function CareersPage() {
   return (
     <>
       <PageHead
-        title="Tuyển dụng | IDI Seafood"
-        description="Khám phá môi trường làm việc, phúc lợi và gửi CV ứng tuyển để đồng hành cùng IDI Seafood."
+        title={pageConfig?.seoTitle || 'Tuyển dụng | IDI Seafood'}
+        description={pageConfig?.metaDescription || 'Khám phá môi trường làm việc, phúc lợi và gửi CV ứng tuyển để đồng hành cùng IDI Seafood.'}
       />
 
       <main className="overflow-hidden bg-white">
         <section className="relative flex min-h-[590px] items-end overflow-hidden bg-ocean-deep pt-[72px]">
-          <img
-            src={HERO_IMAGE}
-            alt="Đội ngũ IDI tại nhà máy chế biến cá tra"
-            className="absolute inset-0 h-full w-full object-cover"
-          />
+          <picture>
+            {pageConfig?.heroMobile && <source media="(max-width: 639px)" srcSet={pageConfig.heroMobile} />}
+            <img
+              src={pageConfig?.heroDesktop || DEFAULT_HERO_IMAGE}
+              alt="Đội ngũ IDI tại nhà máy chế biến cá tra"
+              className="absolute inset-0 h-full w-full object-cover"
+            />
+          </picture>
           <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(5,29,54,0.94)_0%,rgba(5,29,54,0.72)_52%,rgba(5,29,54,0.28)_100%)]" />
           <div className="container relative z-10 pb-16 pt-28 sm:pb-20 lg:pb-24">
             <div className="max-w-3xl">
               <p className="mb-5 flex items-center gap-3 text-xs font-bold uppercase tracking-[0.24em] text-coral-light">
                 <span className="h-px w-10 bg-coral-light" />
-                Cơ hội nghề nghiệp tại IDI
+                {pageConfig?.title || 'Cơ hội nghề nghiệp tại IDI'}
               </p>
               <h1 className="text-balance text-[clamp(2.75rem,6.5vw,5.6rem)] font-extrabold leading-[0.98] tracking-[-0.045em] text-white">
                 Cùng chúng tôi
@@ -215,18 +222,20 @@ export default function CareersPage() {
                 Phát triển sự nghiệp trong một hệ sinh thái bền vững
               </h2>
               <div className="mt-6 h-1 w-20 rounded-full bg-coral-gold" />
-              <p className="mt-7 max-w-2xl text-lg leading-9 text-slate">
-                Tại IDI, bảo vệ môi trường là một trong những mối quan tâm hàng đầu của chúng tôi vì chúng tôi hiểu rằng việc cải thiện chất lượng môi trường là điều thiết yếu để đạt được mức sống cao hơn cho cộng đồng thân yêu của chúng tôi.
-              </p>
-              <p className="mt-5 max-w-2xl leading-8 text-storm-grey">
-                Mỗi thành viên đều có cơ hội học hỏi, phát huy năng lực và cùng xây dựng chuỗi giá trị thủy sản có trách nhiệm từ vùng nuôi đến thị trường toàn cầu.
-              </p>
+              {pageConfig?.description ? (
+                <div className="mt-7 max-w-2xl space-y-5 text-lg leading-9 text-slate" dangerouslySetInnerHTML={{ __html: pageConfig.description }} />
+              ) : (
+                <>
+                  <p className="mt-7 max-w-2xl text-lg leading-9 text-slate">Tại IDI, bảo vệ môi trường là một trong những mối quan tâm hàng đầu của chúng tôi vì chúng tôi hiểu rằng việc cải thiện chất lượng môi trường là điều thiết yếu để đạt được mức sống cao hơn cho cộng đồng thân yêu của chúng tôi.</p>
+                  <p className="mt-5 max-w-2xl leading-8 text-storm-grey">Mỗi thành viên đều có cơ hội học hỏi, phát huy năng lực và cùng xây dựng chuỗi giá trị thủy sản có trách nhiệm từ vùng nuôi đến thị trường toàn cầu.</p>
+                </>
+              )}
             </div>
 
             <div className="relative">
               <div className="absolute -bottom-5 -right-5 h-full w-full border border-seafoam/35" />
               <img
-                src={TEAM_IMAGE}
+                src={pageConfig?.gallery?.[0] || DEFAULT_TEAM_IMAGE}
                 alt="Nhân viên IDI trong dây chuyền sản xuất"
                 className="relative aspect-[4/3] w-full object-cover shadow-[0_30px_70px_-35px_rgba(11,37,69,0.55)]"
               />
@@ -247,8 +256,10 @@ export default function CareersPage() {
               <h2 className="text-balance text-ocean-deep">Tại sao bạn nên gia nhập cùng chúng tôi?</h2>
             </div>
 
-            <div className="grid gap-5 lg:grid-cols-3">
-              {BENEFITS.map(benefit => (
+            {pageConfig?.benefitsContent ? (
+              <div className="border border-light-mist bg-white p-7 leading-8 text-storm-grey shadow-[0_20px_60px_-45px_rgba(11,37,69,0.55)] sm:p-9" dangerouslySetInnerHTML={{ __html: pageConfig.benefitsContent }} />
+            ) : (
+              <div className="grid gap-5 lg:grid-cols-3">{BENEFITS.map(benefit => (
                 <article
                   key={benefit.number}
                   className="group border border-light-mist bg-white p-7 shadow-[0_20px_60px_-45px_rgba(11,37,69,0.55)] transition duration-300 hover:-translate-y-1 hover:border-seafoam/45 sm:p-8"
@@ -262,8 +273,8 @@ export default function CareersPage() {
                   <h3 className="mb-4 text-2xl text-ocean-deep">{benefit.title}</h3>
                   <p className="text-sm leading-7 text-storm-grey">{benefit.description}</p>
                 </article>
-              ))}
-            </div>
+              ))}</div>
+            )}
 
             <div className="mt-8 grid overflow-hidden border border-light-mist bg-white lg:grid-cols-2">
               <div className="border-b border-light-mist p-7 sm:p-8 lg:border-b-0 lg:border-r">
@@ -309,9 +320,11 @@ export default function CareersPage() {
                 <h2 className="mt-4 text-3xl font-extrabold text-white sm:text-4xl">
                   Hãy để chúng tôi biết thêm về bạn
                 </h2>
-                <p className="mt-5 leading-8 text-white/65">
-                  Đăng CV tại đây để bộ phận tuyển dụng IDI có thể liên hệ khi có vị trí phù hợp với kinh nghiệm và định hướng của bạn.
-                </p>
+                {pageConfig?.contactContent ? (
+                  <div className="mt-5 leading-8 text-white/70" dangerouslySetInnerHTML={{ __html: pageConfig.contactContent }} />
+                ) : (
+                  <p className="mt-5 leading-8 text-white/65">Đăng CV tại đây để bộ phận tuyển dụng IDI có thể liên hệ khi có vị trí phù hợp với kinh nghiệm và định hướng của bạn.</p>
+                )}
 
                 <div className="mt-10 space-y-5 border-t border-white/12 pt-8">
                   {[
@@ -357,6 +370,19 @@ export default function CareersPage() {
                   <button type="button" onClick={startNewApplication} className="btn btn-secondary mt-8">
                     Gửi hồ sơ khác
                   </button>
+                </div>
+              ) : pageConfig?.applicationEnabled === false ? (
+                <div className="flex min-h-[36rem] flex-col items-center justify-center text-center" role="status">
+                  <div className="mb-6 grid h-20 w-20 place-items-center rounded-full bg-coral-pale text-3xl text-coral">
+                    !
+                  </div>
+                  <span className="text-xs font-bold uppercase tracking-[0.16em] text-coral">
+                    Tạm ngưng nhận hồ sơ
+                  </span>
+                  <h2 className="mt-3 text-3xl font-black text-ocean-deep">Cổng ứng tuyển đang tạm đóng</h2>
+                  <p className="mt-4 max-w-lg text-sm leading-7 text-storm-grey">
+                    Hiện tại IDI chưa tiếp nhận hồ sơ trực tuyến. Bạn vẫn có thể theo dõi các vị trí đang tuyển và quay lại sau.
+                  </p>
                 </div>
               ) : (
                 <>

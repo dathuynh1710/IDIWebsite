@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Livewire\Admin\Recruitment\ApplicationIndex;
 use App\Livewire\Admin\Recruitment\PositionForm;
+use App\Livewire\Admin\Recruitment\Settings as RecruitmentSettings;
 use App\Models\JobApplication;
 use App\Models\JobPosition;
 use App\Models\User;
@@ -24,6 +25,13 @@ class RecruitmentManagementTest extends TestCase
     {
         $user = $this->manager();
         $position = $this->position();
+        JobApplication::create([
+            'job_position_id' => $position->id,
+            'full_name' => 'Ứng viên kiểm thử',
+            'email' => 'pagination@example.com',
+            'phone' => '0900000000',
+            'address' => 'Đồng Tháp',
+        ]);
 
         foreach ([
             '/admin/recruitment', '/admin/recruitment/settings',
@@ -32,6 +40,9 @@ class RecruitmentManagementTest extends TestCase
         ] as $url) {
             $this->actingAs($user)->get($url)->assertOk();
         }
+
+        $this->actingAs($user)->get('/admin/recruitment')->assertSee('Hiển thị')->assertSee('/ trang');
+        $this->actingAs($user)->get('/admin/recruitment/applications')->assertSee('Hiển thị')->assertSee('/ trang');
 
         $this->actingAs($user)->get("/admin/recruitment/{$position->id}/preview?locale=en")
             ->assertOk()->assertSee('Export Sales Executive');
@@ -45,16 +56,22 @@ class RecruitmentManagementTest extends TestCase
             ->set('code', 'REC-2026-001')
             ->set('department', 'Kinh doanh')
             ->set('quantity', 3)
+            ->set('enabled_locales', ['vi', 'en', 'zh'])
             ->set('title', ['vi' => 'Nhân viên kinh doanh', 'en' => 'Sales Executive', 'zh' => '销售专员'])
             ->set('slug', ['vi' => 'nhan-vien-kinh-doanh', 'en' => 'sales-executive', 'zh' => 'xiaoshou-zhuanyuan'])
             ->set('location', ['vi' => 'Hồ Chí Minh', 'en' => 'Ho Chi Minh City', 'zh' => '胡志明市'])
             ->set('description.vi', '<p>Tư vấn khách hàng</p><script>alert(1)</script>')
-            ->set('translation_status', ['vi' => 'published', 'en' => 'published', 'zh' => 'published'])
+            ->set('requirements.vi', '<ul><li>Giao tiếp tốt</li></ul>')
+            ->set('benefits.vi', '<p>Thưởng doanh số</p>')
+            ->set('contact.vi', '<p>Liên hệ Phòng Nhân sự</p>')
+            ->set('meta_keywords.vi', 'tuyển dụng, kinh doanh, IDI Seafood')
             ->call('save')
             ->assertHasNoErrors();
 
         $position = JobPosition::where('code', 'REC-2026-001')->firstOrFail();
         $this->assertSame('销售专员', $position->getTranslation('title', 'zh'));
+        $this->assertSame('<p>Liên hệ Phòng Nhân sự</p>', $position->getTranslation('contact', 'vi'));
+        $this->assertSame('tuyển dụng, kinh doanh, IDI Seafood', $position->getTranslation('meta_keywords', 'vi'));
         $this->assertStringNotContainsString('<script', $position->getTranslation('description', 'vi'));
         $this->assertDatabaseHas('localized_routes', [
             'routeable_type' => JobPosition::class, 'routeable_id' => $position->id,
@@ -63,6 +80,11 @@ class RecruitmentManagementTest extends TestCase
 
         $this->getJson('/api/careers?locale=en')
             ->assertOk()->assertJsonPath('items.0.title', 'Sales Executive');
+
+        $this->getJson('/api/careers/sales-executive?locale=en')
+            ->assertOk()
+            ->assertJsonPath('data.contact', '<p>Liên hệ Phòng Nhân sự</p>')
+            ->assertJsonPath('data.seo.keywords', 'tuyển dụng, kinh doanh, IDI Seafood');
     }
 
     public function test_public_application_upload_and_admin_review_flow(): void
@@ -86,13 +108,63 @@ class RecruitmentManagementTest extends TestCase
 
         Livewire::actingAs($user)->test(ApplicationIndex::class)
             ->call('viewApplication', $application->id)
-            ->set('detailStatus', 'shortlisted')
+            ->set('detailStatus', 'reviewing')
             ->set('internalNote', 'Mời phỏng vấn vòng một.')
             ->call('saveReview')
             ->assertHasNoErrors();
 
-        $this->assertSame('shortlisted', $application->fresh()->status->value);
+        $this->assertSame('reviewing', $application->fresh()->status->value);
         $this->assertSame('Mời phỏng vấn vòng một.', $application->fresh()->internal_note);
+
+        Livewire::actingAs($user)->test(ApplicationIndex::class)
+            ->set('selected', [$application->id])
+            ->set("pendingStatuses.{$application->id}", 'new')
+            ->call('updateSelected')
+            ->assertHasNoErrors();
+
+        $this->assertSame('new', $application->fresh()->status->value);
+    }
+
+    public function test_recruitment_settings_are_saved_and_published_to_the_public_api(): void
+    {
+        Storage::fake('public');
+        $user = $this->manager();
+        $png = base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=', true);
+
+        Livewire::actingAs($user)->test(RecruitmentSettings::class)
+            ->set('page_title', ['vi' => 'Tuyển dụng IDI', 'en' => 'IDI Careers', 'zh' => 'IDI 招聘'])
+            ->set('description.vi', '<p>Môi trường phát triển bền vững.</p><script>alert(1)</script>')
+            ->set('benefits_content.vi', '<h2>Phúc lợi</h2><p>Bảo hiểm và đào tạo.</p>')
+            ->set('contact_content.vi', '<p>Liên hệ Phòng Nhân sự.</p>')
+            ->set('seo_title.vi', 'Cơ hội nghề nghiệp tại IDI')
+            ->set('meta_description.vi', 'Thông tin tuyển dụng mới nhất tại IDI Seafood.')
+            ->set('meta_keywords.vi', 'tuyển dụng, IDI Seafood')
+            ->set('application_enabled', false)
+            ->set('hero_desktop', UploadedFile::fake()->createWithContent('careers-desktop.png', $png))
+            ->set('hero_mobile', UploadedFile::fake()->createWithContent('careers-mobile.png', $png))
+            ->set('gallery_uploads', [UploadedFile::fake()->createWithContent('team.png', $png)])
+            ->call('save')
+            ->assertHasNoErrors();
+
+        $moduleId = (int) DB::table('modules')->where('code', 'careers')->value('id');
+        $settings = DB::table('module_settings')->where('module_id', $moduleId)
+            ->pluck('setting_value', 'setting_key')->map(fn ($value) => json_decode($value, true));
+
+        $this->assertFalse($settings['application_enabled']);
+        $this->assertStringNotContainsString('<script', DB::table('modules')->where('id', $moduleId)->value('description'));
+        Storage::disk('public')->assertExists($settings['hero_desktop']);
+        Storage::disk('public')->assertExists($settings['hero_mobile']);
+        Storage::disk('public')->assertExists($settings['gallery_images'][0]);
+
+        $this->getJson('/api/careers?locale=vi')
+            ->assertOk()
+            ->assertJsonPath('limit', 10)
+            ->assertJsonPath('pageConfig.title', 'Tuyển dụng IDI')
+            ->assertJsonPath('pageConfig.applicationEnabled', false)
+            ->assertJsonPath('pageConfig.metaKeywords', 'tuyển dụng, IDI Seafood')
+            ->assertJsonCount(1, 'pageConfig.gallery');
+
+        $this->postJson('/api/careers/applications', [])->assertForbidden();
     }
 
     public function test_user_without_recruitment_permission_is_forbidden(): void
@@ -107,10 +179,11 @@ class RecruitmentManagementTest extends TestCase
         $this->assertSame(4, JobPosition::whereIn('code', [
             'SALES_EXPORT_01', 'QA_SUPERVISOR_01', 'IT_SYSTEM_01', 'HR_RECRUITMENT_01',
         ])->count());
-        $this->assertSame(6, JobApplication::whereIn('email', [
-            'minhtri.sales@example.com', 'ngocanh.export@example.com',
-            'thanhhuong.qa@example.com', 'trungkien.it@example.com',
-            'thaithien.it@example.com', 'vandang.hr@example.com',
+        $this->assertSame(8, JobApplication::whereIn('email', [
+            'thanhbinhdtcc@gmail.com', 'pthienkim849@gmail.com',
+            'trungkien240398@gmail.com', 'daohuynhnhu2004@gmail.com',
+            'nguyentran2008cb@gmail.com', 'thaithienca@gmail.com',
+            'vodangdt@gmail.com', 'ltduong2102@gmail.com',
         ])->count());
 
         $quality = JobPosition::where('code', 'QA_SUPERVISOR_01')->firstOrFail();
@@ -127,10 +200,11 @@ class RecruitmentManagementTest extends TestCase
         $this->assertSame(4, JobPosition::whereIn('code', [
             'SALES_EXPORT_01', 'QA_SUPERVISOR_01', 'IT_SYSTEM_01', 'HR_RECRUITMENT_01',
         ])->count());
-        $this->assertSame(6, JobApplication::whereIn('email', [
-            'minhtri.sales@example.com', 'ngocanh.export@example.com',
-            'thanhhuong.qa@example.com', 'trungkien.it@example.com',
-            'thaithien.it@example.com', 'vandang.hr@example.com',
+        $this->assertSame(8, JobApplication::whereIn('email', [
+            'thanhbinhdtcc@gmail.com', 'pthienkim849@gmail.com',
+            'trungkien240398@gmail.com', 'daohuynhnhu2004@gmail.com',
+            'nguyentran2008cb@gmail.com', 'thaithienca@gmail.com',
+            'vodangdt@gmail.com', 'ltduong2102@gmail.com',
         ])->count());
     }
 
@@ -148,6 +222,7 @@ class RecruitmentManagementTest extends TestCase
         }
         $user = User::factory()->create();
         $user->givePermissionTo(Permission::findOrCreate('recruitment.manage', 'web'));
+
         return $user;
     }
 

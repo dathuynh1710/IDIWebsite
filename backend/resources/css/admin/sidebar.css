@@ -1,7 +1,7 @@
 .admin-sidebar { position: fixed; z-index: 50; inset: 0 auto 0 0; width: var(--admin-sidebar-width); display: flex; flex-direction: column; color: #d9e7f3; background: linear-gradient(180deg, var(--admin-sidebar), var(--admin-sidebar-deep)); transition: width var(--admin-transition), transform var(--admin-transition); }
 .sidebar-brand { flex: 0 0 var(--admin-header-height); display: flex; align-items: center; border-bottom: 1px solid rgba(255,255,255,.08); padding: 8px 15px; }
 .sidebar-brand > a { min-width: 0; display: flex; align-items: center; gap: 10px; flex: 1; }
-.sidebar-brand img { width: 46px; height: 42px; object-fit: contain; }
+.sidebar-brand img { width: 50px; height: 42px; object-fit: contain; border-radius: 9px; background: #1a527a; }
 .sidebar-brand .brand-mark { min-width: 44px; width: 44px; height: 34px; font-size: 16px; }
 .brand-text { min-width: 0; }.brand-text strong, .brand-text small { display: block; white-space: nowrap; }.brand-text strong { color: #fff; font-size: 16px; }.brand-text small { color: #8fb3cf; font-size: 10px; text-transform: uppercase; letter-spacing: .08em; }
 .sidebar-close { display: none; border: 0; color: #fff; background: transparent; padding: 8px; }

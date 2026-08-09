@@ -4,6 +4,8 @@ namespace Tests\Feature;
 
 use App\Livewire\Admin\Products\Form as ProductForm;
 use App\Livewire\Admin\Products\Index as ProductIndex;
+use App\Models\ContactMessage;
+use App\Models\JobApplication;
 use App\Models\Product;
 use App\Models\ProductCategory;
 use App\Models\User;
@@ -25,7 +27,63 @@ class AdminDashboardTest extends TestCase
     public function test_authenticated_user_can_view_dashboard(): void
     {
         $this->actingAs(User::factory()->create())->get('/admin')
-            ->assertOk()->assertSee('Bảng điều khiển')->assertSee('IDI Seafood CMS');
+            ->assertOk()
+            ->assertSee('Bảng điều khiển')
+            ->assertSee('IDI Seafood CMS')
+            ->assertSee('rel="icon"', false)
+            ->assertSee('favicon/favicon-96x96.png', false)
+            ->assertSee('favicon/favicon.svg', false)
+            ->assertSee('favicon/favicon.ico', false)
+            ->assertSee('favicon/apple-touch-icon.png', false)
+            ->assertSee('favicon/site.webmanifest', false)
+            ->assertSee('apple-mobile-web-app-title', false)
+            ->assertSee('images/brand/idi-logo.png', false);
+    }
+
+    public function test_dashboard_prioritizes_actionable_work_and_recent_content(): void
+    {
+        $user = User::factory()->create();
+        $user->givePermissionTo([
+            Permission::findOrCreate('contacts.manage', 'web'),
+            Permission::findOrCreate('recruitment.view', 'web'),
+            Permission::findOrCreate('products.view', 'web'),
+        ]);
+        ContactMessage::create([
+            'full_name' => 'Nguyễn Minh Anh',
+            'email' => 'minhanh@example.com',
+            'message' => 'Tôi cần thông tin sản phẩm.',
+            'status' => 'new',
+        ]);
+        JobApplication::create([
+            'full_name' => 'Trần Hải Nam',
+            'email' => 'hainam@example.com',
+            'status' => 'new',
+        ]);
+        $product = $this->product($this->category());
+
+        $this->actingAs($user)->get('/admin')
+            ->assertOk()
+            ->assertSee('Thư liên hệ chưa xem')
+            ->assertSee('Hồ sơ ứng tuyển mới')
+            ->assertSee('Bản dịch cần duyệt')
+            ->assertSee('Cập nhật gần đây')
+            ->assertSee($product->getTranslation('title', 'vi'))
+            ->assertSee(route('admin.contacts.index'), false)
+            ->assertSee(route('admin.recruitment.applications.index'), false);
+    }
+
+    public function test_dashboard_only_shows_information_within_the_user_permissions(): void
+    {
+        $user = User::factory()->create();
+        $user->givePermissionTo(Permission::findOrCreate('products.view', 'web'));
+        $this->product($this->category());
+
+        $this->actingAs($user)->get('/admin')
+            ->assertOk()
+            ->assertSee('Sản phẩm')
+            ->assertDontSee('Thư liên hệ chưa xem')
+            ->assertDontSee('Hồ sơ ứng tuyển mới')
+            ->assertDontSee('Hoạt động gần đây');
     }
 
     public function test_user_with_product_permission_can_render_index_create_and_edit_pages(): void
@@ -176,13 +234,16 @@ class AdminDashboardTest extends TestCase
 
     public function test_sidebar_parent_menus_share_a_single_accordion_state(): void
     {
-        $this->actingAs($this->productEditor())
-            ->get('/admin/products')
+        $response = $this->actingAs($this->productEditor())->get('/admin/products');
+
+        $response
             ->assertOk()
             ->assertSee('x-data="{ openMenu: null }"', false)
             ->assertSee('openMenu = openMenu ===', false)
             ->assertSee('x-bind:class="{ \'is-expanded\': openMenu ===', false)
             ->assertSee('x-collapse.duration.220ms', false);
+
+        $this->assertSame(1, substr_count($response->getContent(), 'class="sidebar-link is-active"'));
     }
 
     public function test_user_without_product_permission_is_forbidden(): void

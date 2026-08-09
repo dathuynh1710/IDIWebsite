@@ -1,7 +1,7 @@
 <aside class="admin-sidebar" aria-label="Điều hướng quản trị">
     <div class="sidebar-brand">
         <a href="{{ route('admin.dashboard') }}" wire:navigate aria-label="IDI Seafood CMS">
-            <img src="{{ asset('images/idi-logo.svg') }}" alt="IDI Seafood">
+            <img src="{{ asset('images/brand/idi-logo.png') }}" alt="Logo IDI Seafood">
             <span class="brand-text"><strong>IDI Seafood</strong><small>Content Management</small></span>
         </a>
         <button type="button" class="sidebar-close" @click="closeSidebar()" aria-label="Đóng menu">

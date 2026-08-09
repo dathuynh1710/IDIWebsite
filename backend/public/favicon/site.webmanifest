@@ -1,0 +1,21 @@
+{
+  "name": "IDI Seafood CMS",
+  "short_name": "IDISeafood",
+  "icons": [
+    {
+      "src": "/favicon/web-app-manifest-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/favicon/web-app-manifest-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "theme_color": "#102f50",
+  "background_color": "#f4f7fa",
+  "display": "standalone"
+}

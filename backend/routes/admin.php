@@ -8,6 +8,10 @@ use App\Http\Controllers\Admin\RecruitmentController;
 use App\Livewire\Admin\AboutPages\Form as AboutPageForm;
 use App\Livewire\Admin\AboutPages\Index as AboutPageIndex;
 use App\Livewire\Admin\AboutPages\Settings as AboutPageSettings;
+use App\Livewire\Admin\Access\ActivityLogs;
+use App\Livewire\Admin\Access\Permissions as AccessPermissions;
+use App\Livewire\Admin\Access\Roles as AccessRoles;
+use App\Livewire\Admin\Access\Users as AccessUsers;
 use App\Livewire\Admin\Contacts\Index as ContactIndex;
 use App\Livewire\Admin\Contacts\Settings as ContactSettings;
 use App\Livewire\Admin\Dashboard;
@@ -40,6 +44,10 @@ Route::middleware('auth')
     ->name('admin.')
     ->group(function (): void {
         Route::get('/', Dashboard::class)->name('dashboard');
+        Route::get('access/users', AccessUsers::class)->middleware('can:users.view')->name('access.users');
+        Route::get('access/roles', AccessRoles::class)->middleware('can:roles.view')->name('access.roles');
+        Route::get('access/permissions', AccessPermissions::class)->middleware('can:permissions.view')->name('access.permissions');
+        Route::get('activity-logs', ActivityLogs::class)->middleware('can:activity.view')->name('activity-logs.index');
         Route::get('contacts', ContactIndex::class)->name('contacts.index');
         Route::get('contacts/settings', ContactSettings::class)->name('contacts.settings');
         Route::get('recipes/settings', RecipeSettings::class)->name('recipes.settings');

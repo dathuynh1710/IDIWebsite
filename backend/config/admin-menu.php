@@ -23,7 +23,7 @@ return [
             [
                 'label' => 'Quản lý Recipes',
                 'icon' => 'book-open',
-                'permission' => 'recipes.manage',
+                'permission' => 'recipes.view',
                 'active' => 'admin.recipes.*',
                 'children' => [
                     ['label' => 'Cấu hình chung', 'route' => 'admin.recipes.settings'],
@@ -34,7 +34,7 @@ return [
             [
                 'label' => 'Quan hệ cổ đông',
                 'icon' => 'chart',
-                'permission' => 'investor-documents.manage',
+                'permission' => 'investor-documents.view',
                 'active' => 'admin.investors.*',
                 'children' => [
                     ['label' => 'Cấu hình QHCĐ', 'route' => 'admin.investors.settings'],
@@ -46,7 +46,7 @@ return [
             [
                 'label' => 'Quản lý tin tức',
                 'icon' => 'newspaper',
-                'permission' => 'posts.manage',
+                'permission' => 'posts.view',
                 'active' => 'admin.news.*',
                 'children' => [
                     ['label' => 'Cấu hình tin tức', 'route' => 'admin.news.settings'],
@@ -70,7 +70,7 @@ return [
             [
                 'label' => 'Quản lý giới thiệu',
                 'icon' => 'info',
-                'permission' => 'pages.manage',
+                'permission' => 'pages.view',
                 'active' => 'admin.about-pages.*',
                 'children' => [
                     ['label' => 'Cấu hình giới thiệu', 'route' => 'admin.about-pages.settings'],
@@ -82,7 +82,7 @@ return [
             [
                 'label' => 'Quản lý tuyển dụng',
                 'icon' => 'users',
-                'permission' => 'recruitment.manage',
+                'permission' => 'recruitment.view',
                 'active' => 'admin.recruitment.*',
                 'children' => [
                     ['label' => 'Cấu hình chung', 'route' => 'admin.recruitment.settings'],
@@ -100,9 +100,10 @@ return [
     [
         'section' => 'Hệ thống',
         'items' => [
-            ['label' => 'Người dùng', 'url' => '#', 'icon' => 'user', 'permission' => 'users.manage'],
-            ['label' => 'Vai trò & Quyền', 'url' => '#', 'icon' => 'shield', 'permission' => 'roles.manage'],
-            ['label' => 'Nhật ký hoạt động', 'url' => '#', 'icon' => 'history', 'permission' => 'activity.manage'],
+            ['label' => 'Quản trị viên', 'route' => 'admin.access.users', 'icon' => 'user', 'permission' => 'users.view'],
+            ['label' => 'Vai trò & Quyền', 'route' => 'admin.access.roles', 'icon' => 'shield', 'permission' => 'roles.view', 'active' => 'admin.access.roles'],
+            ['label' => 'Danh mục quyền hạn', 'route' => 'admin.access.permissions', 'icon' => 'check', 'permission' => 'permissions.view'],
+            ['label' => 'Nhật ký hoạt động', 'route' => 'admin.activity-logs.index', 'icon' => 'history', 'permission' => 'activity.view'],
         ],
     ],
 ];

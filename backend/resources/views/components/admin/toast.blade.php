@@ -1,6 +1,6 @@
 @php
     $toast = session('toast');
-    $validationMessages = $errors->all();
+    $validationMessages = isset($errors) ? $errors->all() : [];
 
     if (! $toast && $validationMessages !== []) {
         $toast = \App\Support\Toast::payload(

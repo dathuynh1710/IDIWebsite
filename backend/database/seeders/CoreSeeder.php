@@ -63,33 +63,35 @@ class CoreSeeder extends Seeder
     {
         $permissionIds = [];
 
-        foreach ([
-            'dashboard.view',
-            'media.manage',
-            'products.manage',
-            'posts.manage',
-            'pages.manage',
-            'recipes.manage',
-            'investor-documents.manage',
-            'recruitment.manage',
-            'contacts.manage',
-            'settings.manage',
-        ] as $permissionName) {
+        foreach (config('access-control.permissions') as $permission) {
             $permissionIds[] = $this->upsertId('permissions', [
-                'name' => $permissionName,
+                'name' => $permission['name'],
                 'guard_name' => 'web',
-            ], []);
+            ], [
+                'display_name' => $permission['label'],
+                'module' => $permission['module'],
+                'description' => null,
+                'is_system' => true,
+            ]);
         }
 
         $adminRoleId = $this->upsertId('roles', [
             'name' => 'super-admin',
             'guard_name' => 'web',
-        ], []);
+        ], [
+            'display_name' => 'Quản trị cao nhất',
+            'description' => 'Có toàn quyền trên hệ thống và không thể bị xóa.',
+            'is_system' => true,
+        ]);
 
         $editorRoleId = $this->upsertId('roles', [
             'name' => 'editor',
             'guard_name' => 'web',
-        ], []);
+        ], [
+            'display_name' => 'Biên tập viên',
+            'description' => 'Quản lý nội dung website theo quyền được cấp.',
+            'is_system' => true,
+        ]);
 
         foreach ($permissionIds as $permissionId) {
             DB::table('role_has_permissions')->updateOrInsert([

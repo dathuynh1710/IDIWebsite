@@ -3,6 +3,8 @@
 namespace App\Providers;
 
 use App\Models\User;
+use App\Support\AdminAudit;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 
@@ -25,31 +27,27 @@ class AppServiceProvider extends ServiceProvider
             return $user->hasRole('super-admin') ? true : null;
         });
 
-        foreach (['view', 'create', 'update', 'delete'] as $ability) {
-            Gate::define(
-                "products.{$ability}",
-                fn (User $user): bool => $user->getAllPermissions()->contains('name', 'products.manage')
-            );
-            Gate::define(
-                "pages.{$ability}",
-                fn (User $user): bool => $user->getAllPermissions()->contains('name', 'pages.manage')
-            );
-            Gate::define(
-                "recipes.{$ability}",
-                fn (User $user): bool => $user->getAllPermissions()->contains('name', 'recipes.manage')
-            );
-            Gate::define(
-                "posts.{$ability}",
-                fn (User $user): bool => $user->getAllPermissions()->contains('name', 'posts.manage')
-            );
-            Gate::define(
-                "recruitment.{$ability}",
-                fn (User $user): bool => $user->getAllPermissions()->contains('name', 'recruitment.manage')
-            );
-            Gate::define(
-                "investors.{$ability}",
-                fn (User $user): bool => $user->getAllPermissions()->contains('name', 'investor-documents.manage')
-            );
+        foreach ([
+            'products' => 'products',
+            'pages' => 'pages',
+            'recipes' => 'recipes',
+            'posts' => 'posts',
+            'recruitment' => 'recruitment',
+            'investors' => 'investor-documents',
+        ] as $gatePrefix => $permissionPrefix) {
+            foreach (['view', 'create', 'update', 'delete'] as $ability) {
+                Gate::define(
+                    "{$gatePrefix}.{$ability}",
+                    fn (User $user): bool => $user->hasAnyPermission(["{$permissionPrefix}.{$ability}", "{$permissionPrefix}.manage"])
+                );
+            }
+        }
+
+        foreach (array_keys(AdminAudit::MODULES) as $modelClass) {
+            /** @var class-string<Model> $modelClass */
+            $modelClass::created(fn (Model $model) => AdminAudit::logModelEvent($model, 'created'));
+            $modelClass::updated(fn (Model $model) => AdminAudit::logModelEvent($model, 'updated'));
+            $modelClass::deleted(fn (Model $model) => AdminAudit::logModelEvent($model, 'deleted'));
         }
     }
 }

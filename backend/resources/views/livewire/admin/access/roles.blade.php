@@ -33,7 +33,7 @@
     @if($selectedRole)
         <section class="matrix-role-summary card">
             <div class="matrix-role-identity"><span class="role-card-icon {{ $selectedRole->name === 'super-admin' ? 'is-super' : '' }}"><x-ui.icon name="shield" /></span><div><div><strong>{{ $selectedRole->display_name ?: $selectedRole->name }}</strong>@if($selectedRole->is_system)<em>Vai trò hệ thống</em>@endif</div><code>{{ $selectedRole->name }}</code><p>{{ $selectedRole->description ?: 'Chưa có mô tả cho vai trò này.' }}</p></div></div>
-            <div class="matrix-role-stats"><div><strong>{{ $selectedRole->users_count }}</strong><small>Người dùng</small></div><div><strong>{{ count($permissionIds) }}</strong><small>Quyền đã chọn</small></div></div>
+            <div class="matrix-role-stats"><div><strong>{{ $selectedRole->users_count }}</strong><small>Người dùng</small></div><div><strong>{{ count(array_intersect(array_map('strval', $permissionIds), $visiblePermissionIds)) }}</strong><small>Quyền đã chọn</small></div></div>
         </section>
 
         @if($selectedRole->name === 'super-admin')<div class="system-notice matrix-system-notice"><x-ui.icon name="info" size="18" /><div><strong>Quản trị cao nhất luôn có toàn bộ quyền.</strong><span>Ma trận được khóa để tránh vô tình làm mất quyền quản trị hệ thống.</span></div></div>@endif
@@ -53,9 +53,11 @@
                             @foreach($columns as $column => $label)<th><button type="button" wire:click="selectColumn('{{ $column }}')" {{ $selectedRole->name === 'super-admin' ? 'disabled' : '' }}><span>{{ $label }}</span><small>Chọn cột</small></button></th>@endforeach
                         </tr></thead>
                         <tbody>
-                            @foreach($matrix as $module => $row)@php $moduleIds=$row['permissions']->pluck('id')->map(fn($id)=>(string)$id)->all(); $moduleSelected=collect($moduleIds)->every(fn($id)=>in_array($id,array_map('strval',$permissionIds),true)); @endphp
+                            @foreach($matrixGroups as $group)
+                                <tr class="matrix-group-row"><th colspan="{{ count($columns) + 1 }}" scope="colgroup"><span>{{ $group['label'] }}</span><small>{{ $group['modules']->count() }} mục</small></th></tr>
+                            @foreach($group['modules'] as $module => $row)@php $moduleIds=$row['permissions']->pluck('id')->map(fn($id)=>(string)$id)->all(); $moduleSelected=collect($moduleIds)->every(fn($id)=>in_array($id,array_map('strval',$permissionIds),true)); @endphp
                                 <tr wire:key="permission-module-{{ \Illuminate\Support\Str::slug($module) }}">
-                                    <th><button type="button" wire:click='selectModule(@json($row["permissions"]->pluck("id")->all()))' {{ $selectedRole->name === 'super-admin' ? 'disabled' : '' }}><span class="matrix-row-check {{ $moduleSelected ? 'is-selected' : '' }}"><x-ui.icon name="check" size="13" /></span><span><strong>{{ $module }}</strong><small>{{ $row['permissions']->count() }} quyền khả dụng</small></span></button></th>
+                                    <th><button type="button" wire:click='selectModule(@json($row["permissions"]->pluck("id")->all()))' {{ $selectedRole->name === 'super-admin' ? 'disabled' : '' }}><span class="matrix-row-check {{ $moduleSelected ? 'is-selected' : '' }}"><x-ui.icon name="check" size="13" /></span><span><strong>{{ $module }}</strong></span></button></th>
                                     @foreach($columns as $column => $label)<td>
                                         @if($row['columns'][$column]->isEmpty())<span class="matrix-not-applicable">—</span>@else
                                             <div class="matrix-cell-options">@foreach($row['columns'][$column] as $permission)<label title="{{ $permission->display_name ?: $permission->name }} · {{ $permission->name }}"><input type="checkbox" wire:model.live="permissionIds" value="{{ $permission->id }}" {{ $selectedRole->name === 'super-admin' ? 'disabled' : '' }}><span><x-ui.icon name="check" size="14" /></span>@if($row['columns'][$column]->count() > 1)<small>{{ $permission->display_name ?: $permission->name }}</small>@endif</label>@endforeach</div>
@@ -63,10 +65,11 @@
                                     </td>@endforeach
                                 </tr>
                             @endforeach
+                            @endforeach
                         </tbody>
                     </table>
                 </div>
-                <footer class="permission-matrix-footer"><span><strong>{{ count($permissionIds) }}</strong> quyền đang được chọn cho <strong>{{ $selectedRole->display_name ?: $selectedRole->name }}</strong></span><div>@can('roles.delete')@if(!$selectedRole->is_system && $selectedRole->users_count === 0)<button class="button button-ghost matrix-delete-role" type="button" wire:click="requestDeleteSelected"><x-ui.icon name="trash" size="16" /> Xóa vai trò</button>@endif @endcan @can('roles.update')<button class="button button-primary" type="button" wire:click="savePermissions" {{ !$selectedRole ? 'disabled' : '' }}><x-ui.icon name="save" size="17" /> Lưu phân quyền</button>@endcan</div></footer>
+                <footer class="permission-matrix-footer"><span><strong>{{ count(array_intersect(array_map('strval', $permissionIds), $visiblePermissionIds)) }}</strong> quyền đang được chọn cho <strong>{{ $selectedRole->display_name ?: $selectedRole->name }}</strong></span><div>@can('roles.delete')@if(!$selectedRole->is_system && $selectedRole->users_count === 0)<button class="button button-ghost matrix-delete-role" type="button" wire:click="requestDeleteSelected"><x-ui.icon name="trash" size="16" /> Xóa vai trò</button>@endif @endcan @can('roles.update')<button class="button button-primary" type="button" wire:click="savePermissions" {{ !$selectedRole ? 'disabled' : '' }}><x-ui.icon name="save" size="17" /> Lưu phân quyền</button>@endcan</div></footer>
             @endif
         </section>
     @else

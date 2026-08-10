@@ -122,7 +122,11 @@ class AccessControlManagementTest extends TestCase
             ->assertOk()
             ->assertSee('Ma trận phân quyền')
             ->assertSee('Nhóm người dùng')
-            ->assertSee('Toàn quyền');
+            ->assertSee('Nội dung website')
+            ->assertSee('Quản trị hệ thống')
+            ->assertSee('Xóa')
+            ->assertDontSee('Toàn quyền')
+            ->assertDontSee('>Khác<', false);
     }
 
     public function test_activity_log_can_be_filtered_by_admin_action_module_and_date(): void

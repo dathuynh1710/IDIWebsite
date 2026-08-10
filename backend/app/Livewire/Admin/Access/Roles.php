@@ -153,7 +153,7 @@ class Roles extends AdminComponent
     {
         Gate::authorize('roles.update');
         $this->guardEditableRole();
-        abort_unless(in_array($column, ['view', 'create', 'update', 'delete', 'manage', 'other'], true), 422);
+        abort_unless(in_array($column, ['view', 'create', 'update', 'delete'], true), 422);
 
         $ids = Permission::where('guard_name', 'web')->get()
             ->filter(fn (Permission $permission) => $this->permissionColumn($permission->name) === $column)
@@ -165,7 +165,11 @@ class Roles extends AdminComponent
     {
         Gate::authorize('roles.update');
         $this->guardEditableRole();
-        $this->toggleIds(Permission::where('guard_name', 'web')->pluck('id')->all());
+        $this->toggleIds(
+            Permission::where('guard_name', 'web')->get()
+                ->filter(fn (Permission $permission) => in_array($this->permissionColumn($permission->name), ['view', 'create', 'update', 'delete'], true))
+                ->pluck('id')->all()
+        );
     }
 
     public function requestDeleteSelected(): void
@@ -245,8 +249,6 @@ class Roles extends AdminComponent
             'create' => 'Thêm',
             'update' => 'Sửa',
             'delete' => 'Xóa',
-            'manage' => 'Toàn quyền',
-            'other' => 'Khác',
         ];
         $permissions = Permission::where('guard_name', 'web')
             ->when(trim($this->matrixSearch), function ($query): void {
@@ -255,20 +257,49 @@ class Roles extends AdminComponent
             })->orderBy('module')->orderBy('name')->get();
         $matrix = $permissions->groupBy(fn (Permission $permission) => $permission->module ?: 'Khác')
             ->map(function ($group) use ($columns) {
+                $visiblePermissions = $group->filter(fn (Permission $permission) => array_key_exists($this->permissionColumn($permission->name), $columns));
                 $row = collect(array_keys($columns))->mapWithKeys(fn ($column) => [$column => collect()]);
-                foreach ($group as $permission) {
+                foreach ($visiblePermissions as $permission) {
                     $column = $this->permissionColumn($permission->name);
                     $row[$column]->push($permission);
                 }
 
-                return ['permissions' => $group, 'columns' => $row];
-            });
+                return ['permissions' => $visiblePermissions, 'columns' => $row];
+            })
+            ->filter(fn (array $row) => $row['permissions']->isNotEmpty());
+
+        $visiblePermissionIds = $matrix->flatMap(fn (array $row) => $row['permissions']->pluck('id'))
+            ->map(fn ($id) => (string) $id)->all();
+
+        $groupDefinitions = [
+            'Tổng quan' => ['Bảng điều khiển', 'Nhật ký hoạt động'],
+            'Nội dung website' => ['Giới thiệu', 'Tin tức', 'Recipes', 'Sản phẩm', 'Quan hệ cổ đông', 'Tuyển dụng'],
+            'Quản trị hệ thống' => ['Quản trị viên', 'Vai trò', 'Quyền hạn'],
+        ];
+        $matrixGroups = collect();
+        $groupedModules = collect();
+
+        foreach ($groupDefinitions as $label => $modules) {
+            $group = $matrix->only($modules);
+
+            if ($group->isNotEmpty()) {
+                $matrixGroups->push(['label' => $label, 'modules' => $group]);
+                $groupedModules = $groupedModules->merge($group->keys());
+            }
+        }
+
+        $otherModules = $matrix->except($groupedModules->all());
+        if ($otherModules->isNotEmpty()) {
+            $matrixGroups->push(['label' => 'Khác', 'modules' => $otherModules]);
+        }
 
         return view('livewire.admin.access.roles', [
             'roles' => $roles,
             'selectedRole' => $selectedRole,
             'columns' => $columns,
             'matrix' => $matrix,
+            'matrixGroups' => $matrixGroups,
+            'visiblePermissionIds' => $visiblePermissionIds,
             'breadcrumbs' => [['label' => 'Bảng điều khiển', 'route' => 'admin.dashboard'], ['label' => 'Vai trò & Quyền']],
         ]);
     }

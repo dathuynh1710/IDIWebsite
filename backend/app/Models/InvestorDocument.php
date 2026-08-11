@@ -18,6 +18,7 @@ class InvestorDocument extends Model
     protected $fillable = [
         'document_category_id', 'title', 'summary', 'document_number', 'year',
         'quarter', 'published_on', 'sort_order', 'is_featured', 'is_active',
+        'slug', 'seo_title', 'meta_description', 'meta_keywords',
         'created_by', 'updated_by',
     ];
 

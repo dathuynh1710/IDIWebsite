@@ -20,60 +20,56 @@ class DocumentForm extends AdminComponent
     use WithFileUploads;
 
     public ?InvestorDocument $document = null;
-
     public ?int $document_category_id = null;
-
-    public string $document_number = '';
-
-    public ?int $year = null;
-
-    public ?int $quarter = null;
-
     public string $published_on = '';
-
-    public int $sort_order = 0;
-
-    public bool $is_featured = false;
-
     public bool $is_active = true;
-
+    public string $slug = '';
+    public string $seo_title = '';
+    public string $meta_description = '';
+    public string $meta_keywords = '';
+    public array $enabled_locales = ['vi'];
     public array $title = ['vi' => '', 'en' => '', 'zh' => ''];
-
     public array $summary = ['vi' => '', 'en' => '', 'zh' => ''];
-
-    public array $display_name = ['vi' => '', 'en' => '', 'zh' => ''];
-
     public array $uploads = [];
-
     public array $removeFiles = ['vi' => false, 'en' => false, 'zh' => false];
 
     public function mount(?InvestorDocument $document = null): void
     {
         Gate::authorize($document?->exists ? 'investors.update' : 'investors.create');
         $this->document = $document?->exists ? $document->load('files.media') : null;
-        $this->year = (int) now()->year;
         $this->published_on = now()->toDateString();
-        if ($this->document) {
-            foreach (['title', 'summary'] as $field) {
-                $this->{$field} = array_merge($this->{$field}, $this->document->getTranslations($field));
-            }
-            foreach (['document_category_id', 'year', 'quarter', 'sort_order', 'is_featured', 'is_active'] as $field) {
-                $this->{$field} = $this->document->{$field};
-            }
-            $this->document_number = (string) ($this->document->document_number ?? '');
-            $this->published_on = $this->document->published_on?->toDateString() ?? '';
-            foreach ($this->document->files as $file) {
-                if (isset($this->display_name[$file->locale])) {
-                    $this->display_name[$file->locale] = $file->getTranslation('display_name', $file->locale, false)
-                        ?: $file->media->original_name;
-                }
-            }
+
+        if (! $this->document) {
+            return;
         }
+
+        foreach (['title', 'summary'] as $field) {
+            $this->{$field} = array_merge($this->{$field}, $this->document->getTranslations($field));
+        }
+        foreach (['document_category_id', 'is_active', 'slug', 'seo_title', 'meta_description', 'meta_keywords'] as $field) {
+            $this->{$field} = $this->document->{$field} ?? ($this->{$field} ?? '');
+        }
+        $this->published_on = $this->document->published_on?->toDateString() ?? '';
+        $this->enabled_locales = collect(['vi', 'en', 'zh'])
+            ->filter(fn (string $locale) => $locale === 'vi' || $this->hasLocalizedContent($locale))
+            ->values()
+            ->all();
+    }
+
+    public function updatedEnabledLocales(): void
+    {
+        $this->enabled_locales = collect($this->enabled_locales)
+            ->push('vi')
+            ->intersect(['vi', 'en', 'zh'])
+            ->unique()
+            ->sortBy(fn (string $locale): int => array_search($locale, ['vi', 'en', 'zh'], true))
+            ->values()
+            ->all();
     }
 
     public function removeFile(string $locale): void
     {
-        abort_unless(in_array($locale, ['vi', 'en', 'zh'], true), 404);
+        abort_unless($locale === 'vi', 404);
         $this->uploads[$locale] = null;
         $this->removeFiles[$locale] = true;
     }
@@ -81,57 +77,60 @@ class DocumentForm extends AdminComponent
     public function save()
     {
         Gate::authorize($this->document ? 'investors.update' : 'investors.create');
-        $hasUploads = collect($this->uploads)->contains(fn ($upload) => filled($upload));
-        $hasRemovals = in_array(true, $this->removeFiles, true);
+        $this->updatedEnabledLocales();
+        $hasUpload = filled($this->uploads['vi'] ?? null);
+        $hasRemoval = $this->removeFiles['vi'];
         $maxKilobytes = $this->maxUploadMegabytes() * 1024;
-        $data = $this->validate([
+
+        $rules = [
             'document_category_id' => ['required', Rule::exists('document_categories', 'id')->whereNull('deleted_at')],
-            'document_number' => ['nullable', 'string', 'max:100'],
-            'year' => ['nullable', 'integer', 'min:2000', 'max:2100'],
-            'quarter' => ['nullable', 'integer', 'min:1', 'max:4'],
             'published_on' => ['nullable', 'date'],
-            'sort_order' => ['required', 'integer', 'min:0'],
-            'is_featured' => ['boolean'],
             'is_active' => ['boolean'],
-            'title.vi' => ['required', 'string', 'max:255'],
-            'title.en' => ['nullable', 'string', 'max:255'],
-            'title.zh' => ['nullable', 'string', 'max:255'],
-            'summary.*' => ['nullable', 'string', 'max:5000'],
-            'display_name.*' => ['nullable', 'string', 'max:255'],
-            'uploads.*' => ['nullable', 'file', 'mimes:pdf,doc,docx,xls,xlsx,ppt,pptx,zip', "max:{$maxKilobytes}"],
-            'removeFiles.*' => ['boolean'],
-        ]);
-        if (! $this->document && empty(array_filter($this->uploads))) {
-            $this->addError('uploads.vi', 'Vui lòng tải lên ít nhất một tệp.');
+            'enabled_locales' => ['required', 'array', 'min:1'],
+            'enabled_locales.*' => ['required', Rule::in(['vi', 'en', 'zh'])],
+            'slug' => ['required', 'string', 'max:255', Rule::unique('investor_documents', 'slug')->ignore($this->document?->id)],
+            'seo_title' => ['nullable', 'string', 'max:255'],
+            'meta_description' => ['nullable', 'string', 'max:500'],
+            'meta_keywords' => ['nullable', 'string', 'max:1000'],
+            'uploads.vi' => ['nullable', 'file', 'mimes:pdf,doc,docx,xls,xlsx,ppt,pptx,zip', "max:{$maxKilobytes}"],
+            'removeFiles.vi' => ['boolean'],
+        ];
+        foreach ($this->enabled_locales as $locale) {
+            $rules["title.{$locale}"] = ['required', 'string', 'max:255'];
+            $rules["summary.{$locale}"] = ['nullable', 'string', 'max:5000'];
+        }
+        $data = $this->validate($rules);
+
+        if (! $this->document && ! $hasUpload) {
+            $this->addError('uploads.vi', 'Vui lòng tải lên một tệp.');
 
             return null;
         }
+
         foreach (['title', 'summary'] as $field) {
-            $data[$field] = collect($data[$field] ?? [])->map(fn ($value) => trim((string) $value))->filter(fn ($value) => $value !== '')->all();
+            $submitted = collect($data[$field] ?? [])
+                ->only($this->enabled_locales)
+                ->map(fn ($value) => trim((string) $value))
+                ->filter(fn ($value) => $value !== '')
+                ->all();
+            $data[$field] = $this->mergeEnabledTranslations($field, $submitted);
         }
-        unset($data['display_name'], $data['uploads'], $data['removeFiles']);
-        $data['document_number'] = trim((string) $data['document_number']) ?: null;
+        unset($data['uploads'], $data['removeFiles'], $data['enabled_locales']);
+        foreach (['slug', 'seo_title', 'meta_description', 'meta_keywords'] as $field) {
+            $data[$field] = trim((string) ($data[$field] ?? '')) ?: null;
+        }
         $data['created_by'] = $this->document?->created_by ?? auth()->id();
         $data['updated_by'] = auth()->id();
 
         DB::transaction(function () use ($data): void {
             $this->document = InvestorDocument::updateOrCreate(['id' => $this->document?->id], $data);
-            foreach (['vi', 'en', 'zh'] as $locale) {
-                $existing = $this->document->files()->where('locale', $locale)->with('media')->first();
-                if ($this->removeFiles[$locale] && ! isset($this->uploads[$locale])) {
-                    $this->deleteStoredFile($existing);
+            $existing = $this->document->files()->where('locale', 'vi')->with('media')->first();
 
-                    continue;
-                }
-                if (! isset($this->uploads[$locale])) {
-                    if ($existing && $this->display_name[$locale] !== '') {
-                        $existing->update(['display_name' => [$locale => trim($this->display_name[$locale])]]);
-                    }
-
-                    continue;
-                }
-                $upload = $this->uploads[$locale];
-                $path = $upload->store('investor-documents/'.($this->year ?: 'general'), 'public');
+            if ($this->removeFiles['vi'] && ! isset($this->uploads['vi'])) {
+                $this->deleteStoredFile($existing);
+            } elseif (isset($this->uploads['vi'])) {
+                $upload = $this->uploads['vi'];
+                $path = $upload->store('investor-documents', 'public');
                 $media = Media::create([
                     'disk' => 'public', 'directory' => dirname($path), 'file_name' => basename($path),
                     'original_name' => $upload->getClientOriginalName(), 'mime_type' => $upload->getMimeType(),
@@ -140,17 +139,16 @@ class DocumentForm extends AdminComponent
                 ]);
                 $this->deleteStoredFile($existing);
                 InvestorDocumentFile::create([
-                    'investor_document_id' => $this->document->id, 'media_id' => $media->id, 'locale' => $locale,
-                    'display_name' => [$locale => trim($this->display_name[$locale]) ?: $upload->getClientOriginalName()],
-                    'sort_order' => array_search($locale, ['vi', 'en', 'zh'], true),
+                    'investor_document_id' => $this->document->id, 'media_id' => $media->id, 'locale' => 'vi',
+                    'display_name' => ['vi' => $upload->getClientOriginalName()], 'sort_order' => 0,
                 ]);
             }
         });
 
         $this->flashToast(match (true) {
-            $hasUploads && $hasRemovals => 'Đã tải tệp mới lên và xóa tệp cũ thành công.',
-            $hasUploads => 'Đã tải tệp lên thành công.',
-            $hasRemovals => 'Đã xóa tệp thành công.',
+            $hasUpload && $hasRemoval => 'Đã tải tệp mới lên và xóa tệp cũ thành công.',
+            $hasUpload => 'Đã tải tệp lên thành công.',
+            $hasRemoval => 'Đã xóa tệp thành công.',
             default => 'Đã lưu tài liệu quan hệ cổ đông.',
         });
 
@@ -176,12 +174,36 @@ class DocumentForm extends AdminComponent
             ->where('modules.code', 'investors')->where('setting_key', 'max_upload_size')->value('setting_value') ?: 20);
     }
 
+    private function mergeEnabledTranslations(string $field, array $submitted): array
+    {
+        $translations = $this->document?->getTranslations($field) ?? [];
+
+        foreach (['vi', 'en', 'zh'] as $locale) {
+            if (in_array($locale, $this->enabled_locales, true)) {
+                if (array_key_exists($locale, $submitted)) {
+                    $translations[$locale] = $submitted[$locale];
+                }
+            } else {
+                unset($translations[$locale]);
+            }
+        }
+
+        return $translations;
+    }
+
+    private function hasLocalizedContent(string $locale): bool
+    {
+        return filled($this->document?->getTranslation('title', $locale, false))
+            || filled($this->document?->getTranslation('summary', $locale, false));
+    }
+
     public function render()
     {
         return view('livewire.admin.investors.document-form', [
             'categories' => DocumentCategory::where('is_active', true)->orderByDesc('sort_order')->get(),
-            'locales' => ['vi' => 'Tiếng Việt', 'en' => 'English', 'zh' => '中文'],
             'maxUploadMegabytes' => $this->maxUploadMegabytes(),
+            'currentFile' => $this->document?->files?->firstWhere('locale', 'vi'),
+            'locales' => ['vi' => 'Tiếng Việt', 'en' => 'English', 'zh' => '中文'],
             'breadcrumbs' => [['label' => 'Bảng điều khiển', 'route' => 'admin.dashboard'], ['label' => 'Quan hệ cổ đông', 'route' => 'admin.investors.documents.index'], ['label' => $this->document ? 'Cập nhật' : 'Thêm mới']],
         ]);
     }

@@ -132,6 +132,19 @@
 .seo-grid { display: grid; gap: 16px; padding: 2px 15px 16px; }
 .snippet-preview { padding: 14px; border: 1px solid #e0e4e8; border-radius: 7px; background: #fff; }
 .snippet-preview small, .snippet-preview strong, .snippet-preview span { display: block; }.snippet-preview small { color: var(--admin-muted); margin-bottom: 8px; }.snippet-preview strong { max-width: 650px; color: #1a0dab; font-size: 18px; font-weight: 500; }.snippet-preview span { color: #18763b; font-size: 12px; }.snippet-preview p { max-width: 650px; margin: 4px 0 0; color: #4b5156; }
+.investor-seo-section { margin-top: 20px; }
+.investor-seo-section .form-section-body { padding: 0; }
+.investor-seo { display: grid; gap: 0; }
+.investor-seo-fields { padding: 4px 24px 8px; }
+.investor-seo-field { display: grid; grid-template-columns: minmax(180px, .48fr) minmax(0, 1fr); gap: 22px; padding: 18px 0; }
+.investor-seo-field + .investor-seo-field { border-top: 1px solid var(--admin-border); }
+.investor-seo-field > label { display: block; padding-top: 10px; color: #314256; font-size: 13px; font-weight: 700; }
+.investor-seo-field > label > span { color: var(--admin-danger); }
+.investor-seo-slug > span { max-width: none; flex: 0 0 auto; overflow: visible; white-space: nowrap; }
+.investor-seo-counter { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; line-height: 1.5; }
+.investor-seo-counter > span { max-width: 560px; }
+.investor-seo-counter strong { flex: 0 0 auto; color: var(--admin-muted); font-size: 10px; font-weight: 700; white-space: nowrap; }
+.investor-seo-counter strong.is-good { color: var(--admin-success); }
 .publication-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; padding-top: 18px; border-top: 1px solid var(--admin-border); }
 .media-preview { width: 100%; aspect-ratio: 1; display: grid; place-items: center; overflow: hidden; border: 1px dashed #b9c6d4; border-radius: 9px; color: var(--admin-muted); background: #f8fafc; }
 .media-preview img { width: 100%; height: 100%; object-fit: contain; background: #fff; }.media-placeholder { display: grid; justify-items: center; gap: 8px; }

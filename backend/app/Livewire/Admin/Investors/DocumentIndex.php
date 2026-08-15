@@ -41,6 +41,12 @@ class DocumentIndex extends AdminComponent
 
     public array $sortOrders = [];
 
+    public ?int $pendingDeleteId = null;
+
+    public string $pendingDeleteName = '';
+
+    public bool $pendingBulkDelete = false;
+
     public function mount(): void
     {
         Gate::authorize('investors.view');
@@ -67,6 +73,61 @@ class DocumentIndex extends AdminComponent
         Gate::authorize('investors.delete');
         InvestorDocument::findOrFail($id)->delete();
         $this->toast('Đã chuyển tài liệu vào thùng rác.');
+    }
+
+    public function requestDelete(int $id): void
+    {
+        Gate::authorize('investors.delete');
+        $document = InvestorDocument::findOrFail($id);
+
+        $this->pendingDeleteId = $document->id;
+        $this->pendingDeleteName = $document->getTranslation('title', $this->locale, false)
+            ?: $document->getTranslation('title', 'vi', false)
+            ?: '#'.$document->id;
+        $this->pendingBulkDelete = false;
+    }
+
+    public function requestBulkDelete(): void
+    {
+        Gate::authorize('investors.delete');
+        $this->validate([
+            'selected' => ['required', 'array', 'min:1'],
+            'selected.*' => ['integer', 'distinct', 'exists:investor_documents,id'],
+        ], ['selected.required' => 'Vui lòng chọn ít nhất một tài liệu.']);
+
+        $this->pendingDeleteId = null;
+        $this->pendingDeleteName = '';
+        $this->pendingBulkDelete = true;
+    }
+
+    public function cancelDelete(): void
+    {
+        $this->resetDeleteConfirmation();
+    }
+
+    public function confirmDelete(): void
+    {
+        Gate::authorize('investors.delete');
+
+        if ($this->pendingBulkDelete) {
+            $this->bulk('delete');
+            $this->resetDeleteConfirmation();
+
+            return;
+        }
+
+        abort_unless($this->pendingDeleteId, 422);
+        $documentId = $this->pendingDeleteId;
+        $this->delete($documentId);
+        $this->selected = array_values(array_diff($this->selected, [$documentId, (string) $documentId]));
+        $this->resetDeleteConfirmation();
+    }
+
+    private function resetDeleteConfirmation(): void
+    {
+        $this->pendingDeleteId = null;
+        $this->pendingDeleteName = '';
+        $this->pendingBulkDelete = false;
     }
 
     public function bulk(string $action): void

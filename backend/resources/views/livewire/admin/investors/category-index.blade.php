@@ -19,7 +19,15 @@
             @foreach($categories as $item)<tr wire:key="investor-category-{{ $item->id }}" @class(['is-muted-row' => !$item->is_active])>
                 <td><input class="table-checkbox" type="checkbox" wire:model.live="selected" value="{{ $item->id }}"></td>
                 <td><input class="input order-input" type="number" wire:model="sortOrders.{{ $item->id }}"></td>
-                <td class="category-name-cell"><strong>{{ $item->getTranslation('name', $locale, false) ?: 'Chưa có bản dịch' }}</strong><small><x-ui.icon name="link" size="13" /> /{{ $locale }}/investors/{{ $item->getTranslation('slug', $locale, false) }}</small></td>
+                <td class="category-name-cell">
+                    <strong>{{ $item->getTranslation('name', $locale, false) ?: 'Chưa có bản dịch' }}</strong>
+                    <small><x-ui.icon name="link" size="13" /> /{{ $locale }}/investors/{{ $item->getTranslation('slug', $locale, false) }}</small>
+                    <small>
+                        <span class="category-date-item" title="Ngày tạo"><x-ui.icon name="calendar" size="14" /><time datetime="{{ $item->created_at?->toIso8601String() }}">{{ $item->created_at?->format('H:i - d/m/Y') ?: '—' }}</time></span>
+                        <span aria-hidden="true">-</span>
+                        <span class="category-date-item" title="Ngày cập nhật"><x-ui.icon name="history" size="14" /><time datetime="{{ $item->updated_at?->toIso8601String() }}">{{ $item->updated_at?->format('H:i - d/m/Y') ?: '—' }}</time></span>
+                    </small>
+                </td>
                 <td>{{ $item->parent?->getTranslation('name', $locale, false) ?: '— Gốc —' }}</td>
                 <td><span class="category-product-count">{{ $item->documents_count }}</span></td>
                 <td><div class="translation-dots">@foreach(['vi','en','zh'] as $code)<span class="{{ filled($item->getTranslation('name', $code, false)) ? 'is-complete' : '' }}">{{ strtoupper($code) }}</span>@endforeach</div></td>

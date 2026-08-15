@@ -31,7 +31,7 @@
                 <button class="button button-success" wire:click="bulk('show')" @disabled(!$selected)>Hiện</button>
                 <button class="button button-secondary" wire:click="bulk('hide')" @disabled(!$selected)>Ẩn</button>
                 <button class="button button-secondary" wire:click="bulk('reorder')" @disabled(!$selected)>Cập nhật thứ tự</button>
-                <button class="button button-danger" wire:click="bulk('delete')" wire:confirm="Xóa các tài liệu đã chọn?" @disabled(!$selected)>Xóa</button>
+                <button class="button button-danger" type="button" wire:click="requestBulkDelete" @disabled(!$selected)>Xóa</button>
             </div>
             <span>{{ $documents->total() }} tài liệu</span>
         </div>
@@ -42,7 +42,7 @@
             <div class="table-responsive">
                 <table class="data-table category-table">
                     <thead>
-                        <tr><th></th><th>Thứ tự</th><th>Tiêu đề</th><th class="investor-actions-column">Thao tác</th></tr>
+                        <tr><th class="selection-column"></th><th class="order-column">Thứ tự</th><th>Tiêu đề</th><th class="investor-actions-column">Thao tác</th></tr>
                     </thead>
                     <tbody>
                         @foreach($documents as $item)
@@ -65,7 +65,7 @@
                                         <a class="icon-button" href="{{ route('admin.investors.documents.edit', $item) }}" wire:navigate title="Sửa"><x-ui.icon name="edit" size="18" /></a>
                                         @if($file)<a class="icon-button is-dark" href="{{ route('investors.documents.download', $file) }}" title="Tải tệp"><x-ui.icon name="download" size="18" /></a>@endif
                                         <button class="icon-button is-dark" wire:click="toggleVisibility({{ $item->id }})" title="Ẩn/hiện"><x-ui.icon :name="$item->is_active ? 'eye-off' : 'eye'" size="18" /></button>
-                                        <button class="icon-button is-danger" wire:click="delete({{ $item->id }})" wire:confirm="Xóa tài liệu này?" title="Xóa"><x-ui.icon name="trash" size="18" /></button>
+                                        <button class="icon-button is-danger" type="button" wire:click="requestDelete({{ $item->id }})" title="Xóa" aria-label="Xóa"><x-ui.icon name="trash" size="18" /></button>
                                     </div>
                                 </td>
                             </tr>
@@ -76,4 +76,36 @@
             <x-ui.pagination :paginator="$documents" />
         @endif
     </section>
+
+    @if($pendingDeleteId || $pendingBulkDelete)
+        <div
+            class="modal-backdrop contact-delete-modal"
+            wire:key="investor-document-delete-confirmation"
+            wire:click.self="cancelDelete"
+            x-data
+            x-init="$nextTick(() => $refs.cancelButton.focus())"
+            x-on:keydown.escape.window="$wire.cancelDelete()"
+        >
+            <section class="modal-card contact-delete-card" role="alertdialog" aria-modal="true" aria-labelledby="investor-delete-title" aria-describedby="investor-delete-description">
+                <div class="modal-icon contact-delete-icon"><x-ui.icon name="alert" size="30" /></div>
+                <h2 id="investor-delete-title">Xóa tài liệu QHCĐ?</h2>
+                <p id="investor-delete-description">
+                    @if($pendingBulkDelete)
+                        Bạn sắp chuyển <strong>{{ count($selected) }} tài liệu</strong> đã chọn vào thùng rác.
+                    @else
+                        Bạn sắp chuyển tài liệu <strong>“{{ $pendingDeleteName }}”</strong> vào thùng rác.
+                    @endif
+                </p>
+                <p class="contact-delete-warning">Tài liệu sẽ không còn xuất hiện trong danh sách quản lý.</p>
+                <div class="modal-actions contact-delete-actions">
+                    <button class="button button-secondary" type="button" wire:click="cancelDelete" x-ref="cancelButton">Không, giữ lại</button>
+                    <button class="button button-danger" type="button" wire:click="confirmDelete" wire:loading.attr="disabled" wire:target="confirmDelete">
+                        <x-ui.icon name="trash" size="17" />
+                        <span wire:loading.remove wire:target="confirmDelete">Có, xóa tài liệu</span>
+                        <span wire:loading wire:target="confirmDelete">Đang xóa...</span>
+                    </button>
+                </div>
+            </section>
+        </div>
+    @endif
 </div>

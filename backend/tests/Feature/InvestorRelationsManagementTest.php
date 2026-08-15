@@ -3,7 +3,9 @@
 namespace Tests\Feature;
 
 use App\Livewire\Admin\Investors\CategoryForm;
+use App\Livewire\Admin\Investors\CategoryIndex;
 use App\Livewire\Admin\Investors\DocumentForm;
+use App\Livewire\Admin\Investors\DocumentIndex;
 use App\Livewire\Admin\Investors\Settings;
 use App\Models\DocumentCategory;
 use App\Models\InvestorDocument;
@@ -49,17 +51,15 @@ class InvestorRelationsManagementTest extends TestCase
         $category = DocumentCategory::firstOrFail();
         Livewire::actingAs($user)->test(DocumentForm::class)
             ->set('document_category_id', $category->id)
-            ->set('document_number', 'FS-Q2-2026')
-            ->set('year', 2026)
-            ->set('quarter', 2)
+            ->set('enabled_locales', ['vi', 'en', 'zh'])
             ->set('title', ['vi' => 'Báo cáo quý 2', 'en' => 'Second quarter report', 'zh' => '第二季度报告'])
             ->set('summary', ['vi' => 'Bản tiếng Việt', 'en' => 'English edition', 'zh' => '中文版'])
-            ->set('display_name.vi', 'Báo cáo quý 2 - Tiếng Việt')
+            ->set('slug', 'bao-cao-quy-2-2026')
             ->set('uploads.vi', UploadedFile::fake()->create('report.pdf', 200, 'application/pdf'))
             ->call('save')
             ->assertHasNoErrors();
 
-        $document = InvestorDocument::with('files.media')->where('document_number', 'FS-Q2-2026')->firstOrFail();
+        $document = InvestorDocument::with('files.media')->where('slug', 'bao-cao-quy-2-2026')->firstOrFail();
         $this->assertSame('Second quarter report', $document->getTranslation('title', 'en'));
         $this->assertSame('财务报告', $category->getTranslation('name', 'zh'));
         $this->assertCount(1, $document->files);
@@ -81,6 +81,81 @@ class InvestorRelationsManagementTest extends TestCase
         $module = DB::table('modules')->where('code', 'investors')->first();
         $this->assertSame('投资者关系', json_decode($module->page_title, true)['zh']);
         $this->actingAs(User::factory()->create())->get('/admin/investors')->assertForbidden();
+    }
+
+    public function test_document_summary_can_be_cleared_when_updating(): void
+    {
+        $user = $this->editor();
+        $category = $this->category();
+        $document = $this->document($category);
+        $document->update([
+            'slug' => 'bao-cao-2025',
+            'summary' => ['vi' => 'Nội dung tin cũ'],
+        ]);
+
+        Livewire::actingAs($user)->test(DocumentForm::class, ['document' => $document])
+            ->set('summary.vi', '')
+            ->call('save')
+            ->assertHasNoErrors();
+
+        $this->assertArrayNotHasKey('vi', $document->refresh()->getTranslations('summary'));
+    }
+
+    public function test_document_seo_fields_are_saved_and_slug_can_be_generated(): void
+    {
+        Storage::fake('public');
+        $user = $this->editor();
+        $category = $this->category();
+
+        Livewire::actingAs($user)->test(DocumentForm::class)
+            ->set('document_category_id', $category->id)
+            ->set('title.vi', 'Báo cáo thường niên 2026')
+            ->call('generateSlug')
+            ->assertSet('slug', 'bao-cao-thuong-nien-2026')
+            ->set('seo_title', 'Báo cáo thường niên 2026 | IDI Seafood')
+            ->set('meta_description', 'Thông tin tài chính, hoạt động nổi bật và định hướng phát triển của IDI Seafood trong năm 2026.')
+            ->set('uploads.vi', UploadedFile::fake()->create('report-2026.pdf', 200, 'application/pdf'))
+            ->call('save')
+            ->assertHasNoErrors();
+
+        $document = InvestorDocument::where('slug', 'bao-cao-thuong-nien-2026')->firstOrFail();
+        $this->assertSame('Báo cáo thường niên 2026 | IDI Seafood', $document->seo_title);
+        $this->assertStringContainsString('Thông tin tài chính', $document->meta_description);
+    }
+
+    public function test_document_is_deleted_only_after_modal_confirmation(): void
+    {
+        $user = $this->editor();
+        $document = $this->document($this->category());
+
+        Livewire::actingAs($user)->test(DocumentIndex::class)
+            ->call('requestDelete', $document->id)
+            ->assertSet('pendingDeleteId', $document->id)
+            ->assertSet('pendingDeleteName', 'Báo cáo 2025')
+            ->assertSee('Xóa tài liệu QHCĐ?')
+            ->call('cancelDelete')
+            ->assertSet('pendingDeleteId', null);
+
+        $this->assertNotSoftDeleted($document);
+
+        Livewire::actingAs($user)->test(DocumentIndex::class)
+            ->call('requestDelete', $document->id)
+            ->call('confirmDelete')
+            ->assertSet('pendingDeleteId', null);
+
+        $this->assertSoftDeleted($document);
+    }
+
+    public function test_category_list_displays_created_and_updated_times(): void
+    {
+        $user = $this->editor();
+        $category = $this->category();
+
+        Livewire::actingAs($user)->test(CategoryIndex::class)
+            ->assertSee($category->created_at->format('H:i - d/m/Y'))
+            ->assertSee($category->updated_at->format('H:i - d/m/Y'))
+            ->assertDontSee('Tạo:')
+            ->assertDontSee('Sửa:');
     }
 
     private function editor(): User

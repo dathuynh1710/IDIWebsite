@@ -7,7 +7,7 @@
             @foreach($locales as $locale => $label)
                 <section id="panel-{{ $locale }}" class="tab-panel" role="tabpanel" x-show="active === '{{ $locale }}'" x-cloak>
                     <x-form.section title="Thông tin trang — {{ $label }}" description="Nội dung độc lập cho phiên bản {{ $label }}" icon="languages">
-                        <div class="news-settings-grid">
+                        <div class="form-stack">
                             <x-form.input name="page_title[{{ $locale }}]" label="Tiêu đề trang" wire:model="page_title.{{ $locale }}" :required="$locale === 'vi'" />
                             <x-form.textarea name="description[{{ $locale }}]" label="Mô tả giới thiệu" wire:model="description.{{ $locale }}" rows="5" />
                             <x-form.input name="seo_title[{{ $locale }}]" label="Tiêu đề SEO" wire:model="seo_title.{{ $locale }}" maxlength="255" />

@@ -73,12 +73,47 @@
                     @endforeach
                 </x-form.language-tabs>
 
-                <x-form.section title="Search Engine Optimization" description="Thông tin hiển thị trên công cụ tìm kiếm." icon="search">
-                    <div class="seo-grid">
-                        <x-form.input name="slug" label="Friendly URL" wire:model="slug" required />
-                        <x-form.input name="seo_title" label="Friendly Title" wire:model="seo_title" maxlength="255" />
-                        <x-form.textarea name="meta_description" label="Meta Description" wire:model="meta_description" rows="3" maxlength="500" />
-                        <x-form.input name="meta_keywords" label="Meta Keyword" wire:model="meta_keywords" maxlength="1000" />
+                <x-form.section title="Tối ưu hiển thị trên Google" icon="search" class="investor-seo-section">
+                    <div
+                        class="investor-seo"
+                        x-data="{
+                            slug: $wire.entangle('slug'),
+                            seoTitle: $wire.entangle('seo_title'),
+                            metaDescription: $wire.entangle('meta_description')
+                        }"
+                    >
+                        <div class="investor-seo-fields">
+                            <div class="investor-seo-field">
+                                <label for="slug">Đường dẫn trang <span aria-hidden="true">*</span></label>
+                                <div>
+                                    <div class="slug-input investor-seo-slug">
+                                        <span>/vi/quan-he-co-dong/</span>
+                                        <input id="slug" name="slug" class="input" x-model="slug" maxlength="255" required @error('slug') aria-invalid="true" @enderror>
+                                        <button type="button" wire:click="generateSlug">Tạo từ tiêu đề</button>
+                                    </div>
+                                    <p class="field-help">Viết thường, không dấu; các từ cách nhau bằng dấu gạch ngang. Ví dụ: <strong>bao-cao-thuong-nien-2026</strong>.</p>
+                                    <x-form.field-error name="slug" />
+                                </div>
+                            </div>
+
+                            <div class="investor-seo-field">
+                                <label for="seo_title">Tiêu đề SEO</label>
+                                <div>
+                                    <input id="seo_title" name="seo_title" class="input" x-model="seoTitle" maxlength="255" placeholder="Để trống để dùng tiêu đề QHCĐ" @error('seo_title') aria-invalid="true" @enderror>
+                                    <p class="field-help investor-seo-counter"><span>Nên rõ nghĩa, riêng biệt và khoảng 50–65 ký tự; không lặp từ khóa.</span><strong :class="{ 'is-good': seoTitle.length >= 30 && seoTitle.length <= 65 }"><span x-text="seoTitle.length"></span> ký tự</strong></p>
+                                    <x-form.field-error name="seo_title" />
+                                </div>
+                            </div>
+
+                            <div class="investor-seo-field">
+                                <label for="meta_description">Mô tả SEO</label>
+                                <div>
+                                    <textarea id="meta_description" name="meta_description" class="textarea" rows="4" x-model="metaDescription" maxlength="500" placeholder="Ví dụ: Báo cáo thường niên 2026 của IDI Seafood, cung cấp thông tin tài chính và hoạt động nổi bật trong năm." @error('meta_description') aria-invalid="true" @enderror></textarea>
+                                    <p class="field-help investor-seo-counter"><span>Nên là một câu tự nhiên, riêng cho tài liệu này và khoảng 120–160 ký tự.</span><strong :class="{ 'is-good': metaDescription.length >= 80 && metaDescription.length <= 160 }"><span x-text="metaDescription.length"></span> ký tự</strong></p>
+                                    <x-form.field-error name="meta_description" />
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </x-form.section>
             </div>

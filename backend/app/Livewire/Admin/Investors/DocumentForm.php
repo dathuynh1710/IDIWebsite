@@ -10,6 +10,7 @@ use App\Models\Media;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Livewire\Attributes\Layout;
 use Livewire\Features\SupportFileUploads\WithFileUploads;
@@ -26,7 +27,6 @@ class DocumentForm extends AdminComponent
     public string $slug = '';
     public string $seo_title = '';
     public string $meta_description = '';
-    public string $meta_keywords = '';
     public array $enabled_locales = ['vi'];
     public array $title = ['vi' => '', 'en' => '', 'zh' => ''];
     public array $summary = ['vi' => '', 'en' => '', 'zh' => ''];
@@ -46,7 +46,7 @@ class DocumentForm extends AdminComponent
         foreach (['title', 'summary'] as $field) {
             $this->{$field} = array_merge($this->{$field}, $this->document->getTranslations($field));
         }
-        foreach (['document_category_id', 'is_active', 'slug', 'seo_title', 'meta_description', 'meta_keywords'] as $field) {
+        foreach (['document_category_id', 'is_active', 'slug', 'seo_title', 'meta_description'] as $field) {
             $this->{$field} = $this->document->{$field} ?? ($this->{$field} ?? '');
         }
         $this->published_on = $this->document->published_on?->toDateString() ?? '';
@@ -74,10 +74,16 @@ class DocumentForm extends AdminComponent
         $this->removeFiles[$locale] = true;
     }
 
+    public function generateSlug(): void
+    {
+        $this->slug = Str::slug($this->title['vi'] ?? '');
+    }
+
     public function save()
     {
         Gate::authorize($this->document ? 'investors.update' : 'investors.create');
         $this->updatedEnabledLocales();
+        $this->slug = Str::slug($this->slug ?: ($this->title['vi'] ?? ''));
         $hasUpload = filled($this->uploads['vi'] ?? null);
         $hasRemoval = $this->removeFiles['vi'];
         $maxKilobytes = $this->maxUploadMegabytes() * 1024;
@@ -91,7 +97,6 @@ class DocumentForm extends AdminComponent
             'slug' => ['required', 'string', 'max:255', Rule::unique('investor_documents', 'slug')->ignore($this->document?->id)],
             'seo_title' => ['nullable', 'string', 'max:255'],
             'meta_description' => ['nullable', 'string', 'max:500'],
-            'meta_keywords' => ['nullable', 'string', 'max:1000'],
             'uploads.vi' => ['nullable', 'file', 'mimes:pdf,doc,docx,xls,xlsx,ppt,pptx,zip', "max:{$maxKilobytes}"],
             'removeFiles.vi' => ['boolean'],
         ];
@@ -107,6 +112,7 @@ class DocumentForm extends AdminComponent
             return null;
         }
 
+
         foreach (['title', 'summary'] as $field) {
             $submitted = collect($data[$field] ?? [])
                 ->only($this->enabled_locales)
@@ -116,7 +122,7 @@ class DocumentForm extends AdminComponent
             $data[$field] = $this->mergeEnabledTranslations($field, $submitted);
         }
         unset($data['uploads'], $data['removeFiles'], $data['enabled_locales']);
-        foreach (['slug', 'seo_title', 'meta_description', 'meta_keywords'] as $field) {
+        foreach (['slug', 'seo_title', 'meta_description'] as $field) {
             $data[$field] = trim((string) ($data[$field] ?? '')) ?: null;
         }
         $data['created_by'] = $this->document?->created_by ?? auth()->id();
@@ -182,6 +188,8 @@ class DocumentForm extends AdminComponent
             if (in_array($locale, $this->enabled_locales, true)) {
                 if (array_key_exists($locale, $submitted)) {
                     $translations[$locale] = $submitted[$locale];
+                } else {
+                    unset($translations[$locale]);
                 }
             } else {
                 unset($translations[$locale]);

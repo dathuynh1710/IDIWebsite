@@ -136,7 +136,11 @@ class Roles extends AdminComponent
     {
         Gate::authorize('roles.update');
         $target = Role::findOrFail($this->selectedRoleId);
-        abort_if($target->name === 'super-admin', 422, 'Không thể thay đổi quyền của Quản trị cao nhất.');
+        if ($target->name === 'super-admin') {
+            $this->toast('Không thể thay đổi quyền của Quản trị cao nhất.', 'error');
+
+            return;
+        }
         $source = Role::with('permissions')->findOrFail($this->copyRoleId);
         $this->permissionIds = $source->permissions->pluck('id')->map(fn ($id) => (string) $id)->all();
         $this->toast('Đã sao chép quyền từ “'.($source->display_name ?: $source->name).'”. Nhấn Lưu phân quyền để áp dụng.');
@@ -145,15 +149,23 @@ class Roles extends AdminComponent
     public function selectModule(array $ids): void
     {
         Gate::authorize('roles.update');
-        $this->guardEditableRole();
+        if (! $this->guardEditableRole()) {
+            return;
+        }
         $this->toggleIds($ids);
     }
 
     public function selectColumn(string $column): void
     {
         Gate::authorize('roles.update');
-        $this->guardEditableRole();
-        abort_unless(in_array($column, ['view', 'create', 'update', 'delete'], true), 422);
+        if (! $this->guardEditableRole()) {
+            return;
+        }
+        if (! in_array($column, ['view', 'create', 'update', 'delete'], true)) {
+            $this->toast('Nhóm quyền được chọn không hợp lệ.', 'error');
+
+            return;
+        }
 
         $ids = Permission::where('guard_name', 'web')->get()
             ->filter(fn (Permission $permission) => $this->permissionColumn($permission->name) === $column)
@@ -164,7 +176,9 @@ class Roles extends AdminComponent
     public function selectAll(): void
     {
         Gate::authorize('roles.update');
-        $this->guardEditableRole();
+        if (! $this->guardEditableRole()) {
+            return;
+        }
         $this->toggleIds(
             Permission::where('guard_name', 'web')->get()
                 ->filter(fn (Permission $permission) => in_array($this->permissionColumn($permission->name), ['view', 'create', 'update', 'delete'], true))
@@ -176,7 +190,11 @@ class Roles extends AdminComponent
     {
         Gate::authorize('roles.delete');
         $role = Role::withCount('users')->findOrFail($this->selectedRoleId);
-        abort_if($role->is_system || $role->users_count > 0, 422, 'Vai trò hệ thống hoặc đang được sử dụng không thể xóa.');
+        if ($role->is_system || $role->users_count > 0) {
+            $this->toast('Không thể xóa vai trò hệ thống hoặc vai trò đang được sử dụng.', 'error');
+
+            return;
+        }
         $this->pendingDeleteId = $role->id;
         $this->pendingDeleteName = $role->display_name ?: $role->name;
     }
@@ -184,8 +202,19 @@ class Roles extends AdminComponent
     public function confirmDelete(): void
     {
         Gate::authorize('roles.delete');
-        $role = Role::withCount('users')->findOrFail($this->pendingDeleteId);
-        abort_if($role->is_system || $role->users_count > 0, 422);
+        $role = $this->pendingDeleteId ? Role::withCount('users')->find($this->pendingDeleteId) : null;
+        if (! $role) {
+            $this->cancelDelete();
+            $this->toast('Không tìm thấy vai trò cần xóa. Vui lòng thử lại.', 'error');
+
+            return;
+        }
+        if ($role->is_system || $role->users_count > 0) {
+            $this->cancelDelete();
+            $this->toast('Không thể xóa vai trò hệ thống hoặc vai trò đang được sử dụng.', 'error');
+
+            return;
+        }
         $role->delete();
         $this->cancelDelete();
         $this->selectedRoleId = (string) (Role::where('guard_name', 'web')->orderBy('name')->value('id') ?? '');
@@ -213,9 +242,15 @@ class Roles extends AdminComponent
             : [];
     }
 
-    private function guardEditableRole(): void
+    private function guardEditableRole(): bool
     {
-        abort_if(Role::findOrFail($this->selectedRoleId)->name === 'super-admin', 422, 'Quản trị cao nhất luôn có toàn bộ quyền hệ thống.');
+        if (Role::findOrFail($this->selectedRoleId)->name === 'super-admin') {
+            $this->toast('Quản trị cao nhất luôn có toàn bộ quyền hệ thống.', 'error');
+
+            return false;
+        }
+
+        return true;
     }
 
     private function toggleIds(array $ids): void

@@ -179,7 +179,12 @@ class Index extends AdminComponent
             return;
         }
 
-        abort_unless($this->pendingDeleteId, 422);
+        if (! $this->pendingDeleteId) {
+            $this->toast('Không tìm thấy công thức cần xóa. Vui lòng thử lại.', 'error');
+            $this->cancelDelete();
+
+            return;
+        }
         $recipeId = $this->pendingDeleteId;
         $this->delete($recipeId);
         $this->selected = array_values(array_diff($this->selected, [$recipeId, (string) $recipeId]));
@@ -201,7 +206,11 @@ class Index extends AdminComponent
             'sortOrders.*' => ['nullable', 'integer', 'min:0', 'max:999999'],
         ], ['selected.required' => 'Vui lòng chọn ít nhất một công thức.']);
         Gate::authorize($action === 'delete' ? 'recipes.delete' : 'recipes.update');
-        abort_unless(in_array($action, ['show', 'hide', 'reorder', 'delete'], true), 422);
+        if (! in_array($action, ['show', 'hide', 'reorder', 'delete'], true)) {
+            $this->toast('Thao tác với công thức không hợp lệ.', 'error');
+
+            return;
+        }
 
         DB::transaction(function () use ($action): void {
             foreach (Recipe::whereKey($this->selected)->get() as $recipe) {

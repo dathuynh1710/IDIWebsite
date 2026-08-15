@@ -203,6 +203,27 @@ class NewsManagementTest extends TestCase
         $this->assertNull($post->refresh()->post_category_id);
     }
 
+    public function test_category_bulk_delete_uses_confirmation_modal(): void
+    {
+        $first = $this->category();
+        $second = PostCategory::create([
+            'name' => ['vi' => 'Tin thị trường'],
+            'slug' => ['vi' => 'tin-thi-truong'],
+            'is_active' => true,
+        ]);
+
+        Livewire::actingAs($this->editor())->test(CategoryIndex::class)
+            ->set('selected', [$first->id, $second->id])
+            ->call('requestBulkDelete')
+            ->assertSet('pendingBulkDelete', true)
+            ->assertSee('2 danh mục đã chọn')
+            ->call('confirmDelete')
+            ->assertSet('pendingBulkDelete', false);
+
+        $this->assertSoftDeleted($first);
+        $this->assertSoftDeleted($second);
+    }
+
     public function test_category_translations_are_published_automatically_without_status_field(): void
     {
         Livewire::actingAs($this->editor())->test(CategoryForm::class)

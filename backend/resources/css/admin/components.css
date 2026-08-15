@@ -7,8 +7,8 @@
 .badge-neutral { color: #5d6c7a; background: #edf1f4; }.badge-success { color: #197244; background: #e3f4eb; }.badge-warning { color: #956009; background: #fff0d2; }.badge-info { color: #216da7; background: #e3f1fb; }
 .empty-state { display: grid; justify-items: center; text-align: center; padding: 50px 22px; }.empty-state > span { width: 62px; height: 62px; display: grid; place-items: center; border-radius: 50%; color: var(--admin-primary); background: var(--admin-primary-soft); }.empty-state h3 { margin: 14px 0 4px; }.empty-state p { color: var(--admin-muted); margin-bottom: 18px; }
 .confirm-wrap { display: inline-flex; }
-.modal-backdrop { position: fixed; z-index: 100; inset: 0; display: grid; place-items: center; padding: 20px; background: rgba(7, 23, 39, .6); backdrop-filter: blur(3px); }
-.modal-card { width: min(100%, 430px); padding: 26px; border-radius: 13px; background: #fff; box-shadow: 0 20px 70px #07172755; text-align: center; }.modal-icon { width: 52px; height: 52px; display: grid; place-items: center; margin: 0 auto 14px; border-radius: 50%; color: var(--admin-danger); background: #fff0f0; }.modal-card h2 { margin-bottom: 7px; }.modal-card p { color: var(--admin-muted); }.modal-actions { display: flex; justify-content: center; gap: 9px; margin-top: 22px; }
+.modal-backdrop { position: fixed; z-index: 100; inset: 0; display: grid; place-items: center; padding: 20px; background: rgba(7, 23, 39, .6); backdrop-filter: blur(3px); animation: admin-modal-backdrop-in 180ms ease-out both; }
+.modal-card { width: min(100%, 430px); padding: 26px; border-radius: 13px; background: #fff; box-shadow: 0 20px 70px #07172755; text-align: center; transform-origin: center; animation: admin-modal-card-in 280ms cubic-bezier(.16, 1, .3, 1) both; }.modal-icon { width: 52px; height: 52px; display: grid; place-items: center; margin: 0 auto 14px; border-radius: 50%; color: var(--admin-danger); background: #fff0f0; }.modal-card h2 { margin-bottom: 7px; }.modal-card p { color: var(--admin-muted); }.modal-actions { display: flex; justify-content: center; gap: 9px; margin-top: 22px; }
 .contact-delete-modal { z-index: 1100; }
 .contact-delete-card { width: min(100%, 480px); padding: 34px; border: 1px solid #f2d7d7; border-radius: 20px; box-shadow: 0 28px 80px rgba(7, 23, 39, .32); }
 .contact-delete-icon { width: 64px; height: 64px; margin-bottom: 18px; border: 1px solid #f3c7c7; background: #fff2f2; }
@@ -56,6 +56,7 @@
     border: 0;
     background: rgb(15 23 42 / 55%);
     cursor: default;
+    animation: admin-modal-backdrop-in 180ms ease-out both;
 }
 
 .admin-form-modal-panel {
@@ -68,6 +69,8 @@
     border-radius: var(--radius-lg);
     background: var(--color-background, #f8fafc);
     box-shadow: 0 24px 70px rgb(15 23 42 / 35%);
+    transform-origin: center;
+    animation: admin-modal-panel-in 300ms cubic-bezier(.16, 1, .3, 1) both;
 }
 
 .admin-form-modal-close {
@@ -85,4 +88,57 @@
 
 .admin-form-modal .tab-list {
     top: 12px;
+}
+
+/* Shared entrance motion for every admin modal and drawer. */
+.access-modal-backdrop,
+.contact-detail-backdrop {
+    animation: admin-modal-backdrop-in 180ms ease-out both;
+}
+
+.access-modal-panel {
+    transform-origin: center;
+    animation: admin-modal-panel-in 300ms cubic-bezier(.16, 1, .3, 1) both;
+}
+
+.contact-detail-panel {
+    animation: admin-modal-drawer-in 300ms cubic-bezier(.16, 1, .3, 1) both;
+}
+
+@keyframes admin-modal-backdrop-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes admin-modal-card-in {
+    from {
+        opacity: 0;
+        transform: translateY(14px) scale(.965);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes admin-modal-panel-in {
+    from {
+        opacity: 0;
+        transform: translateY(18px) scale(.98);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes admin-modal-drawer-in {
+    from {
+        opacity: .72;
+        transform: translateX(42px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
 }

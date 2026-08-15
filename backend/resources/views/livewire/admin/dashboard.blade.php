@@ -1,16 +1,5 @@
 <div class="dashboard-page">
-    <section class="dashboard-welcome">
-        <div>
-            <x-admin.breadcrumb :items="$breadcrumbs" />
-            <p class="dashboard-eyebrow">Tổng quan hôm nay</p>
-            <h1>Chào {{ auth()->user()->name ?: auth()->user()->username }},</h1>
-            <p>Những thông tin quan trọng của IDI Seafood CMS được tổng hợp tại đây.</p>
-        </div>
-        <div class="dashboard-date" aria-label="Ngày hiện tại">
-            <span><x-ui.icon name="calendar" size="20" /></span>
-            <div><small>Hôm nay</small><strong>{{ now()->translatedFormat('l, d/m/Y') }}</strong></div>
-        </div>
-    </section>
+    <x-admin.page-header title="Bảng điều khiển" />
 
     @if($stats->isNotEmpty())
         <section class="dashboard-stat-grid" aria-label="Chỉ số cần chú ý">

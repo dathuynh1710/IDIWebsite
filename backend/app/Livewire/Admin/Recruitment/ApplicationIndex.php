@@ -41,6 +41,12 @@ class ApplicationIndex extends AdminComponent
 
     public string $internalNote = '';
 
+    public ?int $pendingDeleteId = null;
+
+    public string $pendingDeleteName = '';
+
+    public bool $pendingBulkDelete = false;
+
     public function mount(): void
     {
         Gate::authorize('recruitment.view');
@@ -152,6 +158,49 @@ class ApplicationIndex extends AdminComponent
         }
         $this->selected = [];
         $this->toast('Đã xóa các hồ sơ được chọn.');
+    }
+
+    public function requestDelete(int $id): void
+    {
+        Gate::authorize('recruitment.delete');
+        $application = JobApplication::findOrFail($id);
+        $this->pendingDeleteId = $application->id;
+        $this->pendingDeleteName = $application->full_name ?: '#'.$application->id;
+        $this->pendingBulkDelete = false;
+    }
+
+    public function requestBulkDelete(): void
+    {
+        Gate::authorize('recruitment.delete');
+        $this->validate(['selected' => ['required', 'array', 'min:1'], 'selected.*' => ['integer', 'distinct', 'exists:job_applications,id']]);
+        $this->pendingDeleteId = null;
+        $this->pendingDeleteName = '';
+        $this->pendingBulkDelete = true;
+    }
+
+    public function cancelDelete(): void
+    {
+        $this->reset('pendingDeleteId', 'pendingDeleteName', 'pendingBulkDelete');
+    }
+
+    public function confirmDelete(): void
+    {
+        Gate::authorize('recruitment.delete');
+        if ($this->pendingBulkDelete) {
+            $this->bulkDelete();
+            $this->cancelDelete();
+
+            return;
+        }
+
+        if (! $this->pendingDeleteId) {
+            $this->toast('Không tìm thấy hồ sơ ứng tuyển cần xóa. Vui lòng thử lại.', 'error');
+            $this->cancelDelete();
+
+            return;
+        }
+        $this->delete($this->pendingDeleteId);
+        $this->cancelDelete();
     }
 
     private function applicationQuery(): Builder

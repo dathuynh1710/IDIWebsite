@@ -40,6 +40,17 @@ class AdminDashboardTest extends TestCase
             ->assertSee('images/brand/idi-logo.png', false);
     }
 
+    public function test_admin_page_headers_hide_breadcrumbs_and_descriptions(): void
+    {
+        $response = $this->actingAs(User::factory()->create())->get('/admin');
+
+        $response
+            ->assertOk()
+            ->assertSee('Bảng điều khiển')
+            ->assertDontSee('class="breadcrumb"', false)
+            ->assertDontSee('Những thông tin quan trọng của IDI Seafood CMS được tổng hợp tại đây.');
+    }
+
     public function test_dashboard_prioritizes_actionable_work_and_recent_content(): void
     {
         $user = User::factory()->create();
@@ -230,6 +241,26 @@ class AdminDashboardTest extends TestCase
             ->assertSeeHtml('aria-checked="false"');
 
         $this->assertFalse($product->fresh()->is_featured);
+    }
+
+    public function test_product_delete_waits_for_custom_modal_confirmation(): void
+    {
+        $product = $this->product($this->category());
+
+        Livewire::actingAs($this->productEditor())->test(ProductIndex::class)
+            ->call('requestDelete', $product->id)
+            ->assertSet('pendingDeleteId', $product->id)
+            ->assertSee('Xóa sản phẩm?')
+            ->call('cancelDelete')
+            ->assertSet('pendingDeleteId', null);
+
+        $this->assertNotSoftDeleted($product);
+
+        Livewire::actingAs($this->productEditor())->test(ProductIndex::class)
+            ->call('requestDelete', $product->id)
+            ->call('confirmDelete');
+
+        $this->assertSoftDeleted($product);
     }
 
     public function test_sidebar_parent_menus_share_a_single_accordion_state(): void

@@ -73,7 +73,7 @@
                     </tbody>
                 </table>
             </div>
-            <x-ui.pagination :paginator="$documents" />
+            <x-ui.pagination :paginator="$documents" :per-page-options="$perPageOptions" />
         @endif
     </section>
 

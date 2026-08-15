@@ -43,7 +43,7 @@
                             <button class="button button-secondary" type="button" wire:click="bulk('reorder')"><x-ui.icon name="save" size="17" /> Cập nhật thứ tự</button>
                         @endcan
                         @can('products.delete')
-                            <button class="button button-danger" type="button" wire:click="bulk('delete')" wire:confirm="Chuyển các danh mục đã chọn vào thùng rác?"><x-ui.icon name="trash" size="17" /> Xóa</button>
+                            <button class="button button-danger" type="button" wire:click="requestBulkDelete"><x-ui.icon name="trash" size="17" /> Xóa</button>
                         @endcan
                     </div>
                     <span class="category-selection-count">{{ count($selected) ? 'Đã chọn '.count($selected).' danh mục' : 'Chưa chọn danh mục' }}</span>
@@ -66,7 +66,7 @@
                                             <button class="icon-button" type="button" wire:click="toggleVisibility({{ $category->id }})"><x-ui.icon :name="$category->is_active ? 'eye-off' : 'eye'" size="18" /></button>
                                         @endcan
                                         @can('products.delete')
-                                            <button class="icon-button is-danger" type="button" wire:click="delete({{ $category->id }})" wire:confirm="Xóa danh mục “{{ $name }}”?"><x-ui.icon name="trash" size="18" /></button>
+                                            <button class="icon-button is-danger" type="button" wire:click="requestDelete({{ $category->id }})" title="Xóa" aria-label="Xóa danh mục {{ $name }}"><x-ui.icon name="trash" size="18" /></button>
                                         @endcan
                                     </div></td>
                                 </tr>
@@ -85,5 +85,15 @@
         @endif
         <x-ui.pagination :paginator="$categories" :per-page-options="[10, 20, 50, 100]" />
     </section>
+
+    @if($pendingDeleteId || $pendingBulkDelete)
+        <x-ui.delete-confirmation-modal wire-key="product-category-delete-confirmation" title="Xóa danh mục sản phẩm?" confirm-label="Có, xóa danh mục" warning="Sản phẩm liên quan không bị xóa.">
+            @if($pendingBulkDelete)
+                Bạn sắp chuyển <strong>{{ count($selected) }} danh mục đã chọn</strong> vào thùng rác.
+            @else
+                Bạn sắp chuyển danh mục <strong>“{{ $pendingDeleteName }}”</strong> vào thùng rác.
+            @endif
+        </x-ui.delete-confirmation-modal>
+    @endif
 
 </div>

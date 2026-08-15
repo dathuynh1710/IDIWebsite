@@ -71,6 +71,10 @@ class Settings extends AdminComponent
 
     public bool $location_is_active = true;
 
+    public ?int $pendingDeleteId = null;
+
+    public string $pendingDeleteName = '';
+
     public function mount(): void
     {
         Gate::authorize('contacts.manage');
@@ -278,6 +282,32 @@ class Settings extends AdminComponent
     {
         OfficeLocation::findOrFail($locationId)->delete();
         $this->toast('Đã chuyển địa chỉ liên hệ vào thùng rác.');
+    }
+
+    public function requestDelete(int $locationId): void
+    {
+        Gate::authorize('contacts.manage');
+        $location = OfficeLocation::findOrFail($locationId);
+        $this->pendingDeleteId = $location->id;
+        $this->pendingDeleteName = $location->getTranslation('name', 'vi', false) ?: $location->code ?: '#'.$location->id;
+    }
+
+    public function cancelDelete(): void
+    {
+        $this->reset('pendingDeleteId', 'pendingDeleteName');
+    }
+
+    public function confirmDelete(): void
+    {
+        Gate::authorize('contacts.manage');
+        if (! $this->pendingDeleteId) {
+            $this->toast('Không tìm thấy địa chỉ liên hệ cần xóa. Vui lòng thử lại.', 'error');
+            $this->cancelDelete();
+
+            return;
+        }
+        $this->deleteLocation($this->pendingDeleteId);
+        $this->cancelDelete();
     }
 
     private function resetLocationForm(): void

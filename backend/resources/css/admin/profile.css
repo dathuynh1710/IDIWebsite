@@ -1,0 +1,100 @@
+.profile-layout {
+    display: grid;
+    grid-template-columns: minmax(240px, 300px) minmax(0, 1fr);
+    gap: 22px;
+    align-items: start;
+}
+
+.profile-summary {
+    padding: 30px 24px 24px;
+    text-align: center;
+}
+
+.profile-avatar {
+    position: relative;
+    width: 92px;
+    height: 92px;
+    display: grid;
+    place-items: center;
+    margin: 0 auto 18px;
+    border-radius: 24px;
+    color: #fff;
+    background: linear-gradient(145deg, #3f7bc1, #17558d);
+    box-shadow: 0 14px 30px rgba(23, 85, 141, .2);
+    font-size: 36px;
+    font-weight: 700;
+}
+
+.profile-avatar span {
+    position: absolute;
+    right: -4px;
+    bottom: -4px;
+    width: 22px;
+    height: 22px;
+    border: 4px solid #fff;
+    border-radius: 50%;
+    background: var(--admin-success, #2f9e62);
+}
+
+.profile-summary h2 { margin: 0; font-size: 20px; }
+.profile-summary > p { margin: 5px 0 0; color: var(--admin-muted); font-size: 13px; }
+.profile-role-list { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin: 16px 0 24px; }
+.profile-role-list span { padding: 5px 10px; border-radius: 999px; color: var(--admin-primary); background: var(--admin-primary-soft); font-size: 11px; font-weight: 650; }
+
+.profile-account-meta { margin: 0; border-top: 1px solid var(--admin-border); text-align: left; }
+.profile-account-meta > div { padding: 15px 0; border-bottom: 1px solid var(--admin-border); }
+.profile-account-meta > div:last-child { padding-bottom: 0; border-bottom: 0; }
+.profile-account-meta dt { display: flex; align-items: center; gap: 8px; color: var(--admin-muted); font-size: 11px; }
+.profile-account-meta dd { margin: 5px 0 0 26px; color: var(--admin-text); font-size: 13px; font-weight: 650; }
+
+.profile-form-card { overflow: hidden; }
+.profile-card-header { display: flex; align-items: center; gap: 14px; padding: 24px 28px; border-bottom: 1px solid var(--admin-border); }
+.profile-card-icon { width: 48px; height: 48px; display: grid; place-items: center; flex: 0 0 auto; border-radius: 12px; color: var(--admin-primary); background: var(--admin-primary-soft); }
+.profile-card-icon.is-password { color: #d96526; background: #fff0da; }
+.profile-card-header h2 { margin: 0; font-size: 20px; }
+.profile-card-header p { margin: 4px 0 0; color: var(--admin-muted); font-size: 13px; }
+.profile-form { padding: 28px; }
+.profile-username-row { max-width: 680px; padding-bottom: 26px; }
+.profile-form .form-field { margin: 0; }
+.profile-readonly-input { min-height: 42px; display: flex; align-items: center; gap: 10px; border: 1px solid var(--admin-border); border-radius: 6px; padding: 0 12px; color: var(--admin-muted); background: #f5f7f9; }
+.profile-readonly-input input { width: 100%; border: 0; outline: 0; color: #68798a; background: transparent; font: inherit; cursor: not-allowed; }
+.profile-password-layout { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(260px, .85fr); gap: 28px; padding-top: 26px; border-top: 1px solid var(--admin-border); }
+.profile-password-fields { display: grid; gap: 20px; }
+.profile-password-control { min-height: 46px; display: flex; align-items: center; gap: 10px; border: 1px solid var(--admin-border-strong); border-radius: 7px; padding: 0 12px; color: #91a0b0; background: #fff; transition: var(--admin-transition); }
+.profile-password-control:focus-within { border-color: var(--admin-primary); box-shadow: 0 0 0 3px rgba(47, 124, 192, .12); }
+.profile-password-control input { min-width: 0; width: 100%; border: 0; outline: 0; color: var(--admin-text); background: transparent; font: inherit; }
+.profile-password-control button { width: 34px; height: 34px; display: grid; place-items: center; flex: 0 0 auto; border: 0; border-radius: 6px; color: var(--admin-muted); background: transparent; }
+.profile-password-control button:hover { color: var(--admin-primary); background: var(--admin-primary-soft); }
+.profile-strength { display: flex; align-items: center; gap: 12px; margin-top: 8px; }
+.profile-strength > div { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; flex: 1; }
+.profile-strength span { height: 4px; border-radius: 999px; background: #e6ebf0; }
+.profile-strength span.is-active { background: var(--admin-primary); }
+.profile-strength small { min-width: 70px; color: var(--admin-muted); font-size: 10px; font-weight: 650; text-align: right; text-transform: uppercase; }
+.profile-password-rules { align-self: stretch; padding: 22px; border: 1px solid var(--admin-border); border-radius: 12px; background: #f8fafc; }
+.profile-password-rules h3 { margin: 0 0 18px; font-size: 14px; text-transform: uppercase; }
+.profile-password-rules ul { display: grid; gap: 15px; margin: 0; padding: 0; list-style: none; }
+.profile-password-rules li { display: flex; align-items: center; gap: 9px; color: #8b9aab; font-size: 12px; font-weight: 600; }
+.profile-password-rules li .icon { padding: 3px; border-radius: 50%; color: transparent; background: #dce3ea; }
+.profile-password-rules li.is-valid { color: #24784b; }
+.profile-password-rules li.is-valid .icon { color: #fff; background: #36a269; }
+.profile-form-actions { display: flex; justify-content: flex-start; gap: 10px; margin-top: 28px; padding-top: 22px; border-top: 1px solid var(--admin-border); }
+.profile-form-actions .button:disabled { cursor: wait; opacity: .72; }
+
+@media (max-width: 900px) {
+    .profile-layout { grid-template-columns: 1fr; }
+    .profile-summary { display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: 18px; text-align: left; }
+    .profile-avatar { grid-row: 1 / 4; margin: 0; }
+    .profile-role-list { justify-content: flex-start; margin: 10px 0 0; }
+    .profile-account-meta { grid-column: 1 / -1; margin-top: 22px; }
+    .profile-password-layout { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 600px) {
+    .profile-summary { display: block; text-align: center; }
+    .profile-avatar { margin: 0 auto 16px; }
+    .profile-role-list { justify-content: center; margin-bottom: 22px; }
+    .profile-card-header, .profile-form { padding: 18px 16px; }
+    .profile-password-layout { gap: 20px; }
+    .profile-form-actions { flex-direction: column; }
+    .profile-form-actions .button { width: 100%; }
+}

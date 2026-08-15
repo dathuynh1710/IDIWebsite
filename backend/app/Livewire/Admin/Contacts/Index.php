@@ -160,7 +160,12 @@ class Index extends AdminComponent
             return;
         }
 
-        abort_unless($this->pendingDeleteId, 422);
+        if (! $this->pendingDeleteId) {
+            $this->toast('Không tìm thấy thư liên hệ cần xóa. Vui lòng thử lại.', 'error');
+            $this->cancelDelete();
+
+            return;
+        }
         $messageId = $this->pendingDeleteId;
 
         ContactMessage::findOrFail($messageId)->delete();

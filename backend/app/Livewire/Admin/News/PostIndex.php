@@ -159,7 +159,12 @@ class PostIndex extends AdminComponent
             return;
         }
 
-        abort_unless($this->pendingDeleteId, 422);
+        if (! $this->pendingDeleteId) {
+            $this->toast('Không tìm thấy tin tức cần xóa. Vui lòng thử lại.', 'error');
+            $this->cancelDelete();
+
+            return;
+        }
         $postId = $this->pendingDeleteId;
         $this->delete($postId);
         $this->selected = array_values(array_filter(
@@ -180,7 +185,11 @@ class PostIndex extends AdminComponent
     {
         $this->validate(['selected' => ['required', 'array', 'min:1'], 'sortOrders.*' => ['nullable', 'integer', 'min:0']]);
         Gate::authorize($action === 'delete' ? 'posts.delete' : 'posts.update');
-        abort_unless(in_array($action, ['show', 'hide', 'reorder', 'delete'], true), 422);
+        if (! in_array($action, ['show', 'hide', 'reorder', 'delete'], true)) {
+            $this->toast('Thao tác với tin tức không hợp lệ.', 'error');
+
+            return;
+        }
         foreach (Post::whereKey($this->selected)->get() as $post) {
             if ($action === 'delete') {
                 $post->delete();

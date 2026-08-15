@@ -12,7 +12,7 @@
             <button class="button button-success" wire:click="bulk('show')" @disabled(!$selected)>Hiện</button>
             <button class="button button-secondary" wire:click="bulk('hide')" @disabled(!$selected)>Ẩn</button>
             <button class="button button-secondary" wire:click="bulk('reorder')" @disabled(!$selected)>Cập nhật thứ tự</button>
-            <button class="button button-danger" wire:click="bulk('delete')" wire:confirm="Xóa các danh mục đã chọn?" @disabled(!$selected)>Xóa</button>
+            <button class="button button-danger" type="button" wire:click="requestBulkDelete" @disabled(!$selected)>Xóa</button>
         </div><span class="category-selection-count">{{ $categories->total() }} danh mục</span></div>
         @if($categories->isEmpty())<x-ui.empty-state title="Chưa có danh mục" description="Hãy tạo danh mục đầu tiên cho tin tức." icon="folder" />
         @else<div class="table-responsive"><table class="data-table category-table"><thead><tr><th></th><th>Thứ tự</th><th>Tiêu đề ({{ strtoupper($locale) }})</th><th>Danh mục cha</th><th>Số tin</th><th>Bản dịch</th><th>Trạng thái</th><th></th></tr></thead><tbody>
@@ -28,7 +28,7 @@
         </tbody></table></div><x-ui.pagination :paginator="$categories" :per-page-options="$perPageOptions" />@endif
     </section>
 
-    @if($pendingDeleteId)
+    @if($pendingDeleteId || $pendingBulkDelete)
         <div
             class="modal-backdrop contact-delete-modal"
             wire:key="news-category-delete-confirmation"
@@ -40,8 +40,16 @@
             <section class="modal-card contact-delete-card" role="alertdialog" aria-modal="true" aria-labelledby="news-category-delete-title" aria-describedby="news-category-delete-description">
                 <div class="modal-icon contact-delete-icon"><x-ui.icon name="alert" size="30" /></div>
                 <h2 id="news-category-delete-title">Xóa danh mục tin tức?</h2>
-                <p id="news-category-delete-description">Bạn sắp chuyển danh mục <strong>“{{ $pendingDeleteName }}”</strong> vào thùng rác.</p>
-                @if($pendingDeletePostsCount > 0)
+                <p id="news-category-delete-description">
+                    @if($pendingBulkDelete)
+                        Bạn sắp chuyển <strong>{{ count($selected) }} danh mục đã chọn</strong> vào thùng rác.
+                    @else
+                        Bạn sắp chuyển danh mục <strong>“{{ $pendingDeleteName }}”</strong> vào thùng rác.
+                    @endif
+                </p>
+                @if($pendingBulkDelete)
+                    <p class="contact-delete-warning">Tin tức thuộc các danh mục này sẽ được chuyển sang trạng thái <strong>Chưa phân loại</strong>.</p>
+                @elseif($pendingDeletePostsCount > 0)
                     <p class="contact-delete-warning">Danh mục đang chứa <strong>{{ $pendingDeletePostsCount }} tin tức</strong>. Các bài viết này sẽ được chuyển sang trạng thái <strong>Chưa phân loại</strong>.</p>
                 @else
                     <p class="contact-delete-warning">Danh mục sẽ không còn xuất hiện trong danh sách quản lý.</p>

@@ -164,8 +164,16 @@ class Users extends AdminComponent
     {
         Gate::authorize('users.delete');
         $user = User::with('roles')->findOrFail($id);
-        abort_if($user->is(auth()->user()), 422, 'Không thể tự xóa tài khoản đang sử dụng.');
-        abort_if($user->hasRole('super-admin'), 422, 'Không thể xóa quản trị viên cao nhất.');
+        if ($user->is(auth()->user())) {
+            $this->toast('Bạn không thể tự xóa tài khoản đang sử dụng.', 'error');
+
+            return;
+        }
+        if ($user->hasRole('super-admin')) {
+            $this->toast('Không thể xóa tài khoản Quản trị cao nhất.', 'error');
+
+            return;
+        }
         $this->pendingDeleteId = $user->id;
         $this->pendingDeleteName = $user->name;
     }
@@ -173,8 +181,19 @@ class Users extends AdminComponent
     public function confirmDelete(): void
     {
         Gate::authorize('users.delete');
-        $user = User::with('roles')->findOrFail($this->pendingDeleteId);
-        abort_if($user->is(auth()->user()) || $user->hasRole('super-admin'), 422);
+        $user = $this->pendingDeleteId ? User::with('roles')->find($this->pendingDeleteId) : null;
+        if (! $user) {
+            $this->cancelDelete();
+            $this->toast('Không tìm thấy quản trị viên cần xóa. Vui lòng thử lại.', 'error');
+
+            return;
+        }
+        if ($user->is(auth()->user()) || $user->hasRole('super-admin')) {
+            $this->cancelDelete();
+            $this->toast('Không thể xóa tài khoản đang sử dụng hoặc tài khoản Quản trị cao nhất.', 'error');
+
+            return;
+        }
         $user->delete();
         $this->cancelDelete();
         $this->toast('Đã xóa quản trị viên.');

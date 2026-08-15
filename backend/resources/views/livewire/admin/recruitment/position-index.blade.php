@@ -22,7 +22,7 @@
                 <button class="button button-secondary" wire:click="bulk('hide')" @disabled(!$selected)>Ẩn</button>
                 <button class="button button-success" wire:click="bulk('show')" @disabled(!$selected)>Hiện</button>
                 <button class="button button-secondary" wire:click="bulk('reorder')" @disabled(!$selected)>Cập nhật thứ tự</button>
-                <button class="button button-danger" wire:click="bulk('delete')" wire:confirm="Xóa các vị trí đã chọn?" @disabled(!$selected)>Xóa</button>
+                <button class="button button-danger" type="button" wire:click="requestBulkDelete" @disabled(!$selected)>Xóa</button>
             </div>
             @if($selected)<span>Đã chọn <strong>{{ count($selected) }}</strong> vị trí</span>@endif
         </div>
@@ -60,7 +60,7 @@
                                     <a class="icon-button is-dark" href="{{ route('admin.recruitment.positions.preview', ['position' => $item, 'locale' => $locale]) }}" target="_blank" title="Xem trước"><x-ui.icon name="eye" size="17" /></a>
                                     <button @class(['icon-button', 'is-success' => !$item->is_active, 'is-dark' => $item->is_active]) wire:click="toggleVisibility({{ $item->id }})" title="{{ $item->is_active ? 'Ẩn tuyển dụng' : 'Hiện tuyển dụng' }}"><x-ui.icon name="{{ $item->is_active ? 'eye-off' : 'eye' }}" size="17" /></button>
                                     <button class="icon-button" wire:click="duplicate({{ $item->id }})" title="Nhân bản"><x-ui.icon name="copy" size="17" /></button>
-                                    <button class="icon-button is-danger" wire:click="delete({{ $item->id }})" wire:confirm="Xóa vị trí này?" title="Xóa"><x-ui.icon name="trash" size="17" /></button>
+                                    <button class="icon-button is-danger" type="button" wire:click="requestDelete({{ $item->id }})" title="Xóa" aria-label="Xóa vị trí {{ $item->getTranslation('title', $locale, false) }}"><x-ui.icon name="trash" size="17" /></button>
                                 </div></td>
                             </tr>
                         @endforeach
@@ -70,4 +70,14 @@
             <x-ui.pagination :paginator="$positions" :per-page-options="$perPageOptions" />
         @endif
     </section>
+
+    @if($pendingDeleteId || $pendingBulkDelete)
+        <x-ui.delete-confirmation-modal wire-key="recruitment-position-delete-confirmation" title="Xóa vị trí tuyển dụng?" confirm-label="Có, xóa vị trí" warning="Vị trí sẽ không còn xuất hiện trên trang tuyển dụng.">
+            @if($pendingBulkDelete)
+                Bạn sắp chuyển <strong>{{ count($selected) }} vị trí đã chọn</strong> vào thùng rác.
+            @else
+                Bạn sắp chuyển vị trí <strong>“{{ $pendingDeleteName }}”</strong> vào thùng rác.
+            @endif
+        </x-ui.delete-confirmation-modal>
+    @endif
 </div>

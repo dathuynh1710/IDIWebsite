@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Livewire\Admin\Access\ActivityLogs;
+use App\Livewire\Admin\Access\Permissions as PermissionManager;
 use App\Livewire\Admin\Access\Roles as RoleManager;
 use App\Livewire\Admin\Access\Users as UserManager;
 use App\Models\Permission;
@@ -127,6 +128,27 @@ class AccessControlManagementTest extends TestCase
             ->assertSee('Xóa')
             ->assertDontSee('Toàn quyền')
             ->assertDontSee('>Khác<', false);
+    }
+
+    public function test_protected_access_records_show_notifications_instead_of_http_exceptions(): void
+    {
+        $admin = $this->adminWith(['users.view', 'users.delete', 'permissions.view', 'permissions.delete']);
+        $systemPermission = Permission::create([
+            'name' => 'system.protected',
+            'display_name' => 'Quyền hệ thống',
+            'guard_name' => 'web',
+            'is_system' => true,
+        ]);
+
+        Livewire::actingAs($admin)->test(UserManager::class)
+            ->call('requestDelete', $admin->id)
+            ->assertSet('pendingDeleteId', null)
+            ->assertDispatched('toast', type: 'error', message: 'Bạn không thể tự xóa tài khoản đang sử dụng.');
+
+        Livewire::actingAs($admin)->test(PermissionManager::class)
+            ->call('requestDelete', $systemPermission->id)
+            ->assertSet('pendingDeleteId', null)
+            ->assertDispatched('toast', type: 'error', message: 'Không thể xóa quyền hệ thống hoặc quyền đang được sử dụng.');
     }
 
     public function test_activity_log_can_be_filtered_by_admin_action_module_and_date(): void

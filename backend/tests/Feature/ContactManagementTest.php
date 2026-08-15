@@ -320,6 +320,29 @@ class ContactManagementTest extends TestCase
         $this->assertSame(12, $office->fresh()->sort_order);
     }
 
+    public function test_office_location_delete_waits_for_custom_modal_confirmation(): void
+    {
+        $office = OfficeLocation::create([
+            'code' => 'DELETE_MODAL',
+            'name' => ['vi' => 'Văn phòng cần xóa'],
+            'address' => ['vi' => 'Đồng Tháp'],
+            'map_type' => 'none',
+            'is_active' => true,
+        ]);
+
+        Livewire::actingAs($this->contactManager())->test(Settings::class)
+            ->call('requestDelete', $office->id)
+            ->assertSet('pendingDeleteId', $office->id)
+            ->assertSee('Xóa địa chỉ liên hệ?')
+            ->call('cancelDelete');
+        $this->assertNotSoftDeleted($office);
+
+        Livewire::actingAs($this->contactManager())->test(Settings::class)
+            ->call('requestDelete', $office->id)
+            ->call('confirmDelete');
+        $this->assertSoftDeleted($office);
+    }
+
     public function test_contact_list_can_filter_by_language(): void
     {
         $user = $this->contactManager();

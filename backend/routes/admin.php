@@ -26,6 +26,7 @@ use App\Livewire\Admin\News\Featured as NewsFeatured;
 use App\Livewire\Admin\News\PostForm as NewsPostForm;
 use App\Livewire\Admin\News\PostIndex as NewsPostIndex;
 use App\Livewire\Admin\News\Settings as NewsSettings;
+use App\Livewire\Admin\Profile;
 use App\Livewire\Admin\ProductCategories\Form as ProductCategoryForm;
 use App\Livewire\Admin\ProductCategories\Index as ProductCategoryIndex;
 use App\Livewire\Admin\Products\Form as ProductForm;
@@ -44,6 +45,7 @@ Route::middleware('auth')
     ->name('admin.')
     ->group(function (): void {
         Route::get('/', Dashboard::class)->name('dashboard');
+        Route::get('profile', Profile::class)->name('profile');
         Route::get('access/users', AccessUsers::class)->middleware('can:users.view')->name('access.users');
         Route::get('access/roles', AccessRoles::class)->middleware('can:roles.view')->name('access.roles');
         Route::get('access/permissions', AccessPermissions::class)->middleware('can:permissions.view')->name('access.permissions');

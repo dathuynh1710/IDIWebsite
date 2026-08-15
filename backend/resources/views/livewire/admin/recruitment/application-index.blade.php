@@ -18,7 +18,7 @@
         <div class="application-reference-toolbar">
             <div class="category-toolbar-actions">
                 <button class="button button-success" wire:click="updateSelected" @disabled(!$selected)><x-ui.icon name="save" size="15" /> Cập nhật</button>
-                <button class="button button-danger" wire:click="bulkDelete" wire:confirm="Xóa các hồ sơ đã chọn?" @disabled(!$selected)><x-ui.icon name="trash" size="15" /> Xóa</button>
+                <button class="button button-danger" type="button" wire:click="requestBulkDelete" @disabled(!$selected)><x-ui.icon name="trash" size="15" /> Xóa</button>
             </div>
             @if($selected)<span>Đã chọn <strong>{{ count($selected) }}</strong> hồ sơ</span>@endif
         </div>
@@ -72,7 +72,7 @@
                                     </div>
                                 </td>
                                 <td>
-                                    <div class="row-actions"><button class="icon-button is-danger application-delete-button" wire:click="delete({{ $item->id }})" wire:confirm="Xóa hồ sơ này?" title="Xóa hồ sơ"><x-ui.icon name="trash" size="18" /></button></div>
+                                    <div class="row-actions"><button class="icon-button is-danger application-delete-button" type="button" wire:click="requestDelete({{ $item->id }})" title="Xóa hồ sơ" aria-label="Xóa hồ sơ của {{ $item->full_name }}"><x-ui.icon name="trash" size="18" /></button></div>
                                 </td>
                             </tr>
                         @endforeach
@@ -94,8 +94,18 @@
                     <div class="contact-message-box"><span>Nội dung ứng tuyển</span><p>{{ $viewingApplication->cover_letter ?: 'Ứng viên không gửi nội dung giới thiệu.' }}</p></div>
                     <div class="form-stack"><x-form.select name="detailStatus" label="Trạng thái xử lý" :options="$statuses" wire:model="detailStatus" /><x-form.textarea name="internalNote" label="Ghi chú nội bộ" wire:model="internalNote" rows="6" maxlength="10000" /></div>
                 </div>
-                <footer class="contact-detail-footer"><button class="button button-danger" wire:click="delete({{ $viewingApplication->id }})" wire:confirm="Xóa hồ sơ này?"><x-ui.icon name="trash" size="16" /> Xóa</button><div><button class="button button-secondary" wire:click="closeApplication">Đóng</button><button class="button button-primary" wire:click="saveReview"><x-ui.icon name="save" size="16" /> Lưu xử lý</button></div></footer>
+                <footer class="contact-detail-footer"><button class="button button-danger" type="button" wire:click="requestDelete({{ $viewingApplication->id }})"><x-ui.icon name="trash" size="16" /> Xóa</button><div><button class="button button-secondary" wire:click="closeApplication">Đóng</button><button class="button button-primary" wire:click="saveReview"><x-ui.icon name="save" size="16" /> Lưu xử lý</button></div></footer>
             </aside>
         </div>
+    @endif
+
+    @if($pendingDeleteId || $pendingBulkDelete)
+        <x-ui.delete-confirmation-modal wire-key="recruitment-application-delete-confirmation" title="Xóa hồ sơ ứng tuyển?" confirm-label="Có, xóa hồ sơ" warning="Hồ sơ sẽ bị xóa khỏi danh sách quản lý.">
+            @if($pendingBulkDelete)
+                Bạn sắp xóa <strong>{{ count($selected) }} hồ sơ đã chọn</strong>.
+            @else
+                Bạn sắp xóa hồ sơ của <strong>“{{ $pendingDeleteName }}”</strong>.
+            @endif
+        </x-ui.delete-confirmation-modal>
     @endif
 </div>

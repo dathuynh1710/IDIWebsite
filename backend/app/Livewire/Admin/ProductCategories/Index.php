@@ -30,6 +30,12 @@ class Index extends AdminComponent
 
     public array $sortOrders = [];
 
+    public ?int $pendingDeleteId = null;
+
+    public string $pendingDeleteName = '';
+
+    public bool $pendingBulkDelete = false;
+
     public function mount(): void
     {
         Gate::authorize('products.view');
@@ -78,6 +84,51 @@ class Index extends AdminComponent
         $this->toast('Đã chuyển danh mục vào thùng rác. Sản phẩm liên quan không bị xóa.');
     }
 
+    public function requestDelete(int $categoryId): void
+    {
+        Gate::authorize('products.delete');
+        $category = ProductCategory::findOrFail($categoryId);
+        $this->pendingDeleteId = $category->id;
+        $this->pendingDeleteName = $category->getTranslation('name', 'vi', false) ?: '#'.$category->id;
+        $this->pendingBulkDelete = false;
+    }
+
+    public function requestBulkDelete(): void
+    {
+        Gate::authorize('products.delete');
+        $this->validate(['selected' => ['required', 'array', 'min:1'], 'selected.*' => ['integer', 'distinct', 'exists:product_categories,id']]);
+        $this->pendingDeleteId = null;
+        $this->pendingDeleteName = '';
+        $this->pendingBulkDelete = true;
+    }
+
+    public function cancelDelete(): void
+    {
+        $this->reset('pendingDeleteId', 'pendingDeleteName', 'pendingBulkDelete');
+    }
+
+    public function confirmDelete(): void
+    {
+        Gate::authorize('products.delete');
+        if ($this->pendingBulkDelete) {
+            $this->bulk('delete');
+            $this->cancelDelete();
+
+            return;
+        }
+
+        if (! $this->pendingDeleteId) {
+            $this->toast('Không tìm thấy danh mục cần xóa. Vui lòng thử lại.', 'error');
+            $this->cancelDelete();
+
+            return;
+        }
+        $categoryId = $this->pendingDeleteId;
+        $this->delete($categoryId);
+        $this->selected = array_values(array_diff($this->selected, [$categoryId, (string) $categoryId]));
+        $this->cancelDelete();
+    }
+
     public function restore(int $categoryId): void
     {
         Gate::authorize('products.delete');
@@ -94,7 +145,11 @@ class Index extends AdminComponent
         ], ['selected.required' => 'Vui lòng chọn ít nhất một danh mục.']);
 
         Gate::authorize($action === 'delete' ? 'products.delete' : 'products.update');
-        abort_unless(in_array($action, ['show', 'hide', 'reorder', 'delete'], true), 422);
+        if (! in_array($action, ['show', 'hide', 'reorder', 'delete'], true)) {
+            $this->toast('Thao tác với danh mục sản phẩm không hợp lệ.', 'error');
+
+            return;
+        }
 
         DB::transaction(function () use ($action): void {
             if (in_array($action, ['show', 'hide'], true)) {

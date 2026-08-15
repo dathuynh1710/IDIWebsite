@@ -37,6 +37,9 @@ class DocumentIndex extends AdminComponent
     #[Url(except: 'vi')]
     public string $locale = 'vi';
 
+    #[Url(as: 'per_page', except: 15, history: true)]
+    public int $perPage = 15;
+
     public array $selected = [];
 
     public array $sortOrders = [];
@@ -50,6 +53,15 @@ class DocumentIndex extends AdminComponent
     public function mount(): void
     {
         Gate::authorize('investors.view');
+
+        if (! request()->has('per_page')) {
+            $configuredPerPage = (int) (DB::table('module_settings')
+                ->join('modules', 'modules.id', '=', 'module_settings.module_id')
+                ->where('modules.code', 'investors')
+                ->where('setting_key', 'items_per_page')
+                ->value('setting_value') ?: 15);
+            $this->perPage = max(5, min(100, $configuredPerPage));
+        }
     }
 
     public function updated($property): void
@@ -58,6 +70,13 @@ class DocumentIndex extends AdminComponent
             $this->resetPage();
             $this->selected = [];
         }
+    }
+
+    public function updatedPerPage($value): void
+    {
+        $this->perPage = max(5, min(100, (int) $value));
+        $this->selected = [];
+        $this->resetPage();
     }
 
     public function toggleVisibility(int $id): void
@@ -116,7 +135,12 @@ class DocumentIndex extends AdminComponent
             return;
         }
 
-        abort_unless($this->pendingDeleteId, 422);
+        if (! $this->pendingDeleteId) {
+            $this->toast('Không tìm thấy tài liệu QHCĐ cần xóa. Vui lòng thử lại.', 'error');
+            $this->cancelDelete();
+
+            return;
+        }
         $documentId = $this->pendingDeleteId;
         $this->delete($documentId);
         $this->selected = array_values(array_diff($this->selected, [$documentId, (string) $documentId]));
@@ -134,7 +158,11 @@ class DocumentIndex extends AdminComponent
     {
         $this->validate(['selected' => ['required', 'array', 'min:1'], 'sortOrders.*' => ['nullable', 'integer', 'min:0']]);
         Gate::authorize($action === 'delete' ? 'investors.delete' : 'investors.update');
-        abort_unless(in_array($action, ['show', 'hide', 'reorder', 'delete'], true), 422);
+        if (! in_array($action, ['show', 'hide', 'reorder', 'delete'], true)) {
+            $this->toast('Thao tác với tài liệu QHCĐ không hợp lệ.', 'error');
+
+            return;
+        }
         foreach (InvestorDocument::whereKey($this->selected)->get() as $document) {
             if ($action === 'delete') {
                 $document->delete();
@@ -150,21 +178,20 @@ class DocumentIndex extends AdminComponent
 
     public function render()
     {
-        $perPage = (int) (DB::table('module_settings')->join('modules', 'modules.id', '=', 'module_settings.module_id')
-            ->where('modules.code', 'investors')->where('setting_key', 'items_per_page')->value('setting_value') ?: 15);
         $documents = InvestorDocument::with(['category', 'files.media'])
             ->filtered([
                 'search' => trim($this->search), 'category' => $this->category, 'year' => $this->year,
                 'active' => $this->active, 'date_from' => $this->date_from, 'date_to' => $this->date_to,
                 'locale' => $this->locale,
             ])
-            ->orderByDesc('sort_order')->orderByDesc('published_on')->latest('updated_at')->paginate($perPage);
+            ->orderByDesc('sort_order')->orderByDesc('published_on')->latest('updated_at')->paginate($this->perPage);
         foreach ($documents as $document) {
             $this->sortOrders[$document->id] ??= $document->sort_order;
         }
 
         return view('livewire.admin.investors.document-index', [
             'documents' => $documents,
+            'perPageOptions' => collect([5, 10, 15, 20, 50, 100, $this->perPage])->unique()->sort()->values()->all(),
             'categories' => DocumentCategory::orderByDesc('sort_order')->get(),
             'years' => InvestorDocument::whereNotNull('year')->distinct()->orderByDesc('year')->pluck('year', 'year')->all(),
             'breadcrumbs' => [['label' => 'Bảng điều khiển', 'route' => 'admin.dashboard'], ['label' => 'Quản lý quan hệ cổ đông']],

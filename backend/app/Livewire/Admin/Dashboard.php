@@ -71,7 +71,6 @@ class Dashboard extends Component
                 ? Activity::with('causer')->where('log_name', 'admin')->latest()->limit(5)->get()
                 : collect(),
             'quickActions' => $this->quickActions($user),
-            'breadcrumbs' => [['label' => 'Bảng điều khiển']],
         ]);
     }
 

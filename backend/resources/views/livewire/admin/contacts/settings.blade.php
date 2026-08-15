@@ -52,7 +52,7 @@
                                 <td><div class="row-actions">
                                     <button class="icon-button" type="button" wire:click="editLocation({{ $location->id }})" title="Xem và chỉnh sửa"><x-ui.icon name="edit" size="18" /></button>
                                     <button class="icon-button" type="button" wire:click="toggleLocation({{ $location->id }})" title="{{ $location->is_active ? 'Ẩn' : 'Hiện' }}"><x-ui.icon :name="$location->is_active ? 'eye-off' : 'eye'" size="18" /></button>
-                                    <button class="icon-button is-danger" type="button" wire:click="deleteLocation({{ $location->id }})" wire:confirm="Chuyển địa chỉ này vào thùng rác?" title="Xóa"><x-ui.icon name="trash" size="18" /></button>
+                                    <button class="icon-button is-danger" type="button" wire:click="requestDelete({{ $location->id }})" title="Xóa" aria-label="Xóa địa chỉ {{ $location->getTranslation('name', 'vi', false) }}"><x-ui.icon name="trash" size="18" /></button>
                                 </div></td>
                             </tr>
                         @endforeach
@@ -155,5 +155,11 @@
                 <footer class="contact-detail-footer"><button class="button button-secondary" type="button" wire:click="closeLocationForm">Hủy</button><x-ui.button type="submit" icon="save">Lưu địa chỉ</x-ui.button></footer>
             </form>
         </div>
+    @endif
+
+    @if($pendingDeleteId)
+        <x-ui.delete-confirmation-modal wire-key="contact-location-delete-confirmation" title="Xóa địa chỉ liên hệ?" confirm-label="Có, xóa địa chỉ" warning="Địa chỉ sẽ không còn xuất hiện trên website.">
+            Bạn sắp chuyển địa chỉ <strong>“{{ $pendingDeleteName }}”</strong> vào thùng rác.
+        </x-ui.delete-confirmation-modal>
     @endif
 </div>

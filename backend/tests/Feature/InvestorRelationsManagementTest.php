@@ -37,6 +37,16 @@ class InvestorRelationsManagementTest extends TestCase
         }
     }
 
+    public function test_investor_settings_header_only_displays_the_heading(): void
+    {
+        $this->actingAs($this->editor())
+            ->get('/admin/investors/settings')
+            ->assertOk()
+            ->assertSee('Cấu hình quan hệ cổ đông')
+            ->assertDontSee('Thiết lập nội dung giới thiệu, SEO và cách hiển thị thư viện tài liệu.')
+            ->assertDontSee('class="breadcrumb"', false);
+    }
+
     public function test_category_and_document_are_saved_in_three_languages(): void
     {
         Storage::fake('public');
@@ -146,6 +156,31 @@ class InvestorRelationsManagementTest extends TestCase
         $this->assertSoftDeleted($document);
     }
 
+    public function test_document_list_has_configurable_pagination(): void
+    {
+        $category = $this->category();
+
+        foreach (range(1, 12) as $index) {
+            InvestorDocument::create([
+                'document_category_id' => $category->id,
+                'title' => ['vi' => "Tài liệu QHCĐ {$index}"],
+                'year' => 2026,
+                'sort_order' => $index,
+                'is_active' => true,
+            ]);
+        }
+
+        Livewire::actingAs($this->editor())->test(DocumentIndex::class)
+            ->assertSet('perPage', 15)
+            ->assertSeeHtml('wire:model.live="perPage"')
+            ->assertViewHas('documents', fn ($documents): bool => $documents->total() === 12 && $documents->count() === 12)
+            ->set('perPage', 5)
+            ->assertSet('perPage', 5)
+            ->assertViewHas('documents', fn ($documents): bool => $documents->total() === 12 && $documents->count() === 5)
+            ->call('nextPage')
+            ->assertSet('paginators.page', 2);
+    }
+
     public function test_category_list_displays_created_and_updated_times(): void
     {
         $user = $this->editor();
@@ -156,6 +191,64 @@ class InvestorRelationsManagementTest extends TestCase
             ->assertSee($category->updated_at->format('H:i - d/m/Y'))
             ->assertDontSee('Tạo:')
             ->assertDontSee('Sửa:');
+    }
+
+    public function test_category_list_has_configurable_pagination(): void
+    {
+        foreach (range(1, 16) as $index) {
+            DocumentCategory::create([
+                'name' => ['vi' => "Danh mục QHCĐ {$index}"],
+                'slug' => ['vi' => "danh-muc-qhcd-{$index}"],
+                'sort_order' => $index,
+                'is_active' => true,
+            ]);
+        }
+
+        Livewire::actingAs($this->editor())->test(CategoryIndex::class)
+            ->assertSet('perPage', 15)
+            ->assertSeeHtml('wire:model.live="perPage"')
+            ->assertViewHas('categories', fn ($categories): bool => $categories->total() === 16 && $categories->count() === 15)
+            ->set('selected', [1])
+            ->set('perPage', 5)
+            ->assertSet('selected', [])
+            ->assertViewHas('categories', fn ($categories): bool => $categories->total() === 16 && $categories->count() === 5)
+            ->call('nextPage')
+            ->assertSet('paginators.page', 2);
+    }
+
+    public function test_investor_category_delete_waits_for_custom_modal_confirmation(): void
+    {
+        $category = $this->category();
+
+        Livewire::actingAs($this->editor())->test(CategoryIndex::class)
+            ->call('requestDelete', $category->id)
+            ->assertSet('pendingDeleteId', $category->id)
+            ->assertSee('Xóa danh mục cổ đông?')
+            ->call('cancelDelete');
+        $this->assertNotSoftDeleted($category);
+
+        Livewire::actingAs($this->editor())->test(CategoryIndex::class)
+            ->call('requestDelete', $category->id)
+            ->call('confirmDelete');
+        $this->assertSoftDeleted($category);
+    }
+
+    public function test_investor_category_with_content_shows_error_toast_instead_of_http_exception(): void
+    {
+        $category = $this->category();
+        $this->document($category);
+
+        Livewire::actingAs($this->editor())->test(CategoryIndex::class)
+            ->call('requestDelete', $category->id)
+            ->assertSet('pendingDeleteId', null)
+            ->assertDispatched(
+                'toast',
+                type: 'error',
+                message: 'Không thể xóa danh mục vì vẫn còn danh mục con hoặc tài liệu.'
+            )
+            ->assertHasNoErrors();
+
+        $this->assertNotSoftDeleted($category);
     }
 
     private function editor(): User

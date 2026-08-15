@@ -44,6 +44,12 @@ class PositionIndex extends AdminComponent
 
     public array $sortOrders = [];
 
+    public ?int $pendingDeleteId = null;
+
+    public string $pendingDeleteName = '';
+
+    public bool $pendingBulkDelete = false;
+
     public function mount(): void
     {
         Gate::authorize('recruitment.view');
@@ -127,11 +133,62 @@ class PositionIndex extends AdminComponent
         $this->toast('Đã chuyển vị trí tuyển dụng vào thùng rác.');
     }
 
+    public function requestDelete(int $id): void
+    {
+        Gate::authorize('recruitment.delete');
+        $position = JobPosition::findOrFail($id);
+        $this->pendingDeleteId = $position->id;
+        $this->pendingDeleteName = $position->getTranslation('title', $this->locale, false)
+            ?: $position->getTranslation('title', 'vi', false)
+            ?: '#'.$position->id;
+        $this->pendingBulkDelete = false;
+    }
+
+    public function requestBulkDelete(): void
+    {
+        Gate::authorize('recruitment.delete');
+        $this->validate(['selected' => ['required', 'array', 'min:1'], 'selected.*' => ['integer', 'distinct', 'exists:job_positions,id']]);
+        $this->pendingDeleteId = null;
+        $this->pendingDeleteName = '';
+        $this->pendingBulkDelete = true;
+    }
+
+    public function cancelDelete(): void
+    {
+        $this->reset('pendingDeleteId', 'pendingDeleteName', 'pendingBulkDelete');
+    }
+
+    public function confirmDelete(): void
+    {
+        Gate::authorize('recruitment.delete');
+        if ($this->pendingBulkDelete) {
+            $this->bulk('delete');
+            $this->cancelDelete();
+
+            return;
+        }
+
+        if (! $this->pendingDeleteId) {
+            $this->toast('Không tìm thấy vị trí tuyển dụng cần xóa. Vui lòng thử lại.', 'error');
+            $this->cancelDelete();
+
+            return;
+        }
+        $positionId = $this->pendingDeleteId;
+        $this->delete($positionId);
+        $this->selected = array_values(array_diff($this->selected, [$positionId, (string) $positionId]));
+        $this->cancelDelete();
+    }
+
     public function bulk(string $action): void
     {
         $this->validate(['selected' => ['required', 'array', 'min:1'], 'sortOrders.*' => ['nullable', 'integer', 'min:0']]);
         Gate::authorize($action === 'delete' ? 'recruitment.delete' : 'recruitment.update');
-        abort_unless(in_array($action, ['show', 'hide', 'reorder', 'delete'], true), 422);
+        if (! in_array($action, ['show', 'hide', 'reorder', 'delete'], true)) {
+            $this->toast('Thao tác với vị trí tuyển dụng không hợp lệ.', 'error');
+
+            return;
+        }
         foreach (JobPosition::whereKey($this->selected)->get() as $position) {
             if ($action === 'delete') {
                 $position->delete();

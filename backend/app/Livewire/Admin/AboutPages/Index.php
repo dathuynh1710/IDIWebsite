@@ -151,7 +151,12 @@ class Index extends AdminComponent
             return;
         }
 
-        abort_unless($this->pendingDeleteId, 422);
+        if (! $this->pendingDeleteId) {
+            $this->toast('Không tìm thấy nội dung giới thiệu cần xóa. Vui lòng thử lại.', 'error');
+            $this->cancelDelete();
+
+            return;
+        }
         $pageId = $this->pendingDeleteId;
         $this->delete($pageId);
         $this->selected = array_values(array_diff($this->selected, [$pageId, (string) $pageId]));
@@ -182,7 +187,11 @@ class Index extends AdminComponent
             'sortOrders.*' => ['nullable', 'integer', 'min:0', 'max:999999'],
         ], ['selected.required' => 'Vui lòng chọn ít nhất một nội dung.']);
         Gate::authorize($action === 'delete' ? 'pages.delete' : 'pages.update');
-        abort_unless(in_array($action, ['show', 'hide', 'reorder', 'delete'], true), 422);
+        if (! in_array($action, ['show', 'hide', 'reorder', 'delete'], true)) {
+            $this->toast('Thao tác với nội dung giới thiệu không hợp lệ.', 'error');
+
+            return;
+        }
 
         $pages = Page::query()->about()->whereKey($this->selected)->get();
         DB::transaction(function () use ($action, $pages): void {

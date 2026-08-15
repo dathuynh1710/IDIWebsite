@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Livewire\Admin\Recruitment\ApplicationIndex;
 use App\Livewire\Admin\Recruitment\PositionForm;
+use App\Livewire\Admin\Recruitment\PositionIndex;
 use App\Livewire\Admin\Recruitment\Settings as RecruitmentSettings;
 use App\Models\JobApplication;
 use App\Models\JobPosition;
@@ -123,6 +124,31 @@ class RecruitmentManagementTest extends TestCase
             ->assertHasNoErrors();
 
         $this->assertSame('new', $application->fresh()->status->value);
+    }
+
+    public function test_recruitment_deletes_use_custom_confirmation_modals(): void
+    {
+        $user = $this->manager();
+        $position = $this->position();
+        $application = JobApplication::create([
+            'job_position_id' => $position->id,
+            'full_name' => 'Ứng viên chờ xác nhận',
+            'email' => 'confirm@example.com',
+        ]);
+
+        Livewire::actingAs($user)->test(PositionIndex::class)
+            ->call('requestDelete', $position->id)
+            ->assertSet('pendingDeleteId', $position->id)
+            ->assertSee('Xóa vị trí tuyển dụng?')
+            ->call('cancelDelete');
+        $this->assertNotSoftDeleted($position);
+
+        Livewire::actingAs($user)->test(ApplicationIndex::class)
+            ->call('requestDelete', $application->id)
+            ->assertSet('pendingDeleteId', $application->id)
+            ->assertSee('Xóa hồ sơ ứng tuyển?')
+            ->call('confirmDelete');
+        $this->assertDatabaseMissing('job_applications', ['id' => $application->id]);
     }
 
     public function test_recruitment_settings_are_saved_and_published_to_the_public_api(): void

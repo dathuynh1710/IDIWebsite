@@ -41,6 +41,12 @@ class Index extends AdminComponent
 
     public array $sortOrders = [];
 
+    public ?int $pendingDeleteId = null;
+
+    public string $pendingDeleteName = '';
+
+    public bool $pendingBulkDelete = false;
+
     public function mount(): void
     {
         Gate::authorize('products.view');
@@ -109,7 +115,11 @@ class Index extends AdminComponent
         ], ['selected.required' => 'Vui lòng chọn ít nhất một sản phẩm.']);
 
         Gate::authorize($action === 'delete' ? 'products.delete' : 'products.update');
-        abort_unless(in_array($action, ['show', 'hide', 'delete'], true), 422);
+        if (! in_array($action, ['show', 'hide', 'delete'], true)) {
+            $this->toast('Thao tác với sản phẩm không hợp lệ.', 'error');
+
+            return;
+        }
 
         DB::transaction(function () use ($action): void {
             if (in_array($action, ['show', 'hide'], true)) {
@@ -136,6 +146,51 @@ class Index extends AdminComponent
         Gate::authorize('products.delete');
         Product::findOrFail($productId)->delete();
         $this->toast('Đã chuyển sản phẩm vào thùng rác.');
+    }
+
+    public function requestDelete(int $productId): void
+    {
+        Gate::authorize('products.delete');
+        $product = Product::findOrFail($productId);
+        $this->pendingDeleteId = $product->id;
+        $this->pendingDeleteName = $product->getTranslation('title', 'vi', false) ?: $product->sku ?: '#'.$product->id;
+        $this->pendingBulkDelete = false;
+    }
+
+    public function requestBulkDelete(): void
+    {
+        Gate::authorize('products.delete');
+        $this->validate(['selected' => ['required', 'array', 'min:1'], 'selected.*' => ['integer', 'distinct', 'exists:products,id']]);
+        $this->pendingDeleteId = null;
+        $this->pendingDeleteName = '';
+        $this->pendingBulkDelete = true;
+    }
+
+    public function cancelDelete(): void
+    {
+        $this->reset('pendingDeleteId', 'pendingDeleteName', 'pendingBulkDelete');
+    }
+
+    public function confirmDelete(): void
+    {
+        Gate::authorize('products.delete');
+        if ($this->pendingBulkDelete) {
+            $this->bulk('delete');
+            $this->cancelDelete();
+
+            return;
+        }
+
+        if (! $this->pendingDeleteId) {
+            $this->toast('Không tìm thấy sản phẩm cần xóa. Vui lòng thử lại.', 'error');
+            $this->cancelDelete();
+
+            return;
+        }
+        $productId = $this->pendingDeleteId;
+        $this->delete($productId);
+        $this->selected = array_values(array_diff($this->selected, [$productId, (string) $productId]));
+        $this->cancelDelete();
     }
 
     public function duplicate(int $productId): void

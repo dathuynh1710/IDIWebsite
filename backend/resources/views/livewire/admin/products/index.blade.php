@@ -30,7 +30,7 @@
                         <button class="button button-secondary" type="button" wire:click="saveSortOrders"><x-ui.icon name="save" size="17" /> Cập nhật thứ tự</button>
                     @endcan
                     @can('products.delete')
-                        <button class="button button-danger" type="button" wire:click="bulk('delete')" wire:confirm="Chuyển các sản phẩm đã chọn vào thùng rác?"><x-ui.icon name="trash" size="17" /> Xóa</button>
+                        <button class="button button-danger" type="button" wire:click="requestBulkDelete"><x-ui.icon name="trash" size="17" /> Xóa</button>
                     @endcan
                 </div>
                 <span class="category-selection-count">{{ count($selected) ? 'Đã chọn '.count($selected).' sản phẩm' : 'Chưa chọn sản phẩm' }}</span>
@@ -84,7 +84,7 @@
                                     @can('products.update')<a class="icon-button" href="{{ route('admin.products.edit', $product) }}" wire:navigate title="Sửa"><x-ui.icon name="edit" size="18" /></a>@endcan
                                     @can('products.view')<a class="icon-button" href="{{ route('admin.products.preview', $product) }}" target="_blank" title="Xem trước"><x-ui.icon name="eye" size="18" /></a>@endcan
                                     @can('products.create')<button class="icon-button" type="button" wire:click="duplicate({{ $product->id }})" title="Nhân bản"><x-ui.icon name="copy" size="18" /></button>@endcan
-                                    @can('products.delete')<button class="icon-button is-danger" type="button" wire:click="delete({{ $product->id }})" wire:confirm="Chuyển sản phẩm này vào thùng rác?" title="Xóa"><x-ui.icon name="trash" size="18" /></button>@endcan
+                                    @can('products.delete')<button class="icon-button is-danger" type="button" wire:click="requestDelete({{ $product->id }})" title="Xóa" aria-label="Xóa sản phẩm {{ $product->getTranslation('title', 'vi', false) }}"><x-ui.icon name="trash" size="18" /></button>@endcan
                                 </div></td>
                             </tr>
                         @endforeach
@@ -108,5 +108,15 @@
             <x-ui.pagination :paginator="$products" :per-page-options="[10, 20, 50, 100]" />
         @endif
     </section>
+
+    @if($pendingDeleteId || $pendingBulkDelete)
+        <x-ui.delete-confirmation-modal wire-key="product-delete-confirmation" title="Xóa sản phẩm?" confirm-label="Có, xóa sản phẩm" warning="Sản phẩm sẽ không còn xuất hiện trong danh sách quản lý.">
+            @if($pendingBulkDelete)
+                Bạn sắp chuyển <strong>{{ count($selected) }} sản phẩm đã chọn</strong> vào thùng rác.
+            @else
+                Bạn sắp chuyển sản phẩm <strong>“{{ $pendingDeleteName }}”</strong> vào thùng rác.
+            @endif
+        </x-ui.delete-confirmation-modal>
+    @endif
 
 </div>

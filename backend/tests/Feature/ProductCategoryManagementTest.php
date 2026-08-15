@@ -130,6 +130,27 @@ class ProductCategoryManagementTest extends TestCase
         $this->assertNotSoftDeleted('product_categories', ['id' => $category->id]);
     }
 
+    public function test_category_delete_waits_for_custom_modal_confirmation(): void
+    {
+        $category = $this->category();
+
+        Livewire::actingAs($this->productEditor())->test(ProductCategoryIndex::class)
+            ->call('requestDelete', $category->id)
+            ->assertSet('pendingDeleteId', $category->id)
+            ->assertSee('Xóa danh mục sản phẩm?')
+            ->call('cancelDelete')
+            ->assertSet('pendingDeleteId', null);
+
+        $this->assertNotSoftDeleted($category);
+
+        Livewire::actingAs($this->productEditor())->test(ProductCategoryIndex::class)
+            ->call('requestDelete', $category->id)
+            ->call('confirmDelete')
+            ->assertSet('pendingDeleteId', null);
+
+        $this->assertSoftDeleted($category);
+    }
+
     public function test_bulk_actions_update_selected_categories_only(): void
     {
         $user = $this->productEditor();

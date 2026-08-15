@@ -39,6 +39,8 @@ class CategoryIndex extends AdminComponent
 
     public int $pendingDeletePostsCount = 0;
 
+    public bool $pendingBulkDelete = false;
+
     public function mount(): void
     {
         Gate::authorize('posts.view');
@@ -79,6 +81,17 @@ class CategoryIndex extends AdminComponent
             ?: $category->getTranslation('name', 'vi', false)
             ?: '#'.$category->id;
         $this->pendingDeletePostsCount = $category->posts_count;
+        $this->pendingBulkDelete = false;
+    }
+
+    public function requestBulkDelete(): void
+    {
+        Gate::authorize('posts.delete');
+        $this->validate(['selected' => ['required', 'array', 'min:1'], 'selected.*' => ['integer', 'distinct', 'exists:post_categories,id']]);
+        $this->pendingDeleteId = null;
+        $this->pendingDeleteName = '';
+        $this->pendingDeletePostsCount = 0;
+        $this->pendingBulkDelete = true;
     }
 
     public function cancelDelete(): void
@@ -86,12 +99,25 @@ class CategoryIndex extends AdminComponent
         $this->pendingDeleteId = null;
         $this->pendingDeleteName = '';
         $this->pendingDeletePostsCount = 0;
+        $this->pendingBulkDelete = false;
     }
 
     public function confirmDelete(): void
     {
         Gate::authorize('posts.delete');
-        abort_unless($this->pendingDeleteId, 422);
+        if ($this->pendingBulkDelete) {
+            $this->bulk('delete');
+            $this->cancelDelete();
+
+            return;
+        }
+
+        if (! $this->pendingDeleteId) {
+            $this->toast('Không tìm thấy danh mục tin tức cần xóa. Vui lòng thử lại.', 'error');
+            $this->cancelDelete();
+
+            return;
+        }
 
         $category = PostCategory::findOrFail($this->pendingDeleteId);
         $this->deleteCategorySafely($category);
@@ -103,7 +129,11 @@ class CategoryIndex extends AdminComponent
     {
         $this->validate(['selected' => ['required', 'array', 'min:1'], 'sortOrders.*' => ['nullable', 'integer', 'min:0']]);
         Gate::authorize($action === 'delete' ? 'posts.delete' : 'posts.update');
-        abort_unless(in_array($action, ['show', 'hide', 'reorder', 'delete'], true), 422);
+        if (! in_array($action, ['show', 'hide', 'reorder', 'delete'], true)) {
+            $this->toast('Thao tác với danh mục tin tức không hợp lệ.', 'error');
+
+            return;
+        }
         foreach (PostCategory::whereKey($this->selected)->get() as $category) {
             if ($action === 'delete') {
                 $this->deleteCategorySafely($category);

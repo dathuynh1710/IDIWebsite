@@ -110,7 +110,11 @@ class Permissions extends AdminComponent
     {
         Gate::authorize('permissions.delete');
         $permission = Permission::withCount('roles')->findOrFail($id);
-        abort_if($permission->is_system || $permission->roles_count > 0, 422, 'Quyền hệ thống hoặc đang được sử dụng không thể xóa.');
+        if ($permission->is_system || $permission->roles_count > 0) {
+            $this->toast('Không thể xóa quyền hệ thống hoặc quyền đang được sử dụng.', 'error');
+
+            return;
+        }
         $this->pendingDeleteId = $permission->id;
         $this->pendingDeleteName = $permission->display_name ?: $permission->name;
     }
@@ -118,8 +122,21 @@ class Permissions extends AdminComponent
     public function confirmDelete(): void
     {
         Gate::authorize('permissions.delete');
-        $permission = Permission::withCount('roles')->findOrFail($this->pendingDeleteId);
-        abort_if($permission->is_system || $permission->roles_count > 0, 422);
+        $permission = $this->pendingDeleteId
+            ? Permission::withCount('roles')->find($this->pendingDeleteId)
+            : null;
+        if (! $permission) {
+            $this->cancelDelete();
+            $this->toast('Không tìm thấy quyền hạn cần xóa. Vui lòng thử lại.', 'error');
+
+            return;
+        }
+        if ($permission->is_system || $permission->roles_count > 0) {
+            $this->cancelDelete();
+            $this->toast('Không thể xóa quyền hệ thống hoặc quyền đang được sử dụng.', 'error');
+
+            return;
+        }
         $permission->delete();
         app(PermissionRegistrar::class)->forgetCachedPermissions();
         $this->cancelDelete();

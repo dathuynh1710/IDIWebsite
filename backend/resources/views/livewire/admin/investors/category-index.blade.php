@@ -12,7 +12,7 @@
             <button class="button button-success" wire:click="bulk('show')" @disabled(!$selected)>Hiện</button>
             <button class="button button-secondary" wire:click="bulk('hide')" @disabled(!$selected)>Ẩn</button>
             <button class="button button-secondary" wire:click="bulk('reorder')" @disabled(!$selected)>Cập nhật thứ tự</button>
-            <button class="button button-danger" wire:click="bulk('delete')" wire:confirm="Xóa các danh mục đã chọn?" @disabled(!$selected)>Xóa</button>
+            <button class="button button-danger" type="button" wire:click="requestBulkDelete" @disabled(!$selected)>Xóa</button>
         </div><span>{{ $categories->total() }} danh mục</span></div>
         @if($categories->isEmpty())<x-ui.empty-state title="Chưa có danh mục" description="Hãy tạo danh mục đầu tiên cho quan hệ cổ đông." icon="folder" />
         @else<div class="table-responsive"><table class="data-table category-table"><thead><tr><th></th><th>Thứ tự</th><th>Tiêu đề ({{ strtoupper($locale) }})</th><th>Danh mục cha</th><th>Số tài liệu</th><th>Bản dịch</th><th>Trạng thái</th><th></th></tr></thead><tbody>
@@ -32,8 +32,17 @@
                 <td><span class="category-product-count">{{ $item->documents_count }}</span></td>
                 <td><div class="translation-dots">@foreach(['vi','en','zh'] as $code)<span class="{{ filled($item->getTranslation('name', $code, false)) ? 'is-complete' : '' }}">{{ strtoupper($code) }}</span>@endforeach</div></td>
                 <td><x-ui.badge :tone="$item->is_active ? 'success' : 'neutral'">{{ $item->is_active ? 'Hiện' : 'Ẩn' }}</x-ui.badge></td>
-                <td><div class="row-actions"><a class="icon-button" href="{{ route('admin.investors.categories.edit', $item) }}" wire:navigate title="Sửa"><x-ui.icon name="edit" size="18" /></a><button class="icon-button is-dark" wire:click="toggleVisibility({{ $item->id }})" title="Ẩn/hiện"><x-ui.icon :name="$item->is_active ? 'eye-off' : 'eye'" size="18" /></button><button class="icon-button is-danger" wire:click="delete({{ $item->id }})" wire:confirm="Xóa danh mục này?" title="Xóa"><x-ui.icon name="trash" size="18" /></button></div></td>
+                <td><div class="row-actions"><a class="icon-button" href="{{ route('admin.investors.categories.edit', $item) }}" wire:navigate title="Sửa"><x-ui.icon name="edit" size="18" /></a><button class="icon-button is-dark" wire:click="toggleVisibility({{ $item->id }})" title="Ẩn/hiện"><x-ui.icon :name="$item->is_active ? 'eye-off' : 'eye'" size="18" /></button><button class="icon-button is-danger" type="button" wire:click="requestDelete({{ $item->id }})" title="Xóa" aria-label="Xóa danh mục {{ $item->getTranslation('name', $locale, false) }}"><x-ui.icon name="trash" size="18" /></button></div></td>
             </tr>@endforeach
-        </tbody></table></div><x-ui.pagination :paginator="$categories" />@endif
+        </tbody></table></div><x-ui.pagination :paginator="$categories" :per-page-options="$perPageOptions" />@endif
     </section>
+    @if($pendingDeleteId || $pendingBulkDelete)
+        <x-ui.delete-confirmation-modal wire-key="investor-category-delete-confirmation" title="Xóa danh mục cổ đông?" confirm-label="Có, xóa danh mục" warning="Chỉ có thể xóa danh mục không còn danh mục con hoặc tài liệu.">
+            @if($pendingBulkDelete)
+                Bạn sắp xóa <strong>{{ count($selected) }} danh mục đã chọn</strong>.
+            @else
+                Bạn sắp xóa danh mục <strong>“{{ $pendingDeleteName }}”</strong>.
+            @endif
+        </x-ui.delete-confirmation-modal>
+    @endif
 </div>

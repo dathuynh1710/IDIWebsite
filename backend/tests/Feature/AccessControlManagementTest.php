@@ -3,7 +3,6 @@
 namespace Tests\Feature;
 
 use App\Livewire\Admin\Access\ActivityLogs;
-use App\Livewire\Admin\Access\Permissions as PermissionManager;
 use App\Livewire\Admin\Access\Roles as RoleManager;
 use App\Livewire\Admin\Access\Users as UserManager;
 use App\Models\Permission;
@@ -130,25 +129,26 @@ class AccessControlManagementTest extends TestCase
             ->assertDontSee('>Khác<', false);
     }
 
-    public function test_protected_access_records_show_notifications_instead_of_http_exceptions(): void
+    public function test_current_admin_account_cannot_be_deleted(): void
     {
-        $admin = $this->adminWith(['users.view', 'users.delete', 'permissions.view', 'permissions.delete']);
-        $systemPermission = Permission::create([
-            'name' => 'system.protected',
-            'display_name' => 'Quyền hệ thống',
-            'guard_name' => 'web',
-            'is_system' => true,
-        ]);
+        $admin = $this->adminWith(['users.view', 'users.delete']);
 
         Livewire::actingAs($admin)->test(UserManager::class)
             ->call('requestDelete', $admin->id)
             ->assertSet('pendingDeleteId', null)
             ->assertDispatched('toast', type: 'error', message: 'Bạn không thể tự xóa tài khoản đang sử dụng.');
+    }
 
-        Livewire::actingAs($admin)->test(PermissionManager::class)
-            ->call('requestDelete', $systemPermission->id)
-            ->assertSet('pendingDeleteId', null)
-            ->assertDispatched('toast', type: 'error', message: 'Không thể xóa quyền hệ thống hoặc quyền đang được sử dụng.');
+    public function test_permission_catalog_is_read_only(): void
+    {
+        $admin = $this->adminWith(['permissions.view']);
+
+        $this->actingAs($admin)->get('/admin/access/permissions')
+            ->assertOk()
+            ->assertSee('Danh mục quyền hạn')
+            ->assertDontSee('Thêm quyền')
+            ->assertDontSee('Thao tác')
+            ->assertDontSee('Chỉnh sửa');
     }
 
     public function test_activity_log_can_be_filtered_by_admin_action_module_and_date(): void

@@ -206,6 +206,7 @@ class Index extends AdminComponent
             $copy->slug = collect($product->getTranslations('slug'))->map(fn ($slug) => Str::limit($slug.'-copy-'.$suffix, 255, ''))->all();
             $copy->translation_status = ['vi' => 'draft', 'en' => 'draft', 'zh' => 'draft'];
             $copy->locale_published_at = [];
+            $copy->sort_order = ((int) Product::max('sort_order')) + 1;
             $copy->created_by = auth()->id();
             $copy->updated_by = auth()->id();
             $copy->save();
@@ -227,7 +228,7 @@ class Index extends AdminComponent
         ];
 
         $products = Product::query()->with(['category', 'featuredMedia'])
-            ->filtered($filters)->orderBy('sort_order')->latest('updated_at')->paginate($this->perPage);
+            ->filtered($filters)->orderByDesc('sort_order')->latest('updated_at')->paginate($this->perPage);
         foreach ($products as $product) {
             $this->sortOrders[$product->id] ??= $product->sort_order;
         }

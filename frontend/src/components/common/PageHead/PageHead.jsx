@@ -7,7 +7,7 @@ import { useEffect } from 'react'
  * @param {string} title       - Full page title (shown in browser tab & search results)
  * @param {string} description - Meta description for search engines (150–160 chars ideal)
  */
-export default function PageHead({ title, description }) {
+export default function PageHead({ title, description, keywords }) {
   useEffect(() => {
     if (title) {
       document.title = title
@@ -21,7 +21,19 @@ export default function PageHead({ title, description }) {
       }
       meta.setAttribute('content', description)
     }
-  }, [title, description])
+    const keywordsMeta = document.querySelector('meta[name="keywords"]')
+    if (keywords) {
+      let meta = keywordsMeta
+      if (!meta) {
+        meta = document.createElement('meta')
+        meta.setAttribute('name', 'keywords')
+        document.head.appendChild(meta)
+      }
+      meta.setAttribute('content', keywords)
+    } else if (keywordsMeta) {
+      keywordsMeta.remove()
+    }
+  }, [title, description, keywords])
 
   return null
 }

@@ -80,10 +80,14 @@ class LocalizedRouteSeeder extends Seeder
                 'en' => ['slug' => 'vietnamese-pangasius-expands-internationally', 'path' => '/en/news/vietnamese-pangasius-expands-internationally'],
                 'zh' => ['slug' => 'yuenan-basha-yu-tuozhan-guoji-shichang', 'path' => '/zh/xinwen/yuenan-basha-yu-tuozhan-guoji-shichang'],
             ]),
-            $this->definition('pages', 'code', 'ABOUT', 'App\\Models\\Page', 'pages.show', [
-                'vi' => ['slug' => 've-chung-toi', 'path' => '/vi/ve-chung-toi'],
-                'en' => ['slug' => 'about-us', 'path' => '/en/about-us'],
-                'zh' => ['slug' => 'guanyu-women', 'path' => '/zh/guanyu-women'],
+            $this->definition('pages', 'code', 'ABOUT_MESSAGE', 'App\\Models\\Page', 'about.show', [
+                'vi' => ['slug' => 'thong-diep-cua-cong-ty', 'path' => '/vi/gioi-thieu/thong-diep-cua-cong-ty'],
+            ]),
+            $this->definition('pages', 'code', 'ABOUT_HISTORY', 'App\\Models\\Page', 'about.show', [
+                'vi' => ['slug' => 'lich-su-doi-moi', 'path' => '/vi/gioi-thieu/lich-su-doi-moi'],
+            ]),
+            $this->definition('pages', 'code', 'ABOUT_VALUES', 'App\\Models\\Page', 'about.show', [
+                'vi' => ['slug' => 'gia-tri-cot-loi', 'path' => '/vi/gioi-thieu/gia-tri-cot-loi'],
             ]),
             $this->definition('pages', 'code', 'SUSTAINABILITY', 'App\\Models\\Page', 'pages.show', [
                 'vi' => ['slug' => 'phat-trien-ben-vung', 'path' => '/vi/phat-trien-ben-vung'],

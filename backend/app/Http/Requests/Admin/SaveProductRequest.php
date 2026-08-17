@@ -35,7 +35,6 @@ class SaveProductRequest extends FormRequest
 
         return [
             'sku' => ['required', 'string', 'max:100', Rule::unique('products', 'sku')->ignore($productId)],
-            'scientific_name' => ['nullable', 'string', 'max:255'],
             'product_category_id' => ['nullable', 'integer', 'exists:product_categories,id'],
             'featured_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
             'remove_image' => ['nullable', 'boolean'],

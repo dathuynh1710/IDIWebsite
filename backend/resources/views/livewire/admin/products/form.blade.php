@@ -19,7 +19,6 @@
                     <div class="form-stack">
                         <x-form.input name="sku" label="Mã sản phẩm (SKU)" wire:model.blur="sku" required />
                         <x-form.select name="product_category_id" label="Danh mục" :options="$categories->mapWithKeys(fn($item) => [$item->id => $item->getTranslation('name', 'vi', false)])->all()" wire:model="product_category_id" placeholder="Chọn danh mục" />
-                        <x-form.input name="scientific_name" label="Tên khoa học" wire:model.blur="scientific_name" />
                         <div class="form-field">
                             <label for="featured-image">Ảnh đại diện</label>
                             @if($featured_image)<div class="media-preview has-image"><img src="{{ $featured_image->temporaryUrl() }}" alt=""></div>

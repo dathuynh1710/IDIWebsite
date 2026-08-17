@@ -60,7 +60,6 @@
                                             <strong>{{ $name }}</strong>
                                             <small>
                                                 {{ $product->category?->getTranslation('name', 'vi', false) ?: 'Chưa phân loại' }}
-                                                @if($product->scientific_name) · {{ $product->scientific_name }} @endif
                                             </small>
                                             <small class="product-date-line">
                                                 <span class="category-date-item" title="Ngày tạo"><x-ui.icon name="calendar" size="14" />{{ $product->created_at?->format('H:i - d/m/Y') ?: '—' }}</span>

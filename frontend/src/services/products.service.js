@@ -1,38 +1,36 @@
-﻿/**
- * products.service.js
- * Phase 1: Returns data from src/data/products.js
- * Phase 2: Swap to api.get('/products') calls
- */
-import { PRODUCTS_DATA } from '@data/products'
+import api from './api'
+
+const flattenCatalog = catalog => catalog.categories.flatMap(category => (
+  category.products.map(product => ({ ...product, category }))
+))
 
 export const productsService = {
-  /** Get all products, with optional filter params */
-  getAll: ({ category, certification, market } = {}) => {
-    let results = [...PRODUCTS_DATA]
-    if (category)      results = results.filter(p => p.category === category)
-    if (certification) results = results.filter(p => p.certifications?.includes(certification))
-    if (market)        results = results.filter(p => p.markets?.includes(market))
-    return Promise.resolve(results)
+  async getCatalog({ locale = 'vi', category } = {}) {
+    const response = await api.get('/products', { params: { locale, category } })
+    return response.data
   },
 
-  /** Get a single product by URL slug */
-  getBySlug: (slug) => {
-    const product = PRODUCTS_DATA.find(p => p.slug === slug)
-    if (!product) return Promise.reject(new Error(Product not found: ))
-    return Promise.resolve(product)
+  async getAll(filters = {}) {
+    return flattenCatalog(await this.getCatalog(filters))
   },
 
-  /** Get featured products for homepage */
-  getFeatured: () => {
-    return Promise.resolve(PRODUCTS_DATA.filter(p => p.featured))
+  async getBySlug(slug, { locale = 'vi' } = {}) {
+    const response = await api.get(`/products/${encodeURIComponent(slug)}`, { params: { locale } })
+    return response.data.data
   },
 
-  /** Get products in same category (for "Related Products") */
-  getRelated: (slug, limit = 3) => {
-    const product = PRODUCTS_DATA.find(p => p.slug === slug)
-    if (!product) return Promise.resolve([])
-    return Promise.resolve(
-      PRODUCTS_DATA.filter(p => p.category === product.category && p.slug !== slug).slice(0, limit)
-    )
+  async getFeatured({ locale = 'vi' } = {}) {
+    const products = await this.getAll({ locale })
+    return products.filter(product => product.isFeatured)
+  },
+
+  async getRelated(slug, limit = 3, { locale = 'vi' } = {}) {
+    const products = await this.getAll({ locale })
+    const product = products.find(item => item.slug === slug)
+    if (!product) return []
+
+    return products
+      .filter(item => item.category.id === product.category.id && item.slug !== slug)
+      .slice(0, limit)
   },
 }

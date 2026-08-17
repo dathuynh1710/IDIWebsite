@@ -45,9 +45,6 @@ return [
         ['name' => 'roles.update', 'label' => 'Sửa và gán quyền cho vai trò', 'module' => 'Vai trò'],
         ['name' => 'roles.delete', 'label' => 'Xóa vai trò', 'module' => 'Vai trò'],
         ['name' => 'permissions.view', 'label' => 'Xem quyền hạn', 'module' => 'Quyền hạn'],
-        ['name' => 'permissions.create', 'label' => 'Thêm quyền hạn', 'module' => 'Quyền hạn'],
-        ['name' => 'permissions.update', 'label' => 'Sửa quyền hạn', 'module' => 'Quyền hạn'],
-        ['name' => 'permissions.delete', 'label' => 'Xóa quyền hạn', 'module' => 'Quyền hạn'],
         ['name' => 'activity.view', 'label' => 'Xem nhật ký hoạt động', 'module' => 'Nhật ký hoạt động'],
     ],
 ];

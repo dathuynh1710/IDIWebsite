@@ -16,6 +16,7 @@ class Media extends Model
         'disk',
         'directory',
         'file_name',
+        'external_url',
         'original_name',
         'mime_type',
         'extension',
@@ -34,6 +35,10 @@ class Media extends Model
 
     public function getUrlAttribute(): string
     {
+        if ($this->external_url) {
+            return $this->external_url;
+        }
+
         return Storage::disk($this->disk)->url(trim($this->directory.'/'.$this->file_name, '/'));
     }
 }

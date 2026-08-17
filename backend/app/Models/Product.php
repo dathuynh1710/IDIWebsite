@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Translatable\HasTranslations;
 
@@ -30,7 +31,6 @@ class Product extends Model
     protected $fillable = [
         'product_category_id',
         'featured_media_id',
-        'scientific_name',
         'sku',
         'title',
         'slug',
@@ -39,6 +39,9 @@ class Product extends Model
         'content',
         'seo_title',
         'meta_description',
+        'og_title',
+        'og_description',
+        'schema_extra',
         'translation_status',
         'locale_published_at',
         'sort_order',
@@ -58,6 +61,9 @@ class Product extends Model
             'content' => 'array',
             'seo_title' => 'array',
             'meta_description' => 'array',
+            'og_title' => 'array',
+            'og_description' => 'array',
+            'schema_extra' => 'array',
             'translation_status' => 'array',
             'locale_published_at' => 'array',
             'is_featured' => 'boolean',
@@ -73,6 +79,11 @@ class Product extends Model
     public function featuredMedia(): BelongsTo
     {
         return $this->belongsTo(Media::class, 'featured_media_id');
+    }
+
+    public function productAttributes(): HasMany
+    {
+        return $this->hasMany(ProductAttribute::class);
     }
 
     public function scopeFiltered(Builder $query, array $filters): Builder

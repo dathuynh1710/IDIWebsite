@@ -65,7 +65,7 @@
                                     <div class="product-thumb">
                                         @if($product->featuredMedia)<img src="{{ $product->featuredMedia->url }}" alt="" onerror="this.hidden=true">@else<x-ui.icon name="image" />@endif
                                     </div>
-                                    <div><strong>{{ $product->getTranslation('title', 'vi', false) ?: 'Chưa có tên' }}</strong><small>{{ $product->scientific_name }}</small></div>
+                                    <div><strong>{{ $product->getTranslation('title', 'vi', false) ?: 'Chưa có tên' }}</strong></div>
                                 </div></td>
                                 <td><code>{{ $product->sku }}</code></td>
                                 <td>{{ $product->category?->getTranslation('name', 'vi', false) ?: '—' }}</td>

@@ -1,128 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useSearchParams } from 'react-router'
 import PageHead from '@components/common/PageHead'
-
-const PRODUCT_TABS = [
-  {
-    label: 'Cá Fillet',
-    target: 'vtab5',
-    slug: 'pangasius-fillet',
-    summary: 'Dòng sản phẩm chủ lực với nhiều tiêu chuẩn tạo hình cho thị trường xuất khẩu.',
-  },
-  {
-    label: 'Cá cắt khúc',
-    target: 'vtab6',
-    slug: 'pangasius-portions',
-    summary: 'Các quy cách cắt khúc tiện dụng cho bán lẻ, food service và chế biến sâu.',
-  },
-  {
-    label: 'Cá Nguyên Con',
-    target: 'vtab8',
-    slug: 'whole-fish',
-    summary: 'Sản phẩm cá nguyên con được sơ chế, cấp đông và đóng gói theo chuẩn quốc tế.',
-  },
-  {
-    label: 'Các sản phẩm khác',
-    target: 'vtab7',
-    slug: 'value-added',
-    summary: 'Danh mục giá trị gia tăng, đáp ứng nhu cầu trình bày và chế biến đa dạng.',
-  },
-]
-
-const PRODUCT_GROUPS = {
-  vtab5: [
-    {
-      name: 'Cá Fillet, Tạo Hình Sạch',
-      image: 'https://idiseafood.com/vnt_upload/product/10_2020/dm2.jpg',
-      href: 'https://idiseafood.com/vn/san-pham/popup.html/?do=detail_product&p_id=15',
-      sizes: ['60g-120g', '120g-170g', '170g-220g', '220g-up'],
-    },
-    {
-      name: 'Cá Fillet, Còn Da, Còn Dè',
-      image: 'https://idiseafood.com/vnt_upload/product/03_2021/Con_da_con_de_min.jpg',
-      href: 'https://idiseafood.com/vn/san-pham/popup.html/?do=detail_product&p_id=12',
-      sizes: ['60g-120g', '120g-170g', '170g-220g', '220g-up'],
-    },
-    {
-      name: 'Cá Fillet, Tạo Hình Sạch, Xông CO',
-      image: 'https://idiseafood.com/vnt_upload/product/03_2021/Xong_CO_min.jpg',
-      href: 'https://idiseafood.com/vn/san-pham/popup.html/?do=detail_product&p_id=14',
-      sizes: ['60g-120g', '120g-170g', '170g-220g', '220g-up'],
-    },
-    {
-      name: 'Cá Fillet, Bỏ Da, Còn Thịt Đỏ, Vanh Dè Sát',
-      image: 'https://idiseafood.com/vnt_upload/product/03_2021/VDS_con_thit_do_min.jpg',
-      href: 'https://idiseafood.com/vn/san-pham/popup.html/?do=detail_product&p_id=9',
-      sizes: ['60g-120g', '120g-170g', '170g-220g', '220g-up'],
-    },
-    {
-      name: 'Cá Fillet, Bỏ Da, Còn Dè',
-      image: 'https://idiseafood.com/vnt_upload/product/03_2021/Bo_da_de_EU_min.jpg',
-      href: 'https://idiseafood.com/vn/san-pham/popup.html/?do=detail_product&p_id=10',
-      sizes: ['60g-120g', '120g-170g', '170g-220g', '220g-up'],
-    },
-    {
-      name: 'Cá Fillet, Còn Da, Vanh Dè Sát',
-      image: 'https://idiseafood.com/vnt_upload/product/03_2021/VDS_con_da_min_1.jpg',
-      href: 'https://idiseafood.com/vn/san-pham/popup.html/?do=detail_product&p_id=1',
-      sizes: ['60g-120g', '120g-170g', '170g-220g', '220g-up'],
-    },
-  ],
-  vtab6: [
-    {
-      name: 'Cá Cắt Khúc Từ Cá Fillet, Còn Da, Còn Dè',
-      image: 'https://idiseafood.com/vnt_upload/product/10_2020/dm3.jpg',
-      href: 'https://idiseafood.com/vn/san-pham/popup.html/?do=detail_product&p_id=6',
-      sizes: ['60g-120g', '120g-170g', '170g-220g', '220g-up'],
-    },
-    {
-      name: 'Cá Cắt Khúc Từ Cá Nguyên Con Cắt Đầu Bằng',
-      image: 'https://idiseafood.com/vnt_upload/product/03_2021/Cat_khuc_min.jpg',
-      href: 'https://idiseafood.com/vn/san-pham/popup.html/?do=detail_product&p_id=13',
-      sizes: ['60g-120g', '120g-170g', '170g-220g', '220g-up'],
-    },
-    {
-      name: 'Cá Cắt Khúc Từ Cá Fillet, Tạo Hình Sạch',
-      image: 'https://idiseafood.com/vnt_upload/product/03_2021/Cat_mieng_vuong_min.jpg',
-      href: 'https://idiseafood.com/vn/san-pham/popup.html/?do=detail_product&p_id=7',
-      sizes: ['60g-120g', '120g-170g', '170g-220g', '220g-up'],
-    },
-  ],
-  vtab8: [
-    {
-      name: 'Cá Nguyên Con Cắt Đầu Bằng',
-      image: 'https://idiseafood.com/vnt_upload/product/10_2020/dm4.jpg',
-      href: 'https://idiseafood.com/vn/san-pham/popup.html/?do=detail_product&p_id=5',
-      sizes: ['60g-120g', '120g-170g', '170g-220g', '220g-up'],
-    },
-    {
-      name: 'Cá Nguyên Con Xẻ Bướm Lưng',
-      image: 'https://idiseafood.com/vnt_upload/product/03_2021/Nguyen_con_xe_buom_min.jpg',
-      href: 'https://idiseafood.com/vn/san-pham/popup.html/?do=detail_product&p_id=2',
-      sizes: ['60g-120g', '120g-170g', '170g-220g', '220g-up'],
-    },
-  ],
-  vtab7: [
-    {
-      name: 'Ức Cá Tra',
-      image: 'https://idiseafood.com/vnt_upload/product/10_2020/dm6.jpg',
-      href: 'https://idiseafood.com/vn/san-pham/popup.html/?do=detail_product&p_id=3',
-      sizes: ['60g-120g', '120g-170g', '170g-220g', '220g-up'],
-    },
-    {
-      name: 'Cá Fillet, Tạo Hình Sạch, Cuộn Hoa Hồng',
-      image: 'https://idiseafood.com/vnt_upload/product/03_2021/Hoa_hong_min.jpg',
-      href: 'https://idiseafood.com/vn/san-pham/popup.html/?do=detail_product&p_id=11',
-      sizes: ['60g-120g', '120g-170g', '170g-220g', '220g-up'],
-    },
-    {
-      name: 'Cá Cắt Khúc Từ Cá Fillet, Tạo Hình Sạch, Xiên Que',
-      image: 'https://idiseafood.com/vnt_upload/product/10_2020/dm5.jpg',
-      href: 'https://idiseafood.com/vn/san-pham/popup.html/?do=detail_product&p_id=4',
-      sizes: ['60g-120g', '120g-170g', '170g-220g', '220g-up'],
-    },
-  ],
-}
+import { productsService } from '@services/products.service'
 
 function ProductCard({ product, category, onOpen }) {
   return (
@@ -143,7 +22,7 @@ function ProductCard({ product, category, onOpen }) {
         <div className="decss">
           <div className="dsmeta">
             <span>{category}</span>
-            <span>IQF / Block Frozen</span>
+            <span>{product.freezingMethod}</span>
           </div>
 
           <div className="dstitle">
@@ -212,13 +91,12 @@ function ProductModal({ product, isClosing, onClose, closeButtonRef, dialogRef }
         <div className="product-modal__content">
           <div className="product-modal__eyebrow">
             <span>{product.category}</span>
-            <span>IQF / Block Frozen</span>
+            <span>{product.freezingMethod}</span>
           </div>
 
           <h2 id="product-modal-title">{product.name}</h2>
           <p id="product-modal-description" className="product-modal__description">
-            Sản phẩm được chế biến từ cá tra chọn lọc tại Đồng bằng sông Cửu Long,
-            kiểm soát theo chuỗi khép kín và đáp ứng linh hoạt quy cách của từng thị trường.
+            {product.description}
           </p>
 
           <div className="product-modal__sizes">
@@ -233,27 +111,27 @@ function ProductModal({ product, isClosing, onClose, closeButtonRef, dialogRef }
           <dl className="product-modal__specs">
             <div>
               <dt>Phương pháp cấp đông</dt>
-              <dd>IQF / Block Frozen</dd>
+              <dd>{product.freezingMethod}</dd>
             </div>
             <div>
               <dt>Nhiệt độ bảo quản</dt>
-              <dd>≤ -18°C</dd>
+              <dd>{product.storageTemperature}</dd>
             </div>
             <div>
               <dt>Đóng gói</dt>
-              <dd>Theo yêu cầu khách hàng</dd>
+              <dd>{product.packaging}</dd>
             </div>
             <div>
               <dt>Chứng nhận</dt>
-              <dd>ASC · BRC AA · HACCP</dd>
+              <dd>{product.certifications.join(' · ')}</dd>
             </div>
             <div>
               <dt>Xuất xứ</dt>
-              <dd>Đồng Tháp, Việt Nam</dd>
+              <dd>{product.origin}</dd>
             </div>
             <div>
               <dt>Thời hạn sử dụng</dt>
-              <dd>24 tháng</dd>
+              <dd>{product.shelfLife}</dd>
             </div>
           </dl>
 
@@ -274,27 +152,54 @@ function ProductModal({ product, isClosing, onClose, closeButtonRef, dialogRef }
 
 export default function ProductsPage() {
   const [searchParams, setSearchParams] = useSearchParams()
-  const categoryParam = searchParams.get('category')
-  const tabFromUrl = PRODUCT_TABS.find(tab => tab.slug === categoryParam)?.target ?? PRODUCT_TABS[0].target
-  const [activeTab, setActiveTab] = useState(tabFromUrl)
+  const [catalog, setCatalog] = useState({ categories: [], total: 0 })
+  const [loadError, setLoadError] = useState(false)
   const [selectedProduct, setSelectedProduct] = useState(null)
   const [isModalClosing, setIsModalClosing] = useState(false)
   const closeTimerRef = useRef(null)
   const closeButtonRef = useRef(null)
   const dialogRef = useRef(null)
+  const categoryParam = searchParams.get('category')
   const activeCategory = useMemo(
-    () => PRODUCT_TABS.find(tab => tab.target === activeTab) ?? PRODUCT_TABS[0],
-    [activeTab],
+    () => categoryParam
+      ? catalog.categories.find(category => category.slug === categoryParam) ?? null
+      : null,
+    [catalog.categories, categoryParam],
   )
-  const totalProducts = Object.values(PRODUCT_GROUPS).reduce((count, items) => count + items.length, 0)
+  const allProducts = useMemo(
+    () => catalog.categories
+      .flatMap(category => category.products.map(product => ({
+        ...product,
+        categoryName: category.name,
+      })))
+      .sort((first, second) => second.sortOrder - first.sortOrder),
+    [catalog.categories],
+  )
 
   useEffect(() => {
-    setActiveTab(tabFromUrl)
-  }, [tabFromUrl])
+    let isMounted = true
 
-  const selectCategory = (tab) => {
-    setActiveTab(tab.target)
-    setSearchParams({ category: tab.slug })
+    productsService.getCatalog({ locale: 'vi' })
+      .then((data) => {
+        if (!isMounted) return
+        setCatalog(data)
+        setLoadError(false)
+      })
+      .catch(() => {
+        if (isMounted) setLoadError(true)
+      })
+
+    return () => {
+      isMounted = false
+    }
+  }, [])
+
+  const selectCategory = (category) => {
+    setSearchParams({ category: category.slug })
+  }
+
+  const selectAllProducts = () => {
+    setSearchParams({})
   }
 
   const openProduct = (product, category) => {
@@ -383,7 +288,7 @@ export default function ProductsPage() {
                 <aside className="products-page__assurance" aria-label="Tiêu chuẩn sản phẩm">
                   <div>
                     <span className="products-page__assurance-label">Tiêu chuẩn xuất khẩu</span>
-                    <strong>{totalProducts} quy cách sản phẩm</strong>
+                    <strong>{catalog.total} quy cách sản phẩm</strong>
                     <p>ASC · BRC AA · HACCP · HALAL</p>
                   </div>
                   <Link to="/contact">
@@ -396,14 +301,22 @@ export default function ProductsPage() {
 
             <nav className="tpproductha" aria-label="Danh mục sản phẩm">
               <ul>
-                {PRODUCT_TABS.map(tab => (
+                <li
+                  data-target="category-all"
+                  className={activeCategory === null ? 'active' : ''}
+                >
+                  <button type="button" onClick={selectAllProducts}>
+                    <span>Tất cả</span>
+                  </button>
+                </li>
+                {catalog.categories.map(category => (
                   <li
-                    key={tab.target}
-                    data-target={tab.target}
-                    className={activeTab === tab.target ? 'active' : ''}
+                    key={category.id}
+                    data-target={`category-${category.id}`}
+                    className={activeCategory?.id === category.id ? 'active' : ''}
                   >
-                    <button type="button" onClick={() => selectCategory(tab)}>
-                      <span>{tab.label}</span>
+                    <button type="button" onClick={() => selectCategory(category)}>
+                      <span>{category.name}</span>
                     </button>
                   </li>
                 ))}
@@ -413,25 +326,50 @@ export default function ProductsPage() {
             <div className="products-catalog__summary">
               <div>
                 <span>Đang xem</span>
-                <h3>{activeCategory.label}</h3>
+                <h3>
+                  {loadError
+                    ? 'Không thể tải dữ liệu'
+                    : activeCategory?.name ?? (catalog.categories.length ? 'Tất cả sản phẩm' : 'Đang tải...')}
+                </h3>
               </div>
-              <p>{activeCategory.summary}</p>
+              <p>
+                {loadError
+                  ? 'Vui lòng thử tải lại trang.'
+                  : activeCategory?.description ?? (catalog.categories.length
+                    ? `Khám phá toàn bộ ${catalog.total} quy cách sản phẩm cá tra của IDI Seafood.`
+                    : '')}
+              </p>
             </div>
 
             <div className="tpproducthb">
-              {PRODUCT_TABS.map(tab => (
+              <div
+                className={`hbconts${activeCategory === null ? ' active' : ''}`}
+                data-target="category-all"
+              >
+                <div className="slproducthb vhslickload">
+                  {allProducts.map(product => (
+                    <ProductCard
+                      key={product.id}
+                      product={product}
+                      category={product.categoryName}
+                      onOpen={() => openProduct(product, product.categoryName)}
+                    />
+                  ))}
+                </div>
+              </div>
+              {catalog.categories.map(category => (
                 <div
-                  key={tab.target}
-                  className={`hbconts${activeTab === tab.target ? ' active' : ''}`}
-                  data-target={tab.target}
+                  key={category.id}
+                  className={`hbconts${activeCategory?.id === category.id ? ' active' : ''}`}
+                  data-target={`category-${category.id}`}
                 >
                   <div className="slproducthb vhslickload">
-                    {PRODUCT_GROUPS[tab.target].map(product => (
+                    {category.products.map(product => (
                       <ProductCard
-                        key={product.href}
+                        key={product.id}
                         product={product}
-                        category={tab.label}
-                        onOpen={() => openProduct(product, tab.label)}
+                        category={category.name}
+                        onOpen={() => openProduct(product, category.name)}
                       />
                     ))}
                   </div>

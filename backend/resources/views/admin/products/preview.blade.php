@@ -277,9 +277,6 @@
                     <span class="sku">{{ $product->sku }}</span>
                 </div>
                 <h1>{{ $title }}</h1>
-                @if($product->scientific_name)
-                    <p class="scientific-name">{{ $product->scientific_name }}</p>
-                @endif
                 @if($shortDescription)
                     <div class="lead">{!! $shortDescription !!}</div>
                 @endif

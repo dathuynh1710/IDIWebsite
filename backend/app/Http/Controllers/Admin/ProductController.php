@@ -50,7 +50,7 @@ class ProductController extends Controller
             'products' => Product::query()
                 ->with(['category', 'featuredMedia'])
                 ->filtered($filters)
-                ->orderBy('sort_order')
+                ->orderByDesc('sort_order')
                 ->latest('updated_at')
                 ->paginate(15)
                 ->withQueryString(),
@@ -130,6 +130,7 @@ class ProductController extends Controller
                 ->all();
             $copy->translation_status = collect(self::LOCALES)->mapWithKeys(fn ($label, $locale) => [$locale => 'draft'])->all();
             $copy->locale_published_at = [];
+            $copy->sort_order = ((int) Product::max('sort_order')) + 1;
             $copy->created_by = $request->user()->id;
             $copy->updated_by = $request->user()->id;
             $copy->save();
@@ -237,7 +238,6 @@ class ProductController extends Controller
 
         return array_merge($localized, [
             'sku' => trim($validated['sku']),
-            'scientific_name' => $validated['scientific_name'] ?? null,
             'product_category_id' => $validated['product_category_id'] ?? null,
             'featured_media_id' => $mediaId,
             'sort_order' => $validated['sort_order'],

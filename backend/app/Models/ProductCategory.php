@@ -16,10 +16,15 @@ class ProductCategory extends Model
 
     protected $fillable = [
         'parent_id',
+        'featured_media_id',
         'code',
         'name',
         'slug',
         'description',
+        'seo_title',
+        'meta_description',
+        'translation_status',
+        'locale_published_at',
         'sort_order',
         'is_active',
         'created_by',
@@ -32,6 +37,10 @@ class ProductCategory extends Model
             'name' => 'array',
             'slug' => 'array',
             'description' => 'array',
+            'seo_title' => 'array',
+            'meta_description' => 'array',
+            'translation_status' => 'array',
+            'locale_published_at' => 'array',
             'is_active' => 'boolean',
         ];
     }
@@ -49,5 +58,10 @@ class ProductCategory extends Model
     public function products(): HasMany
     {
         return $this->hasMany(Product::class);
+    }
+
+    public function featuredMedia(): BelongsTo
+    {
+        return $this->belongsTo(Media::class, 'featured_media_id');
     }
 }

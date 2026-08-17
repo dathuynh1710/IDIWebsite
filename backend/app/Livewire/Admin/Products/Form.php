@@ -24,8 +24,6 @@ class Form extends AdminComponent
 
     public string $sku = '';
 
-    public string $scientific_name = '';
-
     public ?int $product_category_id = null;
 
     public $featured_image;
@@ -61,10 +59,12 @@ class Form extends AdminComponent
         Gate::authorize($product ? 'products.update' : 'products.create');
         $this->product = $product?->load('featuredMedia');
         if (! $product) {
+            $this->sort_order = ((int) Product::max('sort_order')) + 1;
+
             return;
         }
 
-        foreach (['sku', 'scientific_name', 'product_category_id', 'sort_order', 'is_featured', 'is_active'] as $field) {
+        foreach (['sku', 'product_category_id', 'sort_order', 'is_featured', 'is_active'] as $field) {
             $this->{$field} = $product->{$field} ?? $this->{$field};
         }
         foreach (['title', 'slug', 'short_description', 'content', 'seo_title', 'meta_description', 'locale_published_at'] as $field) {
@@ -108,7 +108,6 @@ class Form extends AdminComponent
         $productId = $this->product?->id;
         $rules = [
             'sku' => ['required', 'string', 'max:100', Rule::unique('products', 'sku')->ignore($productId)],
-            'scientific_name' => ['nullable', 'string', 'max:255'],
             'product_category_id' => ['nullable', 'integer', 'exists:product_categories,id'],
             'featured_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
             'remove_image' => ['boolean'],
@@ -165,7 +164,6 @@ class Form extends AdminComponent
 
             $data = [
                 'sku' => trim($validated['sku']),
-                'scientific_name' => $validated['scientific_name'] ?: null,
                 'product_category_id' => $validated['product_category_id'],
                 'featured_media_id' => $mediaId,
                 'sort_order' => $validated['sort_order'],

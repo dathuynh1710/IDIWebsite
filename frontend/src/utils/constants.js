@@ -123,8 +123,5 @@ export const NAV_PATHS = Object.freeze({
   CONTACT:        '/contact',
 })
 
-// ── API
-export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? ''
-
 // ── Pagination defaults
 export const DEFAULT_PAGE_SIZE = 12

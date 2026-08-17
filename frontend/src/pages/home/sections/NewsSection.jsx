@@ -1,110 +1,172 @@
+import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router'
 import RevealOnScroll from '@components/common/RevealOnScroll'
-import { NEWS_DATA } from '@data/news'
+import { useLanguage } from '@hooks/useLanguage'
+import { DEFAULT_NEWS_PAGE_CONFIG, newsService } from '@services/news.service'
 
 const CATEGORY_COLORS = {
-  gold:  { bg: 'bg-coral-pale',   text: 'text-[#B37518]' },
-  blue:  { bg: 'bg-[#EBF4FF]',    text: 'text-ocean-deep' },
+  gold: { bg: 'bg-coral-pale', text: 'text-[#B37518]' },
+  blue: { bg: 'bg-[#EBF4FF]', text: 'text-ocean-deep' },
   green: { bg: 'bg-seafoam-pale', text: 'text-seafoam' },
 }
 
-function formatDate(iso) {
-  return new Date(iso).toLocaleDateString('vi-VN', {
-    day:   'numeric',
+const DATE_LOCALES = { vi: 'vi-VN', en: 'en-US', zh: 'zh-CN' }
+
+function formatDate(iso, language) {
+  if (!iso) return ''
+  const date = new Date(iso)
+  if (Number.isNaN(date.getTime())) return ''
+  return date.toLocaleDateString(DATE_LOCALES[language] ?? 'vi-VN', {
+    day: 'numeric',
     month: 'long',
-    year:  'numeric',
+    year: 'numeric',
   })
 }
 
+function LoadingCards() {
+  return (
+    <div className="grid animate-pulse gap-6 sm:grid-cols-2 lg:grid-cols-3" aria-label="Đang tải tin mới">
+      {Array.from({ length: 3 }, (_, index) => (
+        <div key={index} className="overflow-hidden rounded-2xl border border-light-mist bg-white">
+          <div className="aspect-[16/9] bg-light-mist" />
+          <div className="space-y-4 p-6">
+            <div className="h-4 w-1/3 rounded bg-light-mist" />
+            <div className="h-12 rounded bg-light-mist" />
+            <div className="h-16 rounded bg-light-mist" />
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
 export default function NewsSection() {
-  const articles = NEWS_DATA.slice(0, 3)
+  const { language } = useLanguage()
+  const [requestKey, setRequestKey] = useState(0)
+  const [status, setStatus] = useState('loading')
+  const [response, setResponse] = useState({
+    items: [],
+    featured: [],
+    pageConfig: DEFAULT_NEWS_PAGE_CONFIG,
+  })
+
+  useEffect(() => {
+    const controller = new AbortController()
+    setStatus('loading')
+
+    newsService.getAll({ locale: language, page: 1, sort: 'newest' }, { signal: controller.signal })
+      .then((data) => {
+        setResponse(data)
+        setStatus('success')
+      })
+      .catch((error) => {
+        if (error?.code !== 'ERR_CANCELED') setStatus('error')
+      })
+
+    return () => controller.abort()
+  }, [language, requestKey])
+
+  const pageConfig = response.pageConfig
+  const articles = useMemo(() => {
+    const preferred = pageConfig.showFeaturedSection && response.featured.length
+      ? response.featured
+      : response.items
+    const limit = pageConfig.showFeaturedSection && response.featured.length
+      ? pageConfig.featuredLimit
+      : pageConfig.itemsPerPage
+    return preferred.slice(0, Math.max(1, limit))
+  }, [pageConfig, response.featured, response.items])
 
   return (
-    <section className="py-20 lg:py-28 bg-arctic-white">
+    <section className="bg-arctic-white py-20 lg:py-28">
       <div className="container">
-
-        {/* Header row */}
-        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6 mb-12">
+        <div className="mb-12 flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <RevealOnScroll>
-              <span className="section-eyebrow">Tin mới nhất</span>
+              <span className="section-eyebrow">
+                {pageConfig.showFeaturedSection && response.featured.length ? 'Tin nổi bật' : 'Tin mới nhất'}
+              </span>
             </RevealOnScroll>
             <RevealOnScroll delay={80}>
-              <h2 className="text-h2 font-bold text-ocean-deep mt-3">
-                Tin tức &amp; Sự kiện
-              </h2>
+              <h2 className="mt-3 text-h2 font-bold text-ocean-deep">{pageConfig.title}</h2>
             </RevealOnScroll>
           </div>
           <RevealOnScroll direction="right">
-            <Link to="/news" className="btn btn-secondary whitespace-nowrap">
-              Xem tất cả →
-            </Link>
+            <Link to="/news" className="btn btn-secondary whitespace-nowrap">Xem tất cả →</Link>
           </RevealOnScroll>
         </div>
 
-        {/* Articles grid */}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {articles.map((article, i) => {
-            const catColor = CATEGORY_COLORS[article.categoryColor] ?? CATEGORY_COLORS.blue
-            return (
-              <RevealOnScroll key={article.id} delay={i * 100}>
-                <Link
-                  to={`/news/${article.slug}`}
-                  className="group flex flex-col bg-white rounded-2xl overflow-hidden border border-light-mist hover:border-transparent hover:shadow-xl transition-all duration-300 hover:-translate-y-1 h-full"
-                >
-                  {/* Thumbnail */}
-                  <div className="aspect-[16/9] overflow-hidden bg-light-mist flex-shrink-0">
-                    <img
-                      src={article.image}
-                      alt={article.title}
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                      loading="lazy"
-                      onError={(e) => {
-                        e.target.parentElement.style.background = 'linear-gradient(135deg, #0B2545, #163D6B)'
-                        e.target.style.display = 'none'
-                      }}
-                    />
-                  </div>
-
-                  {/* Content */}
-                  <div className="flex flex-col flex-1 p-6">
-                    {/* Category + date */}
-                    <div className="flex items-center justify-between gap-3 mb-4">
-                      <span className={`badge text-[11px] ${catColor.bg} ${catColor.text}`}>
-                        {article.category}
-                      </span>
-                      <time
-                        dateTime={article.date}
-                        className="text-xs text-storm-grey"
-                      >
-                        {formatDate(article.date)}
-                      </time>
+        {status === 'loading' ? (
+          <LoadingCards />
+        ) : status === 'error' ? (
+          <div className="rounded-2xl border border-dashed border-mist-mid bg-white px-6 py-12 text-center" role="alert">
+            <h3 className="text-xl font-bold text-ocean-deep">Không thể tải tin mới</h3>
+            <p className="mt-2 text-sm">Vui lòng kiểm tra kết nối và thử lại.</p>
+            <button type="button" onClick={() => setRequestKey(key => key + 1)} className="btn btn-primary mt-6">
+              Thử tải lại
+            </button>
+          </div>
+        ) : articles.length === 0 ? (
+          <div className="rounded-2xl border border-dashed border-mist-mid bg-white px-6 py-12 text-center">
+            <p>Nội dung tin tức đang được cập nhật.</p>
+          </div>
+        ) : (
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {articles.map((article, index) => {
+              const color = CATEGORY_COLORS[article.categoryColor] ?? CATEGORY_COLORS.blue
+              const date = formatDate(article.publishedAt, language)
+              return (
+                <RevealOnScroll key={article.id} delay={(index % 3) * 100}>
+                  <Link
+                    to={`/news/${article.slug}`}
+                    className="group flex h-full flex-col overflow-hidden rounded-2xl border border-light-mist bg-white transition-all duration-300 hover:-translate-y-1 hover:border-transparent hover:shadow-xl"
+                  >
+                    <div className="relative aspect-[16/9] flex-shrink-0 overflow-hidden bg-gradient-to-br from-ocean-deep to-seafoam">
+                      {article.imageUrl ? (
+                        <img
+                          src={article.imageUrl}
+                          alt={article.imageAlt || article.title}
+                          className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                          loading={pageConfig.lazyLoadImages ? 'lazy' : 'eager'}
+                          onError={(event) => {
+                            event.currentTarget.style.display = 'none'
+                          }}
+                        />
+                      ) : pageConfig.showPlaceholderImage ? (
+                        <span className="absolute inset-0 grid place-items-center text-3xl font-black tracking-[0.2em] text-white/45">IDI</span>
+                      ) : null}
                     </div>
 
-                    {/* Title */}
-                    <h3 className="font-bold text-ink text-base leading-snug mb-3 group-hover:text-ocean-deep transition-colors duration-200 line-clamp-2">
-                      {article.title}
-                    </h3>
-
-                    {/* Excerpt */}
-                    <p className="text-storm-grey text-sm leading-relaxed flex-1 line-clamp-3">
-                      {article.excerpt}
-                    </p>
-
-                    {/* Read more */}
-                    <div className="flex items-center gap-1.5 text-seafoam text-xs font-semibold mt-5 opacity-0 group-hover:opacity-100 translate-y-1 group-hover:translate-y-0 transition-all duration-300">
-                      Đọc thêm
-                      <svg className="w-3.5 h-3.5" viewBox="0 0 14 14" fill="none">
-                        <path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                      </svg>
+                    <div className="flex flex-1 flex-col p-6">
+                      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+                        {article.category && (
+                          <span className={`badge text-[11px] ${color.bg} ${color.text}`}>{article.category.name}</span>
+                        )}
+                        {pageConfig.showPublishedDate && date && (
+                          <time dateTime={article.publishedAt} className="text-xs text-storm-grey">{date}</time>
+                        )}
+                      </div>
+                      <h3 className="mb-3 text-base font-bold leading-snug text-ink transition-colors duration-200 group-hover:text-ocean-deep line-clamp-2">
+                        {article.title}
+                      </h3>
+                      {article.excerpt && (
+                        <p className="flex-1 text-sm leading-relaxed text-storm-grey line-clamp-3">{article.excerpt}</p>
+                      )}
+                      <div className="mt-5 flex items-center gap-3 text-xs font-semibold text-seafoam">
+                        <span className="inline-flex items-center gap-1.5">
+                          Đọc thêm <span aria-hidden="true">→</span>
+                        </span>
+                        {pageConfig.showReadingTime && article.readTime > 0 && (
+                          <span className="font-medium text-storm-grey">{article.readTime} phút</span>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                </Link>
-              </RevealOnScroll>
-            )
-          })}
-        </div>
-
+                  </Link>
+                </RevealOnScroll>
+              )
+            })}
+          </div>
+        )}
       </div>
     </section>
   )

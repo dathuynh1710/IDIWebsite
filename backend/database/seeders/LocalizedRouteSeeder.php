@@ -65,21 +65,6 @@ class LocalizedRouteSeeder extends Seeder
                 'en' => ['slug' => 'breaded-pangasius', 'path' => '/en/products/breaded-pangasius'],
                 'zh' => ['slug' => 'guofen-basha-yu', 'path' => '/zh/chanpin/guofen-basha-yu'],
             ]),
-            $this->definition('post_categories', 'code', 'COMPANY_NEWS', 'App\\Models\\PostCategory', 'post-categories.show', [
-                'vi' => ['slug' => 'tin-doanh-nghiep', 'path' => '/vi/tin-tuc/tin-doanh-nghiep'],
-                'en' => ['slug' => 'company-news', 'path' => '/en/news/company-news'],
-                'zh' => ['slug' => 'gongsi-xinwen', 'path' => '/zh/xinwen/gongsi-xinwen'],
-            ]),
-            $this->definition('posts', 'code', 'NEWS_FACTORY_2026', 'App\\Models\\Post', 'posts.show', [
-                'vi' => ['slug' => 'idi-seafood-nang-cap-day-chuyen-che-bien', 'path' => '/vi/tin-tuc/idi-seafood-nang-cap-day-chuyen-che-bien'],
-                'en' => ['slug' => 'idi-seafood-upgrades-processing-line', 'path' => '/en/news/idi-seafood-upgrades-processing-line'],
-                'zh' => ['slug' => 'idi-seafood-shengji-jiagongxian', 'path' => '/zh/xinwen/idi-seafood-shengji-jiagongxian'],
-            ]),
-            $this->definition('posts', 'code', 'NEWS_MARKET_2026', 'App\\Models\\Post', 'posts.show', [
-                'vi' => ['slug' => 'ca-tra-viet-nam-mo-rong-thi-truong', 'path' => '/vi/tin-tuc/ca-tra-viet-nam-mo-rong-thi-truong'],
-                'en' => ['slug' => 'vietnamese-pangasius-expands-internationally', 'path' => '/en/news/vietnamese-pangasius-expands-internationally'],
-                'zh' => ['slug' => 'yuenan-basha-yu-tuozhan-guoji-shichang', 'path' => '/zh/xinwen/yuenan-basha-yu-tuozhan-guoji-shichang'],
-            ]),
             $this->definition('pages', 'code', 'ABOUT_MESSAGE', 'App\\Models\\Page', 'about.show', [
                 'vi' => ['slug' => 'thong-diep-cua-cong-ty', 'path' => '/vi/gioi-thieu/thong-diep-cua-cong-ty'],
             ]),

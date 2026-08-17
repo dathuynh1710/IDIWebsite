@@ -1,247 +1,538 @@
-/**
- * News data gateway.
- *
- * - Without VITE_API_BASE_URL, the website uses the local seed data.
- * - When the backend is available, set VITE_API_BASE_URL and keep the same
- *   normalized article contract used by the UI.
- */
-import { NEWS_DATA } from '@data/news'
 import api from './api'
-import { API_BASE_URL } from '@utils/constants'
+import { slugify } from '@utils/slugify'
 
-const CATEGORY_CONTENT = {
-  'Giải thưởng': {
-    heading: 'Dấu ấn được cộng đồng quốc tế ghi nhận',
-    detail:
-      'Sự ghi nhận này phản ánh định hướng đầu tư dài hạn của IDI vào quản trị minh bạch, hiệu quả vận hành và các sáng kiến tạo tác động tích cực cho chuỗi giá trị thủy sản.',
-    points: [
-      'Khẳng định uy tín của doanh nghiệp trên thị trường quốc tế.',
-      'Tạo thêm động lực cho các chương trình phát triển bền vững.',
-      'Gia tăng niềm tin của đối tác, nhà đầu tư và khách hàng.',
-    ],
+export const DEFAULT_NEWS_PAGE_CONFIG = Object.freeze({
+  title: 'Tin tức & Sự kiện',
+  description:
+    'Cập nhật hoạt động doanh nghiệp, xu hướng thị trường và những bước tiến của IDI Seafood.',
+  seo: {
+    title: 'Tin tức & Sự kiện | IDI Seafood',
+    description:
+      'Cập nhật tin tức mới nhất về IDI Seafood, thị trường cá tra và phát triển bền vững.',
+    keywords: '',
   },
-  'Tin doanh nghiệp': {
-    heading: 'Bước tiến trong chiến lược phát triển của IDI',
-    detail:
-      'Hoạt động này nằm trong lộ trình mở rộng quy mô, đa dạng hóa thị trường và nâng cao khả năng phục vụ khách hàng bằng một chuỗi cung ứng chủ động, ổn định.',
-    points: [
-      'Mở rộng năng lực tiếp cận các thị trường trọng điểm.',
-      'Tăng tính linh hoạt trong sản xuất và phân phối.',
-      'Củng cố nền tảng tăng trưởng bền vững trong dài hạn.',
-    ],
-  },
-  ESG: {
-    heading: 'Tăng trưởng gắn với trách nhiệm',
-    detail:
-      'IDI theo đuổi cách tiếp cận cân bằng giữa hiệu quả kinh doanh, bảo vệ môi trường và sinh kế của cộng đồng trong toàn bộ chuỗi giá trị.',
-    points: [
-      'Sử dụng nguồn lực hiệu quả và giảm tác động môi trường.',
-      'Tăng khả năng truy xuất, đo lường và công bố minh bạch.',
-      'Lan tỏa lợi ích đến người lao động và vùng nuôi liên kết.',
-    ],
-  },
-  'Thị trường': {
-    heading: 'Những chuyển động đáng chú ý của thị trường',
-    detail:
-      'Nhu cầu thực phẩm an toàn, có thể truy xuất và có mức giá hợp lý tiếp tục mở ra cơ hội cho cá tra Việt Nam tại nhiều khu vực tiêu thụ.',
-    points: [
-      'Người mua ưu tiên nguồn cung ổn định và minh bạch.',
-      'Sản phẩm tiện lợi, đa quy cách ngày càng được quan tâm.',
-      'Tiêu chuẩn bền vững trở thành lợi thế cạnh tranh rõ nét.',
-    ],
-  },
-  'Công nghệ': {
-    heading: 'Công nghệ tạo nên chất lượng ổn định',
-    detail:
-      'Từ kiểm soát nguyên liệu đến chế biến, cấp đông và bảo quản, công nghệ giúp duy trì các chỉ tiêu chất lượng nhất quán trong suốt hành trình của sản phẩm.',
-    points: [
-      'Kiểm soát chặt chẽ các thông số quan trọng của quy trình.',
-      'Duy trì độ tươi, cấu trúc và giá trị dinh dưỡng.',
-      'Tăng hiệu quả vận hành và giảm hao hụt nguyên liệu.',
-    ],
-  },
-  'Sản phẩm': {
-    heading: 'Giải pháp sản phẩm linh hoạt cho từng thị trường',
-    detail:
-      'Danh mục sản phẩm được phát triển theo nhu cầu thực tế của nhà nhập khẩu, hệ thống bán lẻ, dịch vụ ăn uống và người tiêu dùng cuối.',
-    points: [
-      'Đa dạng quy cách cắt, kích thước và phương thức đóng gói.',
-      'Phù hợp với nhiều kênh phân phối và thói quen tiêu dùng.',
-      'Duy trì chất lượng đồng đều trên quy mô thương mại.',
-    ],
-  },
+  itemsPerPage: 12,
+  categoryItemsPerPage: 10,
+  featuredLimit: 3,
+  relatedLimit: 6,
+  showFeaturedSection: true,
+  showCategoryNavigation: true,
+  showRelatedArticles: true,
+  showAuthor: true,
+  showPublishedDate: true,
+  showViewCount: true,
+  showReadingTime: true,
+  showTags: true,
+  showArticleSource: true,
+  showBreadcrumb: true,
+  showSocialShare: true,
+  showPreviousNext: true,
+  showPlaceholderImage: true,
+  allowPrint: true,
+  lazyLoadImages: true,
+})
+
+const BLOCK_TAGS = new Set([
+  'ADDRESS', 'ARTICLE', 'ASIDE', 'BLOCKQUOTE', 'DIV', 'DL', 'FIELDSET', 'FIGCAPTION',
+  'FIGURE', 'FOOTER', 'FORM', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'HEADER', 'HR',
+  'LI', 'MAIN', 'NAV', 'OL', 'P', 'PRE', 'SECTION', 'TABLE', 'UL', 'VIDEO',
+])
+
+const IGNORED_TAGS = new Set([
+  'APPLET', 'BUTTON', 'CANVAS', 'FORM', 'INPUT', 'LINK', 'META', 'NOSCRIPT',
+  'OBJECT', 'SCRIPT', 'SELECT', 'STYLE', 'SVG', 'TEMPLATE', 'TEXTAREA',
+])
+
+const compactText = value => String(value ?? '').replace(/\s+/g, ' ').trim()
+
+function valueFrom(source, camelKey, snakeKey, fallback) {
+  return source?.[camelKey] ?? source?.[snakeKey] ?? fallback
 }
 
-function createFallbackContent(article) {
-  const category = CATEGORY_CONTENT[article.category] ?? CATEGORY_CONTENT['Tin doanh nghiệp']
-
-  return [
-    {
-      type: 'paragraph',
-      text: article.excerpt,
-      lead: true,
-    },
-    {
-      type: 'heading',
-      id: 'tong-quan',
-      text: category.heading,
-    },
-    {
-      type: 'paragraph',
-      text: category.detail,
-    },
-    {
-      type: 'quote',
-      text: 'Chúng tôi xem chất lượng, tính minh bạch và trách nhiệm là nền tảng cho mọi quyết định phát triển.',
-      attribution: 'IDI Seafood',
-    },
-    {
-      type: 'heading',
-      id: 'gia-tri-noi-bat',
-      text: 'Những giá trị nổi bật',
-    },
-    {
-      type: 'list',
-      items: category.points,
-    },
-    {
-      type: 'paragraph',
-      text: `Với chủ đề “${article.title}”, IDI tiếp tục cho thấy cam kết phát triển chuỗi giá trị cá tra Việt Nam theo hướng hiện đại, hiệu quả và đáp ứng tốt hơn kỳ vọng của thị trường.`,
-    },
-    {
-      type: 'callout',
-      title: 'Thông tin dành cho đối tác',
-      text: 'Đội ngũ IDI sẵn sàng cung cấp thêm hồ sơ sản phẩm, tiêu chuẩn chất lượng và thông tin thương mại theo từng thị trường.',
-      link: '/contact',
-      linkLabel: 'Liên hệ IDI',
-    },
-  ]
+function numberFrom(value, fallback = 0) {
+  const number = Number(value)
+  return Number.isFinite(number) ? number : fallback
 }
 
-function normalizeContent(content, article) {
-  if (Array.isArray(content) && content.length) return content
+function booleanFrom(value, fallback) {
+  if (value === undefined || value === null) return fallback
+  if (typeof value === 'string') return !['0', 'false', 'off', 'no'].includes(value.toLowerCase())
+  return Boolean(value)
+}
 
-  if (typeof content === 'string' && content.trim()) {
-    return content
-      .split(/\n{2,}/)
-      .map(text => text.trim())
-      .filter(Boolean)
-      .map(text => ({ type: 'paragraph', text }))
+function safeUrl(value, { image = false } = {}) {
+  if (!value) return ''
+  const url = String(value).trim()
+  if (!url) return ''
+
+  if (image && /^data:image\/(?:png|jpe?g|gif|webp);base64,[a-z0-9+/=\s]+$/i.test(url)) {
+    return url
   }
 
-  return createFallbackContent(article)
-}
+  if (/^(?:\/|\.\/|\.\.\/|#|\?)/.test(url)) return url
 
-function normalizeArticle(payload) {
-  const raw = payload?.data ?? payload
-  if (!raw) return null
-
-  const article = {
-    ...raw,
-    id: raw.id ?? raw._id ?? raw.slug,
-    slug: raw.slug,
-    title: raw.title,
-    excerpt: raw.excerpt ?? raw.summary ?? raw.description ?? '',
-    category:
-      raw.category?.name ?? raw.categoryName ?? raw.category ?? 'Tin doanh nghiệp',
-    categoryColor: raw.category?.color ?? raw.categoryColor ?? 'blue',
-    date: raw.date ?? raw.publishedAt ?? raw.createdAt,
-    updatedAt: raw.updatedAt,
-    readTime: raw.readTime ?? raw.readingTime ?? 5,
-    image:
-      raw.image?.url ?? raw.featuredImage?.url ?? raw.featuredImage ?? raw.thumbnail ?? raw.image,
-    imageAlt: raw.image?.alt ?? raw.featuredImage?.alt ?? raw.imageAlt ?? raw.title,
-    author: raw.author?.name ?? raw.authorName ?? raw.author ?? 'Ban Truyền thông IDI',
-    authorRole: raw.author?.role ?? raw.authorRole ?? 'IDI Seafood',
-    tags: Array.isArray(raw.tags)
-      ? raw.tags.map(tag => (typeof tag === 'string' ? tag : tag.name)).filter(Boolean)
-      : [],
+  try {
+    const parsed = new URL(url, typeof window === 'undefined' ? 'https://idiseafood.com' : window.location.origin)
+    const allowedProtocols = image
+      ? ['http:', 'https:', 'blob:']
+      : ['http:', 'https:', 'mailto:', 'tel:']
+    return allowedProtocols.includes(parsed.protocol) ? url : ''
+  } catch {
+    return ''
   }
-
-  article.content = normalizeContent(
-    raw.contentBlocks ?? raw.content ?? raw.body ?? raw.sections,
-    article,
-  )
-
-  return article
 }
 
-async function getAllFromApi(params = {}) {
-  const query = new URLSearchParams()
-  Object.entries(params).forEach(([key, value]) => {
-    if (value !== undefined && value !== null && value !== '') query.set(key, value)
+function safeMediaUrl(value) {
+  const url = safeUrl(value, { image: true })
+  if (!url || !url.startsWith('/') || url.startsWith('//')) return url
+
+  try {
+    const frontendOrigin = typeof window === 'undefined' ? 'https://idiseafood.com' : window.location.origin
+    const apiBase = new URL(api.defaults.baseURL || '/api', frontendOrigin)
+    return new URL(url, apiBase.origin).href
+  } catch {
+    return url
+  }
+}
+
+function normalizeInlineNodes(nodes) {
+  const result = []
+
+  Array.from(nodes ?? []).forEach((node) => {
+    if (node.nodeType === 3) {
+      const text = node.textContent?.replace(/\s+/g, ' ')
+      if (text) result.push({ type: 'text', text })
+      return
+    }
+
+    if (node.nodeType !== 1) return
+
+    const tag = node.tagName
+    if (IGNORED_TAGS.has(tag) || tag === 'IMG') return
+    const children = normalizeInlineNodes(node.childNodes)
+
+    if (tag === 'BR') {
+      result.push({ type: 'break' })
+      return
+    }
+
+    if (tag === 'A') {
+      const href = safeUrl(node.getAttribute('href'))
+      if (href) {
+        result.push({
+          type: 'link',
+          href,
+          external: /^https?:\/\//i.test(href),
+          children,
+        })
+      } else {
+        result.push(...children)
+      }
+      return
+    }
+
+    const inlineTypes = {
+      B: 'strong',
+      STRONG: 'strong',
+      EM: 'emphasis',
+      I: 'emphasis',
+      U: 'underline',
+      CODE: 'code',
+      SUB: 'subscript',
+      SUP: 'superscript',
+    }
+
+    if (inlineTypes[tag]) {
+      result.push({ type: inlineTypes[tag], children })
+      return
+    }
+
+    result.push(...children)
   })
 
-  const response = await api.get(`/news${query.size ? `?${query}` : ''}`)
-  const data = response?.data ?? response
-  const items = data?.items ?? data?.results ?? (Array.isArray(data) ? data : [])
+  return result.reduce((items, item) => {
+    const previous = items[items.length - 1]
+    if (item.type === 'text' && previous?.type === 'text') {
+      previous.text += item.text
+    } else {
+      items.push(item)
+    }
+    return items
+  }, [])
+}
+
+function imageBlock(element, caption = '') {
+  const url = safeMediaUrl(element?.getAttribute('src'))
+  if (!url) return null
 
   return {
-    items: items.map(normalizeArticle),
-    total: data?.total ?? items.length,
-    page: data?.page ?? params.page ?? 1,
-    limit: data?.limit ?? params.limit ?? 12,
+    type: 'image',
+    url,
+    alt: compactText(element.getAttribute('alt')),
+    caption: compactText(caption || element.getAttribute('title')),
   }
+}
+
+function tableBlock(element) {
+  const rows = Array.from(element.querySelectorAll('tr')).map(row => (
+    Array.from(row.querySelectorAll(':scope > th, :scope > td')).map(cell => compactText(cell.textContent))
+  )).filter(row => row.length)
+
+  if (!rows.length) return null
+
+  const firstRowHasHeaders = Boolean(element.querySelector('tr:first-child th'))
+  return {
+    type: 'table',
+    headers: firstRowHasHeaders ? rows[0] : [],
+    rows: firstRowHasHeaders ? rows.slice(1) : rows,
+  }
+}
+
+function contentBlocksFromNode(node, context) {
+  if (node.nodeType === 3) {
+    const text = compactText(node.textContent)
+    return text ? [{ type: 'paragraph', text }] : []
+  }
+  if (node.nodeType !== 1) return []
+
+  const tag = node.tagName
+  if (IGNORED_TAGS.has(tag)) return []
+
+  if (/^H[1-6]$/.test(tag)) {
+    const text = compactText(node.textContent)
+    if (!text) return []
+    const preferredId = slugify(node.getAttribute('id') || text) || `noi-dung-${context.headingIndex + 1}`
+    const occurrence = context.headingIds.get(preferredId) ?? 0
+    context.headingIds.set(preferredId, occurrence + 1)
+    context.headingIndex += 1
+    return [{
+      type: 'heading',
+      level: Math.min(4, Math.max(2, numberFrom(tag.slice(1), 2))),
+      id: occurrence ? `${preferredId}-${occurrence + 1}` : preferredId,
+      text,
+      children: normalizeInlineNodes(node.childNodes),
+    }]
+  }
+
+  if (tag === 'P') {
+    const images = Array.from(node.querySelectorAll('img')).map(image => imageBlock(image)).filter(Boolean)
+    const inlineNodes = normalizeInlineNodes(
+      Array.from(node.childNodes).filter(child => child.nodeType !== 1 || child.tagName !== 'IMG'),
+    )
+    const text = compactText(node.textContent)
+    const paragraph = text ? [{ type: 'paragraph', text, children: inlineNodes }] : []
+    return [...paragraph, ...images]
+  }
+
+  if (tag === 'UL' || tag === 'OL') {
+    const items = Array.from(node.children)
+      .filter(child => child.tagName === 'LI')
+      .map(item => ({ text: compactText(item.textContent), children: normalizeInlineNodes(item.childNodes) }))
+      .filter(item => item.text)
+    return items.length ? [{ type: 'list', ordered: tag === 'OL', items }] : []
+  }
+
+  if (tag === 'BLOCKQUOTE') {
+    const cite = node.querySelector('cite')
+    const clone = node.cloneNode(true)
+    clone.querySelectorAll('cite').forEach(item => item.remove())
+    const text = compactText(clone.textContent)
+    return text ? [{
+      type: 'quote',
+      text,
+      children: normalizeInlineNodes(clone.childNodes),
+      attribution: compactText(cite?.textContent),
+    }] : []
+  }
+
+  if (tag === 'FIGURE') {
+    const image = node.querySelector('img')
+    const caption = node.querySelector('figcaption')?.textContent
+    const block = imageBlock(image, caption)
+    return block ? [block] : []
+  }
+
+  if (tag === 'IMG') {
+    const block = imageBlock(node)
+    return block ? [block] : []
+  }
+
+  if (tag === 'TABLE') {
+    const block = tableBlock(node)
+    return block ? [block] : []
+  }
+
+  if (tag === 'PRE') {
+    const text = String(node.textContent ?? '').trim()
+    return text ? [{ type: 'code', text }] : []
+  }
+
+  if (tag === 'HR') return [{ type: 'separator' }]
+
+  if (tag === 'VIDEO') {
+    const url = safeMediaUrl(node.getAttribute('src') || node.querySelector('source')?.getAttribute('src'))
+    return url ? [{
+      type: 'video',
+      url,
+      poster: safeMediaUrl(node.getAttribute('poster')),
+      caption: compactText(node.getAttribute('title')),
+    }] : []
+  }
+
+  if (tag === 'IFRAME') {
+    const url = safeUrl(node.getAttribute('src'))
+    return url ? [{ type: 'embed', url, title: compactText(node.getAttribute('title')) }] : []
+  }
+
+  const childBlocks = Array.from(node.childNodes).flatMap(child => contentBlocksFromNode(child, context))
+  if (childBlocks.length) return childBlocks
+
+  if (!BLOCK_TAGS.has(tag)) {
+    const text = compactText(node.textContent)
+    if (text) return [{ type: 'paragraph', text, children: normalizeInlineNodes(node.childNodes) }]
+  }
+
+  return []
+}
+
+/**
+ * Converts trusted CMS HTML into an inert data structure. DOMParser never mounts
+ * the HTML; React renders only the explicitly supported nodes and safe URL schemes.
+ */
+export function htmlToContentBlocks(html) {
+  if (typeof html !== 'string' || !html.trim()) return []
+
+  if (typeof DOMParser === 'undefined') {
+    const text = compactText(html.replace(/<[^>]*>/g, ' '))
+    return text ? [{ type: 'paragraph', text }] : []
+  }
+
+  const document = new DOMParser().parseFromString(html, 'text/html')
+  const context = { headingIndex: 0, headingIds: new Map() }
+  return Array.from(document.body.childNodes).flatMap(node => contentBlocksFromNode(node, context))
+}
+
+export function normalizeNewsCategory(payload) {
+  if (!payload) return null
+  if (typeof payload === 'string') {
+    return { id: payload, code: '', slug: slugify(payload), name: payload, description: '', count: 0 }
+  }
+
+  const name = payload.name ?? payload.title ?? ''
+  return {
+    ...payload,
+    id: payload.id ?? payload.code ?? payload.slug ?? name,
+    code: payload.code ?? '',
+    slug: payload.slug ?? slugify(name),
+    name,
+    description: payload.description ?? '',
+    count: numberFrom(payload.count ?? payload.postsCount ?? payload.posts_count, 0),
+  }
+}
+
+export function normalizeNewsPageConfig(payload) {
+  const source = payload ?? {}
+  const rawSeo = source.seo ?? {}
+  const presentation = { ...(source.presentation ?? {}), ...source }
+  const defaults = DEFAULT_NEWS_PAGE_CONFIG
+
+  return {
+    ...source,
+    title: source.title ?? source.pageTitle ?? source.page_title ?? defaults.title,
+    description: source.description ?? defaults.description,
+    seo: {
+      ...rawSeo,
+      title: rawSeo.title ?? source.seoTitle ?? source.seo_title ?? defaults.seo.title,
+      description:
+        rawSeo.description ?? source.metaDescription ?? source.meta_description ?? defaults.seo.description,
+      keywords: rawSeo.keywords ?? source.metaKeywords ?? source.meta_keywords ?? defaults.seo.keywords,
+    },
+    itemsPerPage: numberFrom(valueFrom(source, 'itemsPerPage', 'items_per_page', defaults.itemsPerPage), defaults.itemsPerPage),
+    categoryItemsPerPage: numberFrom(valueFrom(source, 'categoryItemsPerPage', 'category_items_per_page', defaults.categoryItemsPerPage), defaults.categoryItemsPerPage),
+    featuredLimit: numberFrom(valueFrom(source, 'featuredLimit', 'featured_limit', defaults.featuredLimit), defaults.featuredLimit),
+    relatedLimit: numberFrom(valueFrom(source, 'relatedLimit', 'related_limit', defaults.relatedLimit), defaults.relatedLimit),
+    showFeaturedSection: booleanFrom(valueFrom(presentation, 'showFeaturedSection', 'show_featured_section'), defaults.showFeaturedSection),
+    showCategoryNavigation: booleanFrom(valueFrom(presentation, 'showCategoryNavigation', 'show_category_navigation'), defaults.showCategoryNavigation),
+    showRelatedArticles: booleanFrom(valueFrom(presentation, 'showRelatedArticles', 'show_related_articles'), defaults.showRelatedArticles),
+    showAuthor: booleanFrom(valueFrom(presentation, 'showAuthor', 'show_author'), defaults.showAuthor),
+    showPublishedDate: booleanFrom(valueFrom(presentation, 'showPublishedDate', 'show_published_date'), defaults.showPublishedDate),
+    showViewCount: booleanFrom(valueFrom(presentation, 'showViewCount', 'show_view_count'), defaults.showViewCount),
+    showReadingTime: booleanFrom(valueFrom(presentation, 'showReadingTime', 'show_reading_time'), defaults.showReadingTime),
+    showTags: booleanFrom(valueFrom(presentation, 'showTags', 'show_tags'), defaults.showTags),
+    showArticleSource: booleanFrom(valueFrom(presentation, 'showArticleSource', 'show_article_source'), defaults.showArticleSource),
+    showBreadcrumb: booleanFrom(valueFrom(presentation, 'showBreadcrumb', 'show_breadcrumb'), defaults.showBreadcrumb),
+    showSocialShare: booleanFrom(valueFrom(presentation, 'showSocialShare', 'show_social_share'), defaults.showSocialShare),
+    showPreviousNext: booleanFrom(valueFrom(presentation, 'showPreviousNext', 'show_previous_next'), defaults.showPreviousNext),
+    showPlaceholderImage: booleanFrom(valueFrom(presentation, 'showPlaceholderImage', 'show_placeholder_image'), defaults.showPlaceholderImage),
+    allowPrint: booleanFrom(valueFrom(presentation, 'allowPrint', 'allow_print'), defaults.allowPrint),
+    lazyLoadImages: booleanFrom(valueFrom(presentation, 'lazyLoadImages', 'lazy_load_images'), defaults.lazyLoadImages),
+  }
+}
+
+export function normalizeNewsArticle(payload) {
+  const candidate = payload?.slug || payload?.title
+    ? payload
+    : payload?.data?.slug || payload?.data?.title
+      ? payload.data
+      : payload
+  if (!candidate || typeof candidate !== 'object') return null
+
+  const category = normalizeNewsCategory(candidate.category)
+  const rawImage = candidate.image ?? candidate.featuredImage ?? candidate.thumbnail
+  const image = rawImage
+    ? typeof rawImage === 'string'
+      ? { url: safeMediaUrl(rawImage), alt: candidate.imageAlt ?? candidate.title ?? '' }
+      : {
+          ...rawImage,
+          url: safeMediaUrl(rawImage.url ?? rawImage.src),
+          alt: rawImage.alt ?? candidate.imageAlt ?? candidate.title ?? '',
+        }
+    : null
+  const rawAuthor = candidate.author
+  const author = rawAuthor
+    ? typeof rawAuthor === 'string'
+      ? { name: rawAuthor, role: candidate.authorRole ?? '' }
+      : { ...rawAuthor, name: rawAuthor.name ?? '', role: rawAuthor.role ?? candidate.authorRole ?? '' }
+    : null
+  const contentHtml = candidate.contentHtml ?? candidate.content_html ?? candidate.content ?? ''
+  const tags = Array.isArray(candidate.tags)
+    ? candidate.tags.map(tag => (typeof tag === 'string' ? tag : tag?.name)).filter(Boolean)
+    : []
+  const publishedAt = candidate.publishedAt ?? candidate.published_at ?? candidate.date ?? candidate.createdAt
+
+  return {
+    ...candidate,
+    id: candidate.id ?? candidate.code ?? candidate.slug,
+    code: candidate.code ?? '',
+    locale: candidate.locale ?? 'vi',
+    slug: candidate.slug ?? '',
+    title: candidate.title ?? '',
+    excerpt: candidate.excerpt ?? candidate.summary ?? candidate.description ?? '',
+    contentHtml,
+    content: Array.isArray(candidate.contentBlocks)
+      ? candidate.contentBlocks
+      : htmlToContentBlocks(contentHtml),
+    category,
+    categoryName: category?.name ?? '',
+    categoryColor: category?.color ?? candidate.categoryColor ?? 'blue',
+    image: image?.url ? image : null,
+    imageUrl: image?.url ?? '',
+    imageAlt: image?.alt ?? candidate.title ?? '',
+    author,
+    authorName: author?.name ?? '',
+    authorRole: author?.role ?? '',
+    publishedAt,
+    date: publishedAt,
+    updatedAt: candidate.updatedAt ?? candidate.updated_at,
+    isFeatured: booleanFrom(candidate.isFeatured ?? candidate.is_featured ?? candidate.featured, false),
+    featured: booleanFrom(candidate.isFeatured ?? candidate.is_featured ?? candidate.featured, false),
+    readTime: Math.max(1, numberFrom(candidate.readTime ?? candidate.readingTime ?? candidate.read_time, 1)),
+    tags,
+    sourceUrl: safeUrl(candidate.sourceUrl ?? candidate.source_url),
+    viewCount: numberFrom(candidate.viewCount ?? candidate.view_count, 0),
+    seo: {
+      ...(candidate.seo ?? {}),
+      title: candidate.seo?.title ?? candidate.seoTitle ?? candidate.seo_title ?? '',
+      description:
+        candidate.seo?.description ?? candidate.metaDescription ?? candidate.meta_description ?? '',
+      keywords: candidate.seo?.keywords ?? candidate.metaKeywords ?? candidate.meta_keywords ?? '',
+    },
+  }
+}
+
+function cleanParams(params) {
+  return Object.fromEntries(Object.entries(params).filter(([, value]) => (
+    value !== undefined && value !== null && value !== ''
+  )))
+}
+
+function normalizeIndexResponse(payload, requested = {}) {
+  const source = payload?.data && !Array.isArray(payload?.data) ? payload.data : payload
+  const rawItems = Array.isArray(source?.items)
+    ? source.items
+    : Array.isArray(source?.results)
+      ? source.results
+      : Array.isArray(source)
+        ? source
+        : []
+  const items = rawItems.map(normalizeNewsArticle).filter(Boolean)
+  const featured = (Array.isArray(source?.featured) ? source.featured : [])
+    .map(normalizeNewsArticle)
+    .filter(Boolean)
+  const limit = Math.max(1, numberFrom(source?.limit ?? requested.limit, DEFAULT_NEWS_PAGE_CONFIG.itemsPerPage))
+  const total = Math.max(0, numberFrom(source?.total, items.length))
+
+  return {
+    items,
+    featured,
+    categories: (Array.isArray(source?.categories) ? source.categories : [])
+      .map(normalizeNewsCategory)
+      .filter(Boolean),
+    pageConfig: normalizeNewsPageConfig(source?.pageConfig ?? source?.page_config),
+    total,
+    page: Math.max(1, numberFrom(source?.page ?? requested.page, 1)),
+    limit,
+    lastPage: Math.max(1, numberFrom(source?.lastPage ?? source?.last_page, Math.ceil(total / limit) || 1)),
+  }
+}
+
+export function getNewsErrorStatus(error) {
+  return error?.response?.status ?? error?.status ?? null
 }
 
 export const newsService = {
-  getAll: async ({ page = 1, limit = 12, category } = {}) => {
-    if (API_BASE_URL) return getAllFromApi({ page, limit, category })
-
-    let results = NEWS_DATA.map(normalizeArticle).sort(
-      (a, b) => new Date(b.date) - new Date(a.date),
-    )
-    if (category) results = results.filter(article => article.category === category)
-
-    return {
-      items: results.slice((page - 1) * limit, page * limit),
-      total: results.length,
-      page,
-      limit,
-    }
+  async getAll({
+    locale = 'vi',
+    page = 1,
+    limit,
+    category,
+    search,
+    sort,
+    featured,
+    exclude,
+  } = {}, { signal } = {}) {
+    const params = cleanParams({ locale, page, limit, category, search, sort, featured, exclude })
+    const response = await api.get('/news', { params, signal })
+    return normalizeIndexResponse(response.data, params)
   },
 
-  getBySlug: async (slug) => {
-    if (API_BASE_URL) {
-      const response = await api.get(`/news/${encodeURIComponent(slug)}`)
-      const article = normalizeArticle(response)
-      if (!article) {
-        const error = new Error('Không tìm thấy bài viết')
-        error.status = 404
-        throw error
-      }
-      return article
-    }
-
-    const item = NEWS_DATA.find(article => article.slug === slug)
-    if (!item) {
+  async getBySlug(slug, { locale = 'vi', signal } = {}) {
+    const response = await api.get(`/news/${encodeURIComponent(slug)}`, {
+      params: { locale },
+      signal,
+    })
+    const payload = response.data ?? {}
+    const article = normalizeNewsArticle(payload.data ?? payload)
+    if (!article) {
       const error = new Error('Không tìm thấy bài viết')
       error.status = 404
       throw error
     }
-    return normalizeArticle(item)
+    return {
+      article,
+      pageConfig: normalizeNewsPageConfig(payload.pageConfig ?? payload.page_config),
+    }
   },
 
-  getRelated: async (article, limit = 3) => {
-    const response = await newsService.getAll({
-      limit: 100,
-      category: article.category,
-    })
-    const sameCategory = response.items.filter(item => item.slug !== article.slug)
-
-    if (sameCategory.length >= limit || API_BASE_URL) return sameCategory.slice(0, limit)
-
-    const all = await newsService.getAll({ limit: 100 })
-    const fallback = all.items.filter(
-      item =>
-        item.slug !== article.slug &&
-        !sameCategory.some(related => related.slug === item.slug),
-    )
-    return [...sameCategory, ...fallback].slice(0, limit)
+  async getRelated(article, limit, { locale = article?.locale ?? 'vi', signal } = {}) {
+    if (!article) return []
+    const response = await this.getAll({
+      locale,
+      page: 1,
+      limit: Math.max(1, limit ?? DEFAULT_NEWS_PAGE_CONFIG.relatedLimit),
+      category: article.category?.slug ?? article.category?.id,
+      exclude: article.id ?? article.slug,
+      sort: 'newest',
+    }, { signal })
+    return response.items.filter(item => item.slug !== article.slug)
   },
 
-  getFeatured: async (limit = 3) => {
-    const response = await newsService.getAll({ page: 1, limit })
-    return response.items
+  async getFeatured({ locale = 'vi', limit = DEFAULT_NEWS_PAGE_CONFIG.featuredLimit } = {}, options = {}) {
+    const response = await this.getAll({ locale, page: 1, limit, featured: true }, options)
+    const candidates = response.featured.length ? response.featured : response.items
+    return {
+      items: candidates.filter(article => article.isFeatured || !response.featured.length).slice(0, limit),
+      pageConfig: response.pageConfig,
+    }
   },
 }

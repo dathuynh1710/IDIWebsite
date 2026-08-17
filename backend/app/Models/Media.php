@@ -25,12 +25,13 @@ class Media extends Model
         'height',
         'title',
         'alt_text',
+        'caption',
         'created_by',
     ];
 
     protected function casts(): array
     {
-        return ['title' => 'array', 'alt_text' => 'array'];
+        return ['title' => 'array', 'alt_text' => 'array', 'caption' => 'array'];
     }
 
     public function getUrlAttribute(): string

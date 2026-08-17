@@ -226,7 +226,7 @@ class CoreSeeder extends Seeder
             ['module' => 'about', 'key' => 'show_placeholder_image', 'value' => true, 'type' => 'boolean'],
             ['module' => 'about', 'key' => 'thumbnail_size', 'value' => 150, 'type' => 'number'],
             ['module' => 'about', 'key' => 'max_upload_width', 'value' => 1200, 'type' => 'number'],
-            ['module' => 'news', 'key' => 'items_per_page', 'value' => 9, 'type' => 'number'],
+            ['module' => 'news', 'key' => 'items_per_page', 'value' => 12, 'type' => 'number'],
             ['module' => 'investors', 'key' => 'default_year', 'value' => 2025, 'type' => 'number'],
             ['module' => 'careers', 'key' => 'application_enabled', 'value' => true, 'type' => 'boolean'],
         ] as $setting) {

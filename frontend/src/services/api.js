@@ -16,6 +16,10 @@ api.interceptors.response.use(
     return response
   },
   error => {
+    if (axios.isCancel(error) || error?.code === 'ERR_CANCELED') {
+      return Promise.reject(error)
+    }
+
     const data = error.response?.data
     const notification = data?.toast
 

@@ -49,6 +49,36 @@ class PostCategory extends Model
         return $this->hasMany(Post::class);
     }
 
+    public function scopePublished(Builder $query, string $locale): Builder
+    {
+        $locale = in_array($locale, ['vi', 'en', 'zh'], true) ? $locale : 'vi';
+        $publishedBefore = now()->toIso8601String();
+
+        return $query
+            ->where('is_active', true)
+            ->where("translation_status->{$locale}", 'published')
+            ->where(function (Builder $query) use ($locale, $publishedBefore): void {
+                $query->whereNull("locale_published_at->{$locale}")
+                    ->orWhereRaw(
+                        "REPLACE({$this->localizedPublishedAtExpression($query, $locale)}, ' ', 'T') <= ?",
+                        [$publishedBefore]
+                    );
+            });
+    }
+
+    private function localizedPublishedAtExpression(Builder $query, string $locale): string
+    {
+        $column = $query->getModel()->qualifyColumn('locale_published_at');
+        $path = '$."'.$locale.'"';
+
+        return match ($query->getConnection()->getDriverName()) {
+            'mysql', 'mariadb' => "JSON_UNQUOTE(JSON_EXTRACT({$column}, '{$path}'))",
+            'pgsql' => "{$column}->>'{$locale}'",
+            'sqlsrv' => "JSON_VALUE({$column}, '$.{$locale}')",
+            default => "json_extract({$column}, '{$path}')",
+        };
+    }
+
     public function scopeFiltered(Builder $query, string $search, string $active, string $locale): Builder
     {
         return $query

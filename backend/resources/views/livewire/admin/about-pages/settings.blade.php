@@ -6,7 +6,7 @@
     </x-admin.page-header>
 
     <form id="about-settings-form" wire:submit="save">
-        @if($errors->any())<div class="validation-summary" role="alert"><x-ui.icon name="alert" /><div><strong>Vui lòng kiểm tra lại thông tin.</strong><p>Có {{ $errors->count() }} trường cần chỉnh sửa.</p></div></div>@endif
+
 
         <div class="about-settings-content">
             <x-form.language-tabs :locales="$locales">

@@ -8,7 +8,7 @@
     </x-admin.page-header>
 
     <form id="recipe-form" wire:submit="save" data-dirty-form>
-        @if($errors->any())<div class="validation-summary" role="alert"><x-ui.icon name="alert" /><div><strong>Vui lòng kiểm tra lại thông tin.</strong><p>Có {{ $errors->count() }} trường cần chỉnh sửa.</p></div></div>@endif
+
         <div class="product-form-grid recipe-form-grid">
             <aside class="product-form-sidebar">
                 <x-form.section title="Thông tin chung" description="Áp dụng cho cả 3 ngôn ngữ" icon="info">

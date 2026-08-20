@@ -141,7 +141,32 @@ class PositionForm extends AdminComponent
             $rules["slug.{$locale}"] = ['required', 'string', 'max:255'];
         }
 
-        $data = $this->validate($rules);
+        $localeLabels = ['vi' => 'Tiếng Việt', 'en' => 'English', 'zh' => '中文'];
+        $attributes = [
+            'code'       => 'Mã vị trí',
+            'department' => 'Phòng ban',
+            'quantity'   => 'Số lượng tuyển',
+            'expires_at' => 'Hạn nộp hồ sơ',
+            'sort_order' => 'Thứ tự hiển thị',
+            'is_active'  => 'Trạng thái',
+        ];
+        foreach ($this->enabled_locales as $locale) {
+            $label = $localeLabels[$locale] ?? $locale;
+            $attributes["title.{$locale}"]            = "Tên vị trí ({$label})";
+            $attributes["slug.{$locale}"]             = "Đường dẫn ({$label})";
+            $attributes["location.{$locale}"]         = "Địa điểm làm việc ({$label})";
+            $attributes["summary.{$locale}"]          = "Tóm tắt ({$label})";
+            $attributes["description.{$locale}"]      = "Mô tả công việc ({$label})";
+            $attributes["requirements.{$locale}"]     = "Yêu cầu ({$label})";
+            $attributes["benefits.{$locale}"]         = "Phúc lợi ({$label})";
+            $attributes["contact.{$locale}"]          = "Thông tin liên hệ ({$label})";
+            $attributes["seo_title.{$locale}"]        = "Tiêu đề SEO ({$label})";
+            $attributes["meta_description.{$locale}"] = "Meta description ({$label})";
+            $attributes["meta_keywords.{$locale}"]    = "Từ khóa meta ({$label})";
+            $attributes["locale_published_at.{$locale}"] = "Ngày đăng ({$label})";
+        }
+
+        $data = $this->validate($rules, [], $attributes);
         $enabledLocales = collect($data['enabled_locales'])->flip();
         foreach (['title', 'slug', 'location', 'summary', 'seo_title', 'meta_description', 'meta_keywords'] as $field) {
             $submitted = collect($data[$field] ?? [])->intersectByKeys($enabledLocales)

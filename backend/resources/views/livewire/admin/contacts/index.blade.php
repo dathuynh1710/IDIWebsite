@@ -120,12 +120,9 @@
                         <div><h2 id="contact-detail-title">{{ $viewingMessage->full_name }}</h2><a href="mailto:{{ $viewingMessage->email }}">{{ $viewingMessage->email }}</a></div>
                     </div>
                     <dl class="contact-meta">
-                        <div><dt>Loại yêu cầu</dt><dd>{{ $viewingMessage->inquiry_type ?: 'Không cung cấp' }}</dd></div>
                         <div><dt>Điện thoại</dt><dd>{{ $viewingMessage->phone ?: 'Không cung cấp' }}</dd></div>
                         <div><dt>Địa chỉ</dt><dd>{{ $viewingMessage->address ?: 'Không cung cấp' }}</dd></div>
-                        <div><dt>Ngôn ngữ</dt><dd>{{ strtoupper($viewingMessage->locale ?: '—') }}</dd></div>
                         <div><dt>Ngày gửi</dt><dd>{{ $viewingMessage->created_at->format('H:i, d/m/Y') }}</dd></div>
-                        <div><dt>Phụ trách</dt><dd>{{ $viewingMessage->assignee?->name ?: 'Chưa phân công' }}</dd></div>
                     </dl>
                     <section class="contact-message-box">
                         <span>Tiêu đề</span>

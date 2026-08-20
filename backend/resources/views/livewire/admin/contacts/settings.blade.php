@@ -7,7 +7,6 @@
     </x-admin.page-header>
 
     <form id="contact-settings-form" wire:submit="saveSettings">
-        @if($errors->any() && !$showLocationForm)<div class="validation-summary" role="alert"><x-ui.icon name="alert" /><div><strong>Vui lòng kiểm tra lại cấu hình.</strong><p>Có {{ $errors->count() }} trường cần chỉnh sửa.</p></div></div>@endif
         <div class="contact-settings-grid">
             <div class="contact-settings-content">
                 <x-form.language-tabs :locales="$locales">
@@ -75,7 +74,6 @@
             <form class="contact-detail-panel location-form-panel" wire:submit="saveLocation">
                 <header class="contact-detail-header"><div><span>Địa chỉ liên hệ</span><strong id="location-form-title">{{ $editingLocationId ? 'Cập nhật văn phòng' : 'Thêm văn phòng mới' }}</strong></div><button class="icon-button" type="button" wire:click="closeLocationForm" aria-label="Đóng"><x-ui.icon name="x" /></button></header>
                 <div class="contact-detail-body">
-                    @if($errors->any())<div class="validation-summary" role="alert"><strong>Vui lòng kiểm tra lại thông tin địa chỉ.</strong></div>@endif
                     <div class="location-form-common">
                         <x-form.input name="location_code" label="Mã quản trị" wire:model.blur="location_code" placeholder="HEAD_OFFICE" />
                         <x-form.input name="location_sort_order" label="Thứ tự" type="number" wire:model="location_sort_order" min="0" required />

@@ -1,9 +1,3 @@
-@if($errors->any())
-    <div class="validation-summary" role="alert">
-        <x-ui.icon name="alert" />
-        <div><strong>Vui lòng kiểm tra lại thông tin.</strong><p>Có {{ $errors->count() }} trường cần được chỉnh sửa.</p></div>
-    </div>
-@endif
 
 <div class="category-form-grid">
     <aside class="category-form-sidebar">

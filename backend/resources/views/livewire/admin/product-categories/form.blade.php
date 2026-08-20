@@ -7,7 +7,7 @@
     </x-admin.page-header>
 
     <form id="category-form" wire:submit="save">
-        @if($errors->any())<div class="validation-summary" role="alert"><x-ui.icon name="alert" /><div><strong>Vui lòng kiểm tra lại thông tin.</strong><p>Có {{ $errors->count() }} trường cần chỉnh sửa.</p></div></div>@endif
+
         <div class="category-form-grid">
             <aside class="category-form-sidebar">
                 <x-form.section title="Thiết lập danh mục" description="Thông tin quản trị và trạng thái" icon="settings">

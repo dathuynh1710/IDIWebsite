@@ -55,6 +55,22 @@ class Settings extends AdminComponent
             'items_per_page' => ['required', 'integer', 'min:5', 'max:100'],
             'default_year' => ['required', 'integer', 'min:2000', 'max:2100'],
             'max_upload_size' => ['required', 'integer', 'min:1', 'max:100'],
+        ], [], [
+            'page_title.vi'       => 'Tiêu đề trang (Tiếng Việt)',
+            'page_title.en'       => 'Tiêu đề trang (English)',
+            'page_title.zh'       => 'Tiêu đề trang (中文)',
+            'description.vi'      => 'Mô tả (Tiếng Việt)',
+            'description.en'      => 'Mô tả (English)',
+            'description.zh'      => 'Mô tả (中文)',
+            'seo_title.vi'        => 'Tiêu đề SEO (Tiếng Việt)',
+            'seo_title.en'        => 'Tiêu đề SEO (English)',
+            'seo_title.zh'        => 'Tiêu đề SEO (中文)',
+            'meta_description.vi' => 'Meta description (Tiếng Việt)',
+            'meta_description.en' => 'Meta description (English)',
+            'meta_description.zh' => 'Meta description (中文)',
+            'items_per_page'      => 'Số tài liệu mỗi trang',
+            'default_year'        => 'Năm mặc định',
+            'max_upload_size'     => 'Dung lượng tải lên tối đa (MB)',
         ]);
 
         DB::transaction(function () use ($data): void {

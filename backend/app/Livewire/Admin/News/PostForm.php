@@ -129,7 +129,29 @@ class PostForm extends AdminComponent
             $rules["title.{$locale}"] = ['required', 'string', 'max:255'];
             $rules["slug.{$locale}"] = ['required', 'string', 'max:255'];
         }
-        $data = $this->validate($rules);
+
+        $localeLabels = ['vi' => 'Tiếng Việt', 'en' => 'English', 'zh' => '中文'];
+        $attributes = [
+            'post_category_id'  => 'Chuyên mục',
+            'code'              => 'Mã bài viết',
+            'featured_image'    => 'Ảnh đại diện',
+            'sort_order'        => 'Thứ tự hiển thị',
+            'is_featured'       => 'Nổi bật',
+            'is_active'         => 'Trạng thái',
+        ];
+        foreach ($this->enabled_locales as $locale) {
+            $label = $localeLabels[$locale] ?? $locale;
+            $attributes["title.{$locale}"]              = "Tiêu đề ({$label})";
+            $attributes["slug.{$locale}"]               = "Đường dẫn ({$label})";
+            $attributes["excerpt.{$locale}"]            = "Tóm tắt ({$label})";
+            $attributes["seo_title.{$locale}"]          = "Tiêu đề SEO ({$label})";
+            $attributes["meta_description.{$locale}"]   = "Meta description ({$label})";
+            $attributes["og_title.{$locale}"]           = "OG Title ({$label})";
+            $attributes["og_description.{$locale}"]     = "OG Description ({$label})";
+            $attributes["locale_published_at.{$locale}"] = "Ngày đăng ({$label})";
+        }
+
+        $data = $this->validate($rules, [], $attributes);
         $enabledLocales = collect($data['enabled_locales'])->flip();
         foreach (['title', 'slug', 'excerpt', 'seo_title', 'meta_description', 'og_title', 'og_description'] as $field) {
             $submitted = collect($data[$field] ?? [])->intersectByKeys($enabledLocales)

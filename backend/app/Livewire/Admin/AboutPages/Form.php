@@ -103,7 +103,35 @@ class Form extends AdminComponent
             'seo_title.*' => ['nullable', 'string', 'max:255'],
             'meta_description.*' => ['nullable', 'string', 'max:500'],
             'meta_keywords.*' => ['nullable', 'string', 'max:1000'],
-        ], [], ['title.vi' => 'tiêu đề tiếng Việt', 'slug.vi' => 'đường dẫn tiếng Việt']);
+        ], [], [
+            'parent_id'           => 'Trang cha',
+            'template'            => 'Mẫu trang',
+            'code'                => 'Mã trang',
+            'featured_image'      => 'Ảnh đại diện',
+            'sort_order'          => 'Thứ tự hiển thị',
+            'is_active'           => 'Trạng thái',
+            'title.vi'            => 'Tiêu đề (Tiếng Việt)',
+            'title.en'            => 'Tiêu đề (English)',
+            'title.zh'            => 'Tiêu đề (中文)',
+            'slug.vi'             => 'Đường dẫn (Tiếng Việt)',
+            'slug.en'             => 'Đường dẫn (English)',
+            'slug.zh'             => 'Đường dẫn (中文)',
+            'summary.vi'          => 'Tóm tắt (Tiếng Việt)',
+            'summary.en'          => 'Tóm tắt (English)',
+            'summary.zh'          => 'Tóm tắt (中文)',
+            'content.vi'          => 'Nội dung (Tiếng Việt)',
+            'content.en'          => 'Nội dung (English)',
+            'content.zh'          => 'Nội dung (中文)',
+            'seo_title.vi'        => 'Tiêu đề SEO (Tiếng Việt)',
+            'seo_title.en'        => 'Tiêu đề SEO (English)',
+            'seo_title.zh'        => 'Tiêu đề SEO (中文)',
+            'meta_description.vi' => 'Meta description (Tiếng Việt)',
+            'meta_description.en' => 'Meta description (English)',
+            'meta_description.zh' => 'Meta description (中文)',
+            'meta_keywords.vi'    => 'Từ khóa meta (Tiếng Việt)',
+            'meta_keywords.en'    => 'Từ khóa meta (English)',
+            'meta_keywords.zh'    => 'Từ khóa meta (中文)',
+        ]);
 
         $localized = [];
         foreach (['title', 'slug', 'summary', 'seo_title', 'meta_description', 'meta_keywords'] as $field) {

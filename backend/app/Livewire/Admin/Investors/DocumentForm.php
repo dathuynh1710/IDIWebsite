@@ -104,7 +104,23 @@ class DocumentForm extends AdminComponent
             $rules["title.{$locale}"] = ['required', 'string', 'max:255'];
             $rules["summary.{$locale}"] = ['nullable', 'string', 'max:5000'];
         }
-        $data = $this->validate($rules);
+
+        $localeLabels = ['vi' => 'Tiếng Việt', 'en' => 'English', 'zh' => '中文'];
+        $attributes = [
+            'document_category_id' => 'Danh mục',
+            'published_on'         => 'Ngày công bố',
+            'slug'                 => 'Đường dẫn',
+            'seo_title'            => 'Tiêu đề SEO',
+            'meta_description'     => 'Meta description',
+            'uploads.vi'           => 'Tệp tải lên',
+        ];
+        foreach ($this->enabled_locales as $locale) {
+            $label = $localeLabels[$locale] ?? $locale;
+            $attributes["title.{$locale}"]   = "Tiêu đề ({$label})";
+            $attributes["summary.{$locale}"] = "Tóm tắt ({$label})";
+        }
+
+        $data = $this->validate($rules, [], $attributes);
 
         if (! $this->document && ! $hasUpload) {
             $this->addError('uploads.vi', 'Vui lòng tải lên một tệp.');

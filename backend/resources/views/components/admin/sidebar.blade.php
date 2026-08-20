@@ -16,12 +16,14 @@
             @endif
             <ul>
                 @foreach($group['items'] as $item)
-                    @if(empty($item['permission']))
-                        <x-admin.sidebar-menu-item :item="$item" />
-                    @else
-                        @can($item['permission'])
+                    @if(!($item['hidden'] ?? false))
+                        @if(empty($item['permission']))
                             <x-admin.sidebar-menu-item :item="$item" />
-                        @endcan
+                        @else
+                            @can($item['permission'])
+                                <x-admin.sidebar-menu-item :item="$item" />
+                            @endcan
+                        @endif
                     @endif
                 @endforeach
             </ul>

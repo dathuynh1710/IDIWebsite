@@ -128,7 +128,27 @@ class Form extends AdminComponent
             $rules["locale_published_at.{$locale}"] = ['nullable', 'date'];
         }
 
-        $validated = $this->validate($rules);
+        $localeLabels = ['vi' => 'Tiếng Việt', 'en' => 'English', 'zh' => '中文'];
+        $attributes = [
+            'sku'                  => 'Mã sản phẩm (SKU)',
+            'product_category_id'  => 'Danh mục sản phẩm',
+            'featured_image'       => 'Ảnh đại diện',
+            'sort_order'           => 'Thứ tự hiển thị',
+            'is_featured'          => 'Nổi bật',
+            'is_active'            => 'Trạng thái',
+        ];
+        foreach ($this->enabled_locales as $locale) {
+            $label = $localeLabels[$locale] ?? $locale;
+            $attributes["title.{$locale}"]                 = "Tên sản phẩm ({$label})";
+            $attributes["slug.{$locale}"]                  = "Đường dẫn ({$label})";
+            $attributes["short_description.{$locale}"]     = "Mô tả ngắn ({$label})";
+            $attributes["content.{$locale}"]               = "Nội dung ({$label})";
+            $attributes["seo_title.{$locale}"]             = "Tiêu đề SEO ({$label})";
+            $attributes["meta_description.{$locale}"]      = "Meta description ({$label})";
+            $attributes["locale_published_at.{$locale}"]   = "Ngày đăng ({$label})";
+        }
+
+        $validated = $this->validate($rules, [], $attributes);
         $enabledLocales = collect($validated['enabled_locales'])->flip();
 
         $localized = [];

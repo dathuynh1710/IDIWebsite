@@ -12,7 +12,7 @@
     </x-admin.page-header>
 
     <form id="product-form" wire:submit="save" data-dirty-form>
-        @if($errors->any())<div class="validation-summary" role="alert"><x-ui.icon name="alert" /><div><strong>Vui lòng kiểm tra lại thông tin.</strong><p>Có {{ $errors->count() }} trường cần chỉnh sửa.</p></div></div>@endif
+
         <div class="product-form-grid">
             <div class="product-form-sidebar">
                 <x-form.section title="Thông tin chung" description="Dữ liệu dùng chung cho mọi ngôn ngữ" icon="package">

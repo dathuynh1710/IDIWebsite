@@ -4,7 +4,7 @@
     </x-admin.page-header>
 
     <form id="recruitment-settings" wire:submit="save" data-dirty-form>
-        @if($errors->any())<div class="validation-summary" role="alert"><x-ui.icon name="alert" /><div><strong>Vui lòng kiểm tra lại cấu hình.</strong><p>Có {{ $errors->count() }} trường cần chỉnh sửa.</p></div></div>@endif
+
 
         <section class="card recruitment-settings-content-card">
             <header class="recruitment-settings-section-heading"><div><span class="recruitment-settings-section-icon"><x-ui.icon name="languages" size="20" /></span><div><h2>Nội dung trang tuyển dụng</h2><p>Biên tập độc lập cho Tiếng Việt, English và 中文.</p></div></div></header>

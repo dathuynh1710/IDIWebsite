@@ -42,6 +42,19 @@ class Settings extends AdminComponent
             'description.*' => ['nullable', 'string', 'max:1000'],
             'seo_title.*' => ['nullable', 'string', 'max:255'],
             'meta_description.*' => ['nullable', 'string', 'max:500'],
+        ], [], [
+            'page_title.vi'       => 'Tiêu đề trang (Tiếng Việt)',
+            'page_title.en'       => 'Tiêu đề trang (English)',
+            'page_title.zh'       => 'Tiêu đề trang (中文)',
+            'description.vi'      => 'Mô tả giới thiệu (Tiếng Việt)',
+            'description.en'      => 'Mô tả giới thiệu (English)',
+            'description.zh'      => 'Mô tả giới thiệu (中文)',
+            'seo_title.vi'        => 'Tiêu đề SEO (Tiếng Việt)',
+            'seo_title.en'        => 'Tiêu đề SEO (English)',
+            'seo_title.zh'        => 'Tiêu đề SEO (中文)',
+            'meta_description.vi' => 'Meta description (Tiếng Việt)',
+            'meta_description.en' => 'Meta description (English)',
+            'meta_description.zh' => 'Meta description (中文)',
         ]);
 
         DB::transaction(function () use ($validated): void {

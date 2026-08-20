@@ -78,7 +78,7 @@ return [
                     ['label' => 'Quản lý giới thiệu', 'route' => 'admin.about-pages.index'],
                 ],
             ],
-            ['label' => 'Quản lý dự án', 'url' => '#', 'icon' => 'briefcase', 'permission' => 'pages.manage'],
+            ['label' => 'Quản lý dự án', 'url' => '#', 'icon' => 'briefcase', 'permission' => 'pages.manage', 'hidden' => true],
             [
                 'label' => 'Quản lý tuyển dụng',
                 'icon' => 'users',
@@ -91,10 +91,10 @@ return [
                     ['label' => 'Quản lý đăng ký', 'route' => 'admin.recruitment.applications.index'],
                 ],
             ],
-            ['label' => 'Quản lý Banner - Logo', 'url' => '#', 'icon' => 'image', 'permission' => 'media.manage'],
-            ['label' => 'Cấu hình site', 'url' => '#', 'icon' => 'settings', 'permission' => 'settings.manage'],
-            ['label' => 'SEO - Mạng xã hội', 'url' => '#', 'icon' => 'search', 'permission' => 'settings.manage'],
-            ['label' => 'Thông tin hệ thống', 'url' => '#', 'icon' => 'info', 'permission' => 'settings.manage'],
+            ['label' => 'Quản lý Banner - Logo', 'url' => '#', 'icon' => 'image', 'permission' => 'media.manage', 'hidden' => true],
+            ['label' => 'Cấu hình site', 'url' => '#', 'icon' => 'settings', 'permission' => 'settings.manage', 'hidden' => true],
+            ['label' => 'SEO - Mạng xã hội', 'url' => '#', 'icon' => 'search', 'permission' => 'settings.manage', 'hidden' => true],
+            ['label' => 'Thông tin hệ thống', 'url' => '#', 'icon' => 'info', 'permission' => 'settings.manage', 'hidden' => true],
         ],
     ],
     [

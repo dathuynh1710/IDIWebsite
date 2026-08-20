@@ -19,7 +19,7 @@
         name="{{ $name }}"
         type="{{ $type }}"
         value="{{ old($errorKey, $value) }}"
-        @if($required) required @endif
+        @if($required) aria-required="true" @endif
         @if($describedBy) aria-describedby="{{ trim($describedBy) }}" @endif
         @if($errors->has($errorKey)) aria-invalid="true" @endif
         {{ $attributes->class(['input', 'is-invalid' => $errors->has($errorKey)]) }}

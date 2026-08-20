@@ -7,12 +7,7 @@
 
     <form id="news-settings" wire:submit="save" data-dirty-form class="news-settings-form"
         x-data="{ activeTab: 'general' }">
-        @if($errors->any())
-            <div class="validation-summary" role="alert">
-                <x-ui.icon name="alert" />
-                <div><strong>Vui lòng kiểm tra lại cấu hình.</strong><p>Có {{ $errors->count() }} trường cần chỉnh sửa.</p></div>
-            </div>
-        @endif
+
 
         <nav class="settings-tab-list" role="tablist" aria-label="Nhóm cấu hình Tin tức">
             @foreach([

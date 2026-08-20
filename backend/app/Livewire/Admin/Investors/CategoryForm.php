@@ -64,6 +64,19 @@ class CategoryForm extends AdminComponent
             'description.*' => ['nullable', 'string', 'max:2000'],
             'sort_order' => ['required', 'integer', 'min:0'],
             'is_active' => ['boolean'],
+        ], [], [
+            'parent_id'      => 'Danh mục cha',
+            'name.vi'        => 'Tên danh mục (Tiếng Việt)',
+            'name.en'        => 'Tên danh mục (English)',
+            'name.zh'        => 'Tên danh mục (中文)',
+            'slug.vi'        => 'Đường dẫn (Tiếng Việt)',
+            'slug.en'        => 'Đường dẫn (English)',
+            'slug.zh'        => 'Đường dẫn (中文)',
+            'description.vi' => 'Mô tả (Tiếng Việt)',
+            'description.en' => 'Mô tả (English)',
+            'description.zh' => 'Mô tả (中文)',
+            'sort_order'     => 'Thứ tự hiển thị',
+            'is_active'      => 'Trạng thái',
         ]);
         foreach (['name', 'slug', 'description'] as $field) {
             $data[$field] = collect($data[$field] ?? [])->map(fn ($value) => trim((string) $value))->filter(fn ($value) => $value !== '')->all();

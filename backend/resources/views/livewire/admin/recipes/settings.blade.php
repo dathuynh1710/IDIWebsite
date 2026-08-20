@@ -7,7 +7,7 @@
     </x-admin.page-header>
 
     <form id="recipe-settings-form" wire:submit="save">
-        @if($errors->any())<div class="validation-summary" role="alert"><x-ui.icon name="alert" /><div><strong>Vui lòng kiểm tra lại thông tin.</strong><p>Có {{ $errors->count() }} trường cần chỉnh sửa.</p></div></div>@endif
+
         <x-form.language-tabs :locales="$locales">
             @foreach($locales as $locale => $label)
                 <section id="panel-{{ $locale }}" class="tab-panel" role="tabpanel" x-show="active === '{{ $locale }}'" x-cloak>

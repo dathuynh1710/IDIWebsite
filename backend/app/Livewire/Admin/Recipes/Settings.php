@@ -65,6 +65,24 @@ class Settings extends AdminComponent
             'show_placeholder_image' => ['required', 'boolean'],
             'thumbnail_size' => ['required', 'integer', 'min:50', 'max:1000'],
             'max_upload_width' => ['required', 'integer', 'min:320', 'max:5000'],
+        ], [], [
+            'page_title.vi'       => 'Tiêu đề trang (Tiếng Việt)',
+            'page_title.en'       => 'Tiêu đề trang (English)',
+            'page_title.zh'       => 'Tiêu đề trang (中文)',
+            'description.vi'      => 'Mô tả (Tiếng Việt)',
+            'description.en'      => 'Mô tả (English)',
+            'description.zh'      => 'Mô tả (中文)',
+            'seo_title.vi'        => 'Tiêu đề SEO (Tiếng Việt)',
+            'seo_title.en'        => 'Tiêu đề SEO (English)',
+            'seo_title.zh'        => 'Tiêu đề SEO (中文)',
+            'meta_description.vi' => 'Meta description (Tiếng Việt)',
+            'meta_description.en' => 'Meta description (English)',
+            'meta_description.zh' => 'Meta description (中文)',
+            'is_active'              => 'Trạng thái module',
+            'items_per_page'         => 'Số recipe mỗi trang',
+            'show_placeholder_image' => 'Hiển thị ảnh mặc định',
+            'thumbnail_size'         => 'Kích thước thumbnail',
+            'max_upload_width'       => 'Chiều rộng ảnh tối đa',
         ]);
 
         DB::transaction(function () use ($validated): void {

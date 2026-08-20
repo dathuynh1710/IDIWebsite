@@ -10,9 +10,7 @@
     </x-admin.page-header>
 
     <form id="about-page-form" wire:submit="save" data-dirty-form>
-        @if($errors->any())
-            <div class="validation-summary" role="alert"><x-ui.icon name="alert" /><div><strong>Vui lòng kiểm tra lại thông tin.</strong><p>Có {{ $errors->count() }} trường cần chỉnh sửa.</p></div></div>
-        @endif
+
 
         <div class="product-form-grid">
             <aside class="product-form-sidebar">

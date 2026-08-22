@@ -43,6 +43,10 @@ class InvestorRelationsManagementTest extends TestCase
             ->get('/admin/investors/settings')
             ->assertOk()
             ->assertSee('Cấu hình quan hệ cổ đông')
+            ->assertSee('Quản lý tài liệu')
+            ->assertSee('Số dòng mặc định')
+            ->assertSee('Giới hạn mỗi tệp (MB)')
+            ->assertDontSee('Năm mặc định')
             ->assertDontSee('Thiết lập nội dung giới thiệu, SEO và cách hiển thị thư viện tài liệu.')
             ->assertDontSee('class="breadcrumb"', false);
     }
@@ -83,13 +87,22 @@ class InvestorRelationsManagementTest extends TestCase
             ->set('page_title', ['vi' => 'Quan hệ cổ đông', 'en' => 'Investor Relations', 'zh' => '投资者关系'])
             ->set('description.en', 'Transparent investor information')
             ->set('items_per_page', 20)
-            ->set('default_year', 2026)
             ->set('max_upload_size', 25)
             ->call('save')
             ->assertHasNoErrors();
 
         $module = DB::table('modules')->where('code', 'investors')->first();
         $this->assertSame('投资者关系', json_decode($module->page_title, true)['zh']);
+        $this->assertDatabaseHas('module_settings', [
+            'module_id' => $module->id,
+            'setting_key' => 'items_per_page',
+            'setting_value' => '20',
+        ]);
+        $this->assertDatabaseHas('module_settings', [
+            'module_id' => $module->id,
+            'setting_key' => 'max_upload_size',
+            'setting_value' => '25',
+        ]);
         $this->actingAs(User::factory()->create())->get('/admin/investors')->assertForbidden();
     }
 

@@ -73,7 +73,8 @@ export const NAV_ITEMS = [
     label: 'Nhà đầu tư',
     href: '/investors',
     children: [
-      { id: 'announcements', label: 'Thông báo', href: '/investors' },
+      { id: 'investor-overview', label: 'Tổng quan', href: '/investors' },
+      { id: 'announcements', label: 'Thông báo', href: '/investors/announcements' },
       { id: 'financials', label: 'Báo cáo tài chính', href: '/investors/financials' },
       { id: 'annual-reports', label: 'Báo cáo thường niên', href: '/investors/annual-reports' },
       { id: 'agm', label: 'Đại hội cổ đông', href: '/investors/agm' },
@@ -98,7 +99,8 @@ export const NAV_ITEMS = [
 
 // Investor sidebar navigation (used in InvestorLayout)
 export const INVESTOR_NAV = [
-  { id: 'announcements', label: 'Thông báo', href: '/investors' },
+  { id: 'investor-overview', label: 'Tổng quan', href: '/investors' },
+  { id: 'announcements', label: 'Thông báo', href: '/investors/announcements' },
   { id: 'financials', label: 'Báo cáo tài chính', href: '/investors/financials' },
   { id: 'annual-reports', label: 'Báo cáo thường niên', href: '/investors/annual-reports' },
   { id: 'agm', label: 'Đại hội cổ đông', href: '/investors/agm' },
@@ -127,7 +129,8 @@ export const FOOTER_LINKS = {
   investors: {
     title: 'Nhà đầu tư',
     links: [
-      { label: 'Thông báo', href: '/investors' },
+      { label: 'Tổng quan', href: '/investors' },
+      { label: 'Thông báo', href: '/investors/announcements' },
       { label: 'Báo cáo tài chính', href: '/investors/financials' },
       { label: 'Báo cáo thường niên', href: '/investors/annual-reports' },
       { label: 'Đại hội cổ đông', href: '/investors/agm' },

@@ -25,7 +25,8 @@ const NAV_ITEMS = [
     label: 'Nhà đầu tư',
     href: '/investors',
     children: [
-      { label: 'Thông báo', href: '/investors' },
+      { label: 'Tổng quan', href: '/investors' },
+      { label: 'Thông báo', href: '/investors/announcements' },
       { label: 'Báo cáo tài chính', href: '/investors/financials' },
       { label: 'Báo cáo thường niên', href: '/investors/annual-reports' },
       { label: 'Đại hội cổ đông', href: '/investors/agm' },

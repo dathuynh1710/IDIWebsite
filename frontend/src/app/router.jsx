@@ -33,6 +33,7 @@ const QualityPage           = lazy(() => import('@pages/quality/QualityPage'))
 const SustainabilityPage    = lazy(() => import('@pages/sustainability/SustainabilityPage'))
 
 const InvestorsPage         = lazy(() => import('@pages/investors/InvestorsPage'))
+const AnnouncementsPage     = lazy(() => import('@pages/investors/AnnouncementsPage'))
 const FinancialsPage        = lazy(() => import('@pages/investors/FinancialsPage'))
 const AnnualReportsPage     = lazy(() => import('@pages/investors/AnnualReportsPage'))
 const AGMPage               = lazy(() => import('@pages/investors/AGMPage'))
@@ -92,6 +93,7 @@ export const router = createBrowserRouter([
         element: withSuspense(InvestorLayout),
         children: [
           { index: true, element: withSuspense(InvestorsPage) },
+          { path: 'announcements', element: withSuspense(AnnouncementsPage) },
           { path: 'financials', element: withSuspense(FinancialsPage) },
           { path: 'annual-reports', element: withSuspense(AnnualReportsPage) },
           { path: 'agm', element: withSuspense(AGMPage) },

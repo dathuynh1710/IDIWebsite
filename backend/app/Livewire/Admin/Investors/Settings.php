@@ -20,14 +20,11 @@ class Settings extends AdminComponent
 
     public int $items_per_page = 15;
 
-    public int $default_year;
-
     public int $max_upload_size = 20;
 
     public function mount(): void
     {
         Gate::authorize('investors.update');
-        $this->default_year = (int) now()->year;
         $module = DB::table('modules')->where('code', 'investors')->first();
         if (! $module) {
             return;
@@ -53,7 +50,6 @@ class Settings extends AdminComponent
             'seo_title.*' => ['nullable', 'string', 'max:255'],
             'meta_description.*' => ['nullable', 'string', 'max:500'],
             'items_per_page' => ['required', 'integer', 'min:5', 'max:100'],
-            'default_year' => ['required', 'integer', 'min:2000', 'max:2100'],
             'max_upload_size' => ['required', 'integer', 'min:1', 'max:100'],
         ], [], [
             'page_title.vi'       => 'Tiêu đề trang (Tiếng Việt)',
@@ -69,7 +65,6 @@ class Settings extends AdminComponent
             'meta_description.en' => 'Meta description (English)',
             'meta_description.zh' => 'Meta description (中文)',
             'items_per_page'      => 'Số tài liệu mỗi trang',
-            'default_year'        => 'Năm mặc định',
             'max_upload_size'     => 'Dung lượng tải lên tối đa (MB)',
         ]);
 
@@ -86,7 +81,7 @@ class Settings extends AdminComponent
                 'created_at' => now(),
             ]);
             $moduleId = (int) DB::table('modules')->where('code', 'investors')->value('id');
-            foreach (['items_per_page', 'default_year', 'max_upload_size'] as $key) {
+            foreach (['items_per_page', 'max_upload_size'] as $key) {
                 DB::table('module_settings')->updateOrInsert(
                     ['module_id' => $moduleId, 'setting_key' => $key],
                     ['setting_value' => json_encode($data[$key]), 'setting_type' => 'number', 'updated_at' => now(), 'created_at' => now()]

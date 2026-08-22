@@ -27,15 +27,7 @@
                 <label for="contact-date-to">Đến ngày</label>
                 <input id="contact-date-to" class="input" type="date" wire:model.live="dateTo">
             </div>
-            <div>
-                <label for="contact-locale">Ngôn ngữ</label>
-                <select id="contact-locale" class="select" wire:model.live="locale">
-                    <option value="">Tất cả</option>
-                    <option value="vi">Tiếng Việt</option>
-                    <option value="en">English</option>
-                    <option value="zh">中文</option>
-                </select>
-            </div>
+
             <div class="filter-actions">
                 <button class="button button-ghost" type="button" wire:click="resetFilters">Đặt lại</button>
             </div>

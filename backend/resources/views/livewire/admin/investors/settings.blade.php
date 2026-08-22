@@ -17,11 +17,10 @@
                 </section>
             @endforeach
         </x-form.language-tabs>
-        <x-form.section title="Hiển thị & tải lên" description="Áp dụng chung cho toàn bộ thư viện tài liệu" icon="settings">
+        <x-form.section title="Quản lý tài liệu" description="Thiết lập mặc định cho danh sách quản trị và tệp tải lên." icon="settings">
             <div class="news-number-grid">
-                <x-form.input name="items_per_page" label="Số tài liệu mỗi trang" type="number" wire:model="items_per_page" min="5" max="100" />
-                <x-form.input name="default_year" label="Năm mặc định" type="number" wire:model="default_year" min="2000" max="2100" />
-                <x-form.input name="max_upload_size" label="Dung lượng tệp tối đa (MB)" type="number" wire:model="max_upload_size" min="1" max="100" />
+                <x-form.input name="items_per_page" label="Số dòng mặc định" type="number" wire:model="items_per_page" min="5" max="100" helper="Số tài liệu hiển thị ban đầu trên mỗi trang trong màn hình quản lý." />
+                <x-form.input name="max_upload_size" label="Giới hạn mỗi tệp (MB)" type="number" wire:model="max_upload_size" min="1" max="100" helper="Áp dụng cho từng tệp tài liệu tải lên; tối đa 100 MB." />
             </div>
         </x-form.section>
     </form>

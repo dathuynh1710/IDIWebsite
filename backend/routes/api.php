@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\AboutPagesController;
 use App\Http\Controllers\Api\CareersController;
 use App\Http\Controllers\Api\ContactsController;
+use App\Http\Controllers\Api\InvestorRelationsController;
 use App\Http\Controllers\Api\NewsController;
 use App\Http\Controllers\Api\ProductsController;
 use Illuminate\Support\Facades\Route;
@@ -25,4 +26,5 @@ Route::get('/products/{slug}', [ProductsController::class, 'show']);
 Route::get('/careers', [CareersController::class, 'index']);
 Route::get('/careers/{slug}', [CareersController::class, 'show']);
 Route::post('/careers/applications', [CareersController::class, 'store']);
+Route::get('/investors/documents', [InvestorRelationsController::class, 'index']);
 Route::post('/contacts', [ContactsController::class, 'store'])->middleware('throttle:10,1');

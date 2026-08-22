@@ -155,7 +155,7 @@ class CoreSeeder extends Seeder
             'value_added' => ['folder' => 'products', 'file' => 'breaded-pangasius.jpg', 'mime' => 'image/jpeg', 'title' => ['Cá tra tẩm bột', 'Breaded pangasius', '裹粉巴沙鱼']],
             'news' => ['folder' => 'news', 'file' => 'factory-news.jpg', 'mime' => 'image/jpeg', 'title' => ['Nhà máy IDI', 'IDI factory', 'IDI 工厂']],
             'recipe' => ['folder' => 'products', 'file' => 'grilled-pangasius.jpg', 'mime' => 'image/jpeg', 'title' => ['Cá tra nướng', 'Grilled pangasius', '烤巴沙鱼']],
-            'document' => ['folder' => 'documents', 'file' => 'annual-report-2025.pdf', 'mime' => 'application/pdf', 'title' => ['Báo cáo thường niên 2025', 'Annual report 2025', '2025 年年度报告']],
+            'document' => ['folder' => 'documents', 'file' => 'annual-report-2025.pdf', 'mime' => 'application/pdf', 'external_url' => 'https://idiseafood.com/vnt_upload/service/04_2026/BCTN_NAM_2025.pdf', 'title' => ['Báo cáo thường niên 2025', 'Annual report 2025', '2025 年年度报告']],
             'catalog' => ['folder' => 'documents', 'file' => 'product-catalog.pdf', 'mime' => 'application/pdf', 'title' => ['Danh mục sản phẩm', 'Product catalog', '产品目录']],
             'banner_desktop' => ['folder' => 'banners', 'file' => 'home-hero-desktop.jpg', 'mime' => 'image/jpeg', 'title' => ['Banner trang chủ', 'Homepage banner', '首页横幅']],
             'banner_mobile' => ['folder' => 'banners', 'file' => 'home-hero-mobile.jpg', 'mime' => 'image/jpeg', 'title' => ['Banner trang chủ mobile', 'Mobile homepage banner', '移动端首页横幅']],
@@ -171,6 +171,7 @@ class CoreSeeder extends Seeder
             ], [
                 'folder_id' => $folderIds[$media['folder']],
                 'original_name' => $media['file'],
+                'external_url' => $media['external_url'] ?? null,
                 'mime_type' => $media['mime'],
                 'extension' => $extension,
                 'file_size' => null,
@@ -227,7 +228,6 @@ class CoreSeeder extends Seeder
             ['module' => 'about', 'key' => 'thumbnail_size', 'value' => 150, 'type' => 'number'],
             ['module' => 'about', 'key' => 'max_upload_width', 'value' => 1200, 'type' => 'number'],
             ['module' => 'news', 'key' => 'items_per_page', 'value' => 12, 'type' => 'number'],
-            ['module' => 'investors', 'key' => 'default_year', 'value' => 2025, 'type' => 'number'],
             ['module' => 'careers', 'key' => 'application_enabled', 'value' => true, 'type' => 'boolean'],
         ] as $setting) {
             $moduleId = (int) DB::table('modules')->where('code', $setting['module'])->value('id');

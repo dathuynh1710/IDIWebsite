@@ -29,8 +29,7 @@ class Index extends AdminComponent
     #[Url(except: '')]
     public string $dateTo = '';
 
-    #[Url(except: '')]
-    public string $locale = '';
+
 
     #[Url(as: 'per_page', except: 5, history: true)]
     public int $perPage = 5;
@@ -76,12 +75,7 @@ class Index extends AdminComponent
         $this->resetPage();
     }
 
-    public function updatedLocale(): void
-    {
-        abort_unless($this->locale === '' || in_array($this->locale, ['vi', 'en', 'zh'], true), 404);
-        $this->resetPage();
-        $this->selected = [];
-    }
+
 
     public function updatedPerPage($value): void
     {
@@ -93,7 +87,7 @@ class Index extends AdminComponent
 
     public function resetFilters(): void
     {
-        $this->reset('search', 'status', 'dateFrom', 'dateTo', 'locale');
+        $this->reset('search', 'status', 'dateFrom', 'dateTo');
         $this->selected = [];
         $this->resetPage();
     }
@@ -193,7 +187,6 @@ class Index extends AdminComponent
             'status' => $this->status,
             'dateFrom' => $this->dateFrom,
             'dateTo' => $this->dateTo,
-            'locale' => $this->locale,
         ];
 
         return view('livewire.admin.contacts.index', [

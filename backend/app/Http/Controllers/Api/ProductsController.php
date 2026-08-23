@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Models\ProductCategory;
+use App\Support\Locale;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Http\JsonResponse;
@@ -104,9 +105,7 @@ class ProductsController extends Controller
 
     private function locale(Request $request): string
     {
-        $locale = $request->string('locale', $request->string('lang', 'vi')->toString())->toString();
-
-        return in_array($locale, ['vi', 'en', 'zh'], true) ? $locale : 'vi';
+        return Locale::fromRequest($request);
     }
 
     private function ensureModuleEnabled(): void

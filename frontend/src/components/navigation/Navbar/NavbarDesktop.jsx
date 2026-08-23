@@ -1,9 +1,12 @@
 import { Link, useLocation } from 'react-router'
-import { NAV_ITEMS } from '@data/navigation'
+import { NAV_ITEMS, localizedNavItems } from '@data/navigation'
 import { cn } from '@utils/cn'
+import { useLanguage } from '@hooks/useLanguage'
 
 export default function NavbarDesktop({ scrolled }) {
   const location = useLocation()
+  const { t } = useLanguage()
+  const items = localizedNavItems(NAV_ITEMS, t)
 
   const isActive = (href) =>
     href === '/'
@@ -11,8 +14,8 @@ export default function NavbarDesktop({ scrolled }) {
       : location.pathname.startsWith(href)
 
   return (
-    <nav className="hidden xl:flex items-center gap-1" aria-label="Điều hướng chính">
-      {NAV_ITEMS.map((item) => (
+    <nav className="hidden xl:flex items-center gap-1" aria-label={t('nav.main')}>
+      {items.map((item) => (
         <div key={item.href} className="group relative">
           <Link
             to={item.href}

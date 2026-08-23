@@ -9,7 +9,7 @@ import { SITE_URL } from '@utils/constants'
 const COPY = {
   vi: { eyebrow: 'Góc bếp IDI', featured: 'Món ăn nổi bật', all: 'Khám phá công thức', view: 'Xem công thức', count: 'món ăn', empty: 'Chưa có công thức để hiển thị.', error: 'Không thể tải danh sách món ăn.', retry: 'Thử lại', previous: 'Trước', next: 'Sau' },
   en: { eyebrow: 'IDI kitchen', featured: 'Featured recipe', all: 'Explore recipes', view: 'View recipe', count: 'recipes', empty: 'No recipes are available.', error: 'Unable to load recipes.', retry: 'Try again', previous: 'Previous', next: 'Next' },
-  zh: { eyebrow: 'IDI 厨房', featured: '精选食谱', all: '探索食谱', view: '查看食谱', count: '道食谱', empty: '暂无食谱。', error: '无法加载食谱。', retry: '重试', previous: '上一页', next: '下一页' },
+  'zh-CN': { eyebrow: 'IDI 厨房', featured: '精选食谱', all: '探索食谱', view: '查看食谱', count: '道食谱', empty: '暂无食谱。', error: '无法加载食谱。', retry: '重试', previous: '上一页', next: '下一页' },
 }
 
 const FALLBACK_CONFIG = {

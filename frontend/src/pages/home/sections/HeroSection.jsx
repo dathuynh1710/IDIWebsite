@@ -1,4 +1,5 @@
 import { Link } from 'react-router'
+import { useLanguage } from '@hooks/useLanguage'
 
 const STATS = [
   { value: '50+', label: 'Quốc gia xuất khẩu' },
@@ -8,6 +9,7 @@ const STATS = [
 ]
 
 export default function HeroSection() {
+  const { t } = useLanguage()
   return (
     <section className="relative min-h-screen flex flex-col overflow-hidden">
 
@@ -73,13 +75,13 @@ export default function HeroSection() {
               style={{ animation: 'fadeInUp 0.7s ease forwards', animationDelay: '300ms', opacity: 0 }}
             >
               <Link to="/products" className="btn btn-gold text-base px-7 py-3.5 w-full xs:w-auto justify-center">
-                Khám phá sản phẩm
+                {t('actions.exploreProducts')}
                 <svg className="w-4 h-4" viewBox="0 0 16 16" fill="none">
                   <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
               </Link>
               <Link to="/contact" className="btn btn-ghost text-base px-7 py-3.5 w-full xs:w-auto justify-center">
-                Yêu cầu báo giá
+                {t('nav.requestQuote')}
               </Link>
             </div>
 

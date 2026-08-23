@@ -61,7 +61,7 @@ class AboutPagesApiTest extends TestCase
             ->assertJsonPath('module.title', 'Giới thiệu');
     }
 
-    public function test_page_can_be_resolved_by_code_or_localized_slug_and_falls_back_to_vietnamese(): void
+    public function test_page_can_be_resolved_by_code_or_localized_slug_and_missing_translation_returns_not_found(): void
     {
         $this->module();
         $page = $this->page('ABOUT_MESSAGE', 'about', 'Thông điệp của công ty');
@@ -73,11 +73,10 @@ class AboutPagesApiTest extends TestCase
         ]);
 
         $this->getJson('/api/about/ABOUT_MESSAGE?locale=en')
-            ->assertOk()
-            ->assertJsonPath('data.locale', 'vi')
-            ->assertJsonPath('data.requestedLocale', 'en')
-            ->assertJsonPath('data.content', '<p>Nội dung được quản lý từ CMS.</p>')
-            ->assertJsonPath('data.seo.title', 'Thông điệp IDI');
+            ->assertNotFound();
+
+        $this->getJson('/api/about/ABOUT_MESSAGE?locale=zh-CN')
+            ->assertNotFound();
 
         $this->getJson('/api/about/thong-diep-cua-cong-ty?locale=vi')
             ->assertOk()

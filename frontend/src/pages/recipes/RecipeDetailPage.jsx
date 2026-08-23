@@ -8,7 +8,7 @@ import { SITE_URL } from '@utils/constants'
 const COPY = {
   vi: { back: 'Tất cả món ăn', error: 'Không thể tải công thức này.' },
   en: { back: 'All recipes', error: 'Unable to load this recipe.' },
-  zh: { back: '全部食谱', error: '无法加载此食谱。' },
+  'zh-CN': { back: '全部食谱', error: '无法加载此食谱。' },
 }
 
 export default function RecipeDetailPage() {

@@ -19,7 +19,7 @@ const CATEGORY_STYLES = [
   'bg-[#FFF1EA] text-[#A5542D]',
 ]
 
-const DATE_LOCALES = { vi: 'vi-VN', en: 'en-US', zh: 'zh-CN' }
+const DATE_LOCALES = { vi: 'vi-VN', en: 'en-US', 'zh-CN': 'zh-CN' }
 
 function categoryStyle(category) {
   const token = `${category?.code ?? ''}${category?.slug ?? ''}${category?.name ?? ''}`
@@ -72,6 +72,7 @@ function InlineContent({ nodes, fallback = '' }) {
 }
 
 function ArticleBlock({ block, index }) {
+  const { t } = useLanguage()
   if (!block) return null
 
   switch (block.type) {
@@ -174,7 +175,7 @@ function ArticleBlock({ block, index }) {
         <aside className="my-9 rounded-2xl bg-ocean-deep p-7 text-white sm:p-8">
           <h3 className="text-xl font-bold text-white">{block.title}</h3>
           <p className="mt-3 leading-relaxed text-white/70">{block.text}</p>
-          {block.link && <Link to={block.link} className="mt-5 inline-flex items-center gap-2 font-bold text-coral-light hover:text-white">{block.linkLabel ?? 'Xem thêm'} →</Link>}
+          {block.link && <Link to={block.link} className="mt-5 inline-flex items-center gap-2 font-bold text-coral-light hover:text-white">{block.linkLabel ?? t('actions.viewMore')} →</Link>}
         </aside>
       )
 
@@ -255,6 +256,7 @@ function LoadingState() {
 }
 
 function ErrorState({ notFound, onRetry }) {
+  const { t } = useLanguage()
   return (
     <main className="container flex min-h-[70vh] items-center justify-center pb-24 pt-36 text-center">
       <div className="max-w-lg" role="alert">
@@ -268,8 +270,8 @@ function ErrorState({ notFound, onRetry }) {
           {notFound ? 'Đường dẫn có thể đã thay đổi hoặc bài viết đã được gỡ khỏi hệ thống.' : 'Vui lòng thử lại sau ít phút hoặc quay về trang tin tức.'}
         </p>
         <div className="mt-8 flex flex-wrap justify-center gap-3">
-          {!notFound && <button type="button" onClick={onRetry} className="btn btn-primary">Thử tải lại</button>}
-          <Link to="/news" className="btn btn-secondary">Xem tất cả tin tức</Link>
+          {!notFound && <button type="button" onClick={onRetry} className="btn btn-primary">{t('actions.retryLoad')}</button>}
+          <Link to="/news" className="btn btn-secondary">{t('actions.allNews')}</Link>
         </div>
       </div>
     </main>
@@ -278,13 +280,13 @@ function ErrorState({ notFound, onRetry }) {
 
 export default function NewsDetailPage() {
   const { slug } = useParams()
-  const { language } = useLanguage()
+  const { language, t } = useLanguage()
   const progress = useScrollProgress()
   const [article, setArticle] = useState(null)
   const [pageConfig, setPageConfig] = useState(DEFAULT_NEWS_PAGE_CONFIG)
   const [related, setRelated] = useState([])
   const [status, setStatus] = useState('loading')
-  const [copyLabel, setCopyLabel] = useState('Sao chép liên kết')
+  const [copyStatus, setCopyStatus] = useState('idle')
   const [requestKey, setRequestKey] = useState(0)
 
   useEffect(() => {
@@ -293,7 +295,7 @@ export default function NewsDetailPage() {
     setStatus('loading')
     setArticle(null)
     setRelated([])
-    setCopyLabel('Sao chép liên kết')
+    setCopyStatus('idle')
 
     newsService.getBySlug(slug, { locale: language, signal: controller.signal })
       .then(async ({ article: data, pageConfig: config }) => {
@@ -331,10 +333,10 @@ export default function NewsDetailPage() {
   const copyLink = async () => {
     try {
       await navigator.clipboard.writeText(shareUrl)
-      setCopyLabel('Đã sao chép')
-      window.setTimeout(() => setCopyLabel('Sao chép liên kết'), 1800)
+      setCopyStatus('copied')
+      window.setTimeout(() => setCopyStatus('idle'), 1800)
     } catch {
-      setCopyLabel('Không thể sao chép')
+      setCopyStatus('failed')
     }
   }
 
@@ -411,10 +413,10 @@ export default function NewsDetailPage() {
               <div className="space-y-2 pt-7">
                 <p className="mb-3 text-xs font-black uppercase tracking-[0.14em] text-ocean-deep">Tiện ích bài viết</p>
                 {pageConfig.showSocialShare && (
-                  <button type="button" onClick={copyLink} className="w-full rounded-lg border border-light-mist px-4 py-2.5 text-left text-sm font-bold text-ocean-deep transition hover:border-seafoam hover:text-seafoam">{copyLabel}</button>
+                  <button type="button" onClick={copyLink} className="w-full rounded-lg border border-light-mist px-4 py-2.5 text-left text-sm font-bold text-ocean-deep transition hover:border-seafoam hover:text-seafoam">{t(`newsDetail.${copyStatus === 'idle' ? 'copyLink' : copyStatus === 'failed' ? 'copyFailed' : 'copied'}`)}</button>
                 )}
                 {pageConfig.allowPrint && (
-                  <button type="button" onClick={() => window.print()} className="w-full rounded-lg border border-light-mist px-4 py-2.5 text-left text-sm font-bold text-ocean-deep transition hover:border-seafoam hover:text-seafoam">In bài viết</button>
+                  <button type="button" onClick={() => window.print()} className="w-full rounded-lg border border-light-mist px-4 py-2.5 text-left text-sm font-bold text-ocean-deep transition hover:border-seafoam hover:text-seafoam">{t('actions.printArticle')}</button>
                 )}
                 {pageConfig.showArticleSource && article.sourceUrl && (
                   <a href={article.sourceUrl} target="_blank" rel="noreferrer noopener" className="block w-full rounded-lg border border-light-mist px-4 py-2.5 text-sm font-bold text-ocean-deep transition hover:border-seafoam hover:text-seafoam">Xem nguồn bài viết ↗</a>
@@ -455,7 +457,7 @@ export default function NewsDetailPage() {
           <div className="container">
             <div className="mb-9 flex flex-wrap items-end justify-between gap-4">
               <div><span className="section-eyebrow">Tiếp tục khám phá</span><h2 className="text-h2 font-black text-ocean-deep">Bài viết liên quan</h2></div>
-              <Link to="/news" className="font-bold text-seafoam hover:text-ocean-deep">Xem tất cả →</Link>
+              <Link to="/news" className="font-bold text-seafoam hover:text-ocean-deep">{t('common.viewAll')} →</Link>
             </div>
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {related.map(item => <RelatedCard key={item.id} article={item} pageConfig={pageConfig} language={language} />)}

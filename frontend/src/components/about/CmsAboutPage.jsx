@@ -2,10 +2,11 @@ import { useEffect, useState } from 'react'
 import PageHead from '@components/common/PageHead'
 import { useLanguage } from '@hooks/useLanguage'
 import { aboutService } from '@services/about.service'
+import NotFoundPage from '@pages/errors/NotFoundPage'
 
-function LoadingState() {
+function LoadingState({ label }) {
   return (
-    <main className="cms-about-page" aria-busy="true" aria-label="Đang tải nội dung giới thiệu">
+    <main className="cms-about-page" aria-busy="true" aria-label={label}>
       <div className="cms-about-loading container">
         <span />
         <span />
@@ -15,21 +16,20 @@ function LoadingState() {
   )
 }
 
-function ErrorState({ onRetry }) {
+function ErrorState({ onRetry, t }) {
   return (
     <main className="cms-about-page cms-about-error">
       <section className="container" role="alert">
-        <span className="section-eyebrow">Quản lý giới thiệu</span>
-        <h1>Không thể tải nội dung</h1>
-        <p>Dữ liệu trang hiện chưa khả dụng. Vui lòng kiểm tra kết nối và thử lại.</p>
-        <button type="button" className="btn btn-primary" onClick={onRetry}>Thử lại</button>
+        <h1>{t('error.genericTitle')}</h1>
+        <p>{t('error.genericMessage')}</p>
+        <button type="button" className="btn btn-primary" onClick={onRetry}>{t('common.retry')}</button>
       </section>
     </main>
   )
 }
 
 export default function CmsAboutPage({ identifier }) {
-  const { language } = useLanguage()
+  const { language, t } = useLanguage()
   const [page, setPage] = useState(null)
   const [status, setStatus] = useState('loading')
   const [requestKey, setRequestKey] = useState(0)
@@ -44,8 +44,8 @@ export default function CmsAboutPage({ identifier }) {
         setPage(data)
         setStatus('success')
       })
-      .catch(() => {
-        if (isMounted) setStatus('error')
+      .catch((error) => {
+        if (isMounted) setStatus(error?.response?.status === 404 ? 'not-found' : 'error')
       })
 
     return () => {
@@ -53,9 +53,10 @@ export default function CmsAboutPage({ identifier }) {
     }
   }, [identifier, language, requestKey])
 
-  if (status === 'loading') return <LoadingState />
+  if (status === 'loading') return <LoadingState label={t('common.loading')} />
+  if (status === 'not-found') return <NotFoundPage />
   if (status === 'error' || !page) {
-    return <ErrorState onRetry={() => setRequestKey(key => key + 1)} />
+    return <ErrorState t={t} onRetry={() => setRequestKey(key => key + 1)} />
   }
 
   const templateClass = String(page.template || 'about').replace(/[^a-z0-9-]/gi, '')
@@ -71,7 +72,7 @@ export default function CmsAboutPage({ identifier }) {
       <main className={`cms-about-page cms-about-page--${templateClass}`}>
         <header className="cms-about-hero">
           <div className="container">
-            <span className="cms-about-eyebrow">Về IDI</span>
+            <span className="cms-about-eyebrow">{t('nav.about')}</span>
             <h1>{page.title}</h1>
             {!page.image && page.summary && <p>{page.summary}</p>}
           </div>
@@ -93,7 +94,7 @@ export default function CmsAboutPage({ identifier }) {
               dangerouslySetInnerHTML={{ __html: page.content }}
             />
           ) : (
-            <p className="cms-about-empty">Nội dung đang được cập nhật.</p>
+            <p className="cms-about-empty">{t('common.noContent')}</p>
           )}
         </article>
       </main>

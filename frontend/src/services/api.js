@@ -1,5 +1,7 @@
 import axios from 'axios'
 import toast from '@/utils/toast'
+import { getStoredLanguage } from '@context/LanguageContext'
+import { TRANSLATIONS } from '@/i18n/translations'
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8000/api',
@@ -7,6 +9,13 @@ const api = axios.create({
     Accept: 'application/json',
   },
   timeout: 30000,
+})
+
+api.interceptors.request.use((config) => {
+  const locale = getStoredLanguage()
+  config.params = { ...config.params, locale }
+  config.headers['Accept-Language'] = locale
+  return config
 })
 
 api.interceptors.response.use(
@@ -28,7 +37,8 @@ api.interceptors.response.use(
     } else if (data?.errors) {
       toast.validation(data.errors)
     } else {
-      toast.error(data?.message || 'Không thể kết nối đến máy chủ. Vui lòng thử lại.')
+      const locale = getStoredLanguage()
+      toast.error(data?.message || TRANSLATIONS[locale].api.connectionError)
     }
 
     return Promise.reject(error)

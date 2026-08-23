@@ -1,5 +1,6 @@
 import { Link } from 'react-router'
 import RevealOnScroll from '@components/common/RevealOnScroll'
+import { useLanguage } from '@hooks/useLanguage'
 
 const PILLARS = [
   {
@@ -33,6 +34,7 @@ const PILLARS = [
 ]
 
 export default function AboutSection() {
+  const { t } = useLanguage()
   return (
     <section className="py-24 lg:py-36 bg-white overflow-hidden">
       <div className="container">
@@ -84,7 +86,7 @@ export default function AboutSection() {
 
             <RevealOnScroll delay={480}>
               <Link to="/about/story" className="btn btn-primary">
-                Câu chuyện IDI
+                {t('nav.story')}
                 <svg className="w-4 h-4" viewBox="0 0 16 16" fill="none">
                   <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>

@@ -12,17 +12,17 @@ export const SITE_FOUNDED  = 1997
 
 // ── Supported Languages
 export const LANGUAGES = Object.freeze({
-  EN: 'en',
   VI: 'vi',
-  ZH: 'zh',
+  EN: 'en',
+  ZH_CN: 'zh-CN',
 })
 
 export const DEFAULT_LANGUAGE = LANGUAGES.VI
 
 export const LANGUAGE_LABELS = Object.freeze({
-  [LANGUAGES.EN]: 'English',
-  [LANGUAGES.VI]: 'Tiếng Việt',
-  [LANGUAGES.ZH]: '中文',
+  [LANGUAGES.VI]: 'VI',
+  [LANGUAGES.EN]: 'EN',
+  [LANGUAGES.ZH_CN]: '中文',
 })
 
 // ── Responsive Breakpoints (must mirror Tailwind config)

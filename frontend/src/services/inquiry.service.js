@@ -15,7 +15,7 @@ export const inquiryService = {
   submitTrade: async (formData) => {
     const response = await api.post(INQUIRY_ENDPOINT || '/contacts', {
       ...formData,
-      locale: document.documentElement.lang?.split('-')[0] || 'vi',
+      locale: document.documentElement.lang || 'vi',
     })
     return response.data
   },

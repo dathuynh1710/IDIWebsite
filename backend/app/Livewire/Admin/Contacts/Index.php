@@ -24,12 +24,13 @@ class Index extends AdminComponent
     public string $status = '';
 
     #[Url(except: '')]
+    public string $locale = '';
+
+    #[Url(except: '')]
     public string $dateFrom = '';
 
     #[Url(except: '')]
     public string $dateTo = '';
-
-
 
     #[Url(as: 'per_page', except: 5, history: true)]
     public int $perPage = 5;
@@ -65,6 +66,13 @@ class Index extends AdminComponent
         $this->selected = [];
     }
 
+    public function updatedLocale(): void
+    {
+        abort_unless($this->locale === '' || in_array($this->locale, ['vi', 'en', 'zh'], true), 404);
+        $this->resetPage();
+        $this->selected = [];
+    }
+
     public function updatedDateFrom(): void
     {
         $this->resetPage();
@@ -74,8 +82,6 @@ class Index extends AdminComponent
     {
         $this->resetPage();
     }
-
-
 
     public function updatedPerPage($value): void
     {
@@ -87,7 +93,7 @@ class Index extends AdminComponent
 
     public function resetFilters(): void
     {
-        $this->reset('search', 'status', 'dateFrom', 'dateTo');
+        $this->reset('search', 'status', 'locale', 'dateFrom', 'dateTo');
         $this->selected = [];
         $this->resetPage();
     }
@@ -185,6 +191,7 @@ class Index extends AdminComponent
         $filters = [
             'search' => trim($this->search),
             'status' => $this->status,
+            'locale' => $this->locale,
             'dateFrom' => $this->dateFrom,
             'dateTo' => $this->dateTo,
         ];

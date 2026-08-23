@@ -1,148 +1,45 @@
-/**
- * navigation.js — Complete navigation menu structure.
- * Single source of truth for desktop mega-menu and mobile menu.
- * Imported by Navbar and MobileMenu components.
- *
- * Structure: Array of top-level nav items.
- * Each item can have children[] for dropdown/mega-menu panels.
- */
-
 export const NAV_ITEMS = [
-  {
-    id: 'about',
-    label: 'Về IDI',
-    href: '/about',
-    children: [
-      { id: 'story', label: 'Lịch sử phát triển', href: '/about/story' },
-      { id: 'values', label: 'Giá trị cốt lõi', href: '/about/values' },
-    ],
-  },
-
-  {
-    id: 'products',
-    label: 'Sản phẩm',
-    href: '/products',
-    isMega: true, // Renders as full mega-menu panel
-    children: [
-      {
-        id: 'pangasius-fillet',
-        label: 'Cá tra phi lê',
-        href: '/products?category=pangasius-fillet',
-        description: 'Không da, có da và nhiều quy cách chỉnh hình',
-        icon: 'fillet',
-      },
-      {
-        id: 'pangasius-portions',
-        label: 'Cá tra cắt khúc',
-        href: '/products?category=pangasius-portions',
-        description: 'Cắt theo khẩu phần cho dịch vụ thực phẩm',
-        icon: 'portions',
-      },
-      {
-        id: 'whole-fish',
-        label: 'Cá nguyên con',
-        href: '/products?category=whole-fish',
-        description: 'Dạng bướm, HGT và làm sạch',
-        icon: 'whole',
-      },
-      {
-        id: 'value-added',
-        label: 'Sản phẩm chế biến',
-        href: '/products?category=value-added',
-        description: 'Tẩm bột, tẩm ướp và cắt theo yêu cầu',
-        icon: 'value-added',
-      },
-    ],
-    // Mega menu featured callout (right panel)
-    featured: {
-      label: 'Tải danh mục sản phẩm',
-      href: '/products#catalog',
-      cta: 'Tải PDF →',
-    },
-  },
-
-  {
-    id: 'sustainability',
-    label: 'Phát triển bền vững',
-    href: '/sustainability',
-    children: null,
-  },
-
-  {
-    id: 'investors',
-    label: 'Nhà đầu tư',
-    href: '/investors',
-    children: [
-      { id: 'investor-overview', label: 'Tổng quan', href: '/investors' },
-      { id: 'announcements', label: 'Thông báo', href: '/investors/announcements' },
-      { id: 'financials', label: 'Báo cáo tài chính', href: '/investors/financials' },
-      { id: 'annual-reports', label: 'Báo cáo thường niên', href: '/investors/annual-reports' },
-      { id: 'agm', label: 'Đại hội cổ đông', href: '/investors/agm' },
-      { id: 'green-bond', label: 'Trái phiếu', href: '/investors/green-bond' },
-    ],
-  },
-
-  {
-    id: 'news',
-    label: 'Tin tức',
-    href: '/news',
-    children: null,
-  },
-
-  {
-    id: 'recipes',
-    label: 'Món ăn',
-    href: '/recipes',
-    children: null,
-  },
-
-  {
-    id: 'careers',
-    label: 'Tuyển dụng',
-    href: '/careers',
-    children: null,
-  },
+  { id: 'about', labelKey: 'nav.about', href: '/about', children: [
+    { id: 'story', labelKey: 'nav.story', href: '/about/story' },
+    { id: 'values', labelKey: 'nav.values', href: '/about/values' },
+  ] },
+  { id: 'products', labelKey: 'nav.products', href: '/products', isMega: true, children: [
+    { id: 'pangasius-fillet', labelKey: 'productNav.fillet', href: '/products?category=pangasius-fillet', descriptionKey: 'productNav.filletDescription', icon: 'fillet' },
+    { id: 'pangasius-portions', labelKey: 'productNav.portions', href: '/products?category=pangasius-portions', descriptionKey: 'productNav.portionsDescription', icon: 'portions' },
+    { id: 'whole-fish', labelKey: 'productNav.whole', href: '/products?category=whole-fish', descriptionKey: 'productNav.wholeDescription', icon: 'whole' },
+    { id: 'value-added', labelKey: 'productNav.valueAdded', href: '/products?category=value-added', descriptionKey: 'productNav.valueAddedDescription', icon: 'value-added' },
+  ], featured: { labelKey: 'productNav.catalog', href: '/products#catalog', ctaKey: 'productNav.catalogCta' } },
+  { id: 'sustainability', labelKey: 'nav.sustainability', href: '/sustainability', children: null },
+  { id: 'investors', labelKey: 'nav.investors', href: '/investors', children: [
+    { id: 'investor-overview', labelKey: 'nav.overview', href: '/investors' },
+    { id: 'announcements', labelKey: 'nav.announcements', href: '/investors/announcements' },
+    { id: 'financials', labelKey: 'nav.financials', href: '/investors/financials' },
+    { id: 'annual-reports', labelKey: 'nav.annualReports', href: '/investors/annual-reports' },
+    { id: 'agm', labelKey: 'nav.agm', href: '/investors/agm' },
+    { id: 'green-bond', labelKey: 'nav.greenBond', href: '/investors/green-bond' },
+  ] },
+  { id: 'news', labelKey: 'nav.news', href: '/news', children: null },
+  { id: 'recipes', labelKey: 'nav.recipes', href: '/recipes', children: null },
+  { id: 'careers', labelKey: 'nav.careers', href: '/careers', children: null },
 ]
 
-// Investor sidebar navigation (used in InvestorLayout)
-export const INVESTOR_NAV = [
-  { id: 'investor-overview', label: 'Tổng quan', href: '/investors' },
-  { id: 'announcements', label: 'Thông báo', href: '/investors/announcements' },
-  { id: 'financials', label: 'Báo cáo tài chính', href: '/investors/financials' },
-  { id: 'annual-reports', label: 'Báo cáo thường niên', href: '/investors/annual-reports' },
-  { id: 'agm', label: 'Đại hội cổ đông', href: '/investors/agm' },
-  { id: 'green-bond', label: 'Trái phiếu', href: '/investors/green-bond' },
-]
+export const INVESTOR_NAV = NAV_ITEMS.find(item => item.id === 'investors').children
 
-// Footer quick links (columns)
 export const FOOTER_LINKS = {
-  products: {
-    title: 'Sản phẩm',
-    links: [
-      { label: 'Cá tra phi lê', href: '/products?category=pangasius-fillet' },
-      { label: 'Cá tra cắt khúc', href: '/products?category=pangasius-portions' },
-      { label: 'Cá nguyên con', href: '/products?category=whole-fish' },
-      { label: 'Sản phẩm chế biến', href: '/products?category=value-added' },
-    ],
-  },
-  company: {
-    title: 'Công ty',
-    links: [
-      { label: 'Lịch sử phát triển', href: '/about/story' },
-      { label: 'Phát triển bền vững', href: '/sustainability' },
-      { label: 'Món ăn', href: '/recipes' },
-      { label: 'Tuyển dụng', href: '/careers' },
-    ],
-  },
-  investors: {
-    title: 'Nhà đầu tư',
-    links: [
-      { label: 'Tổng quan', href: '/investors' },
-      { label: 'Thông báo', href: '/investors/announcements' },
-      { label: 'Báo cáo tài chính', href: '/investors/financials' },
-      { label: 'Báo cáo thường niên', href: '/investors/annual-reports' },
-      { label: 'Đại hội cổ đông', href: '/investors/agm' },
-      { label: 'Trái phiếu', href: '/investors/green-bond' },
-    ],
-  },
+  products: { titleKey: 'nav.products', links: NAV_ITEMS.find(item => item.id === 'products').children },
+  company: { titleKey: 'footer.company', links: [
+    { labelKey: 'nav.story', href: '/about/story' }, { labelKey: 'nav.sustainability', href: '/sustainability' },
+    { labelKey: 'nav.recipes', href: '/recipes' }, { labelKey: 'nav.careers', href: '/careers' },
+  ] },
+  investors: { titleKey: 'nav.investors', links: INVESTOR_NAV },
+}
+
+export function localizedNavItems(items, t) {
+  return items.map(item => ({
+    ...item,
+    label: t(item.labelKey),
+    description: item.descriptionKey ? t(item.descriptionKey) : undefined,
+    children: item.children ? localizedNavItems(item.children, t) : item.children,
+    featured: item.featured ? { ...item.featured, label: t(item.featured.labelKey), cta: t(item.featured.ctaKey) } : undefined,
+  }))
 }

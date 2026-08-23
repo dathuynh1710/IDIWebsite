@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Recipe;
+use App\Support\Locale;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -138,9 +139,7 @@ class RecipesController extends Controller
 
     private function locale(Request $request): string
     {
-        $locale = $request->string('locale', $request->string('lang', 'vi')->toString())->toString();
-
-        return in_array($locale, ['vi', 'en', 'zh'], true) ? $locale : 'vi';
+        return Locale::fromRequest($request);
     }
 
     private function ensureModuleEnabled(): void

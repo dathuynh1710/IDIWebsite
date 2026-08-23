@@ -88,7 +88,7 @@ function FormField({ label, name, error, children }) {
 }
 
 export default function CareersPage() {
-  const { language } = useLanguage()
+  const { language, t } = useLanguage()
   const [form, setForm] = useState(INITIAL_FORM)
   const [openings, setOpenings] = useState([])
   const [pageConfig, setPageConfig] = useState(null)
@@ -207,7 +207,7 @@ export default function CareersPage() {
                 Gia nhập một đội ngũ cùng chung khát vọng phát triển ngành thủy sản Việt Nam bền vững và vươn xa trên thị trường quốc tế.
               </p>
               <a href="#ung-tuyen" className="btn btn-gold mt-8">
-                Gửi CV ứng tuyển
+                {t('actions.submitCv')}
                 <span aria-hidden="true">↓</span>
               </a>
             </div>
@@ -368,7 +368,7 @@ export default function CareersPage() {
                     <strong className="text-ocean-deep">{referenceId}</strong>.
                   </p>
                   <button type="button" onClick={startNewApplication} className="btn btn-secondary mt-8">
-                    Gửi hồ sơ khác
+                    {t('actions.submitAnotherApplication')}
                   </button>
                 </div>
               ) : pageConfig?.applicationEnabled === false ? (
@@ -517,7 +517,7 @@ export default function CareersPage() {
                         disabled={isSubmitting}
                         className="btn btn-primary min-w-44 disabled:cursor-wait disabled:opacity-65"
                       >
-                        {isSubmitting ? 'Đang gửi...' : 'Gửi ứng tuyển'}
+                        {isSubmitting ? t('actions.sending') : t('actions.submitApplication')}
                         {!isSubmitting && <span aria-hidden="true">→</span>}
                       </button>
                     </div>
@@ -537,7 +537,7 @@ export default function CareersPage() {
               <h2 className="mt-2 text-2xl text-white sm:text-3xl">Tìm hiểu thêm về I.D.I</h2>
             </div>
             <Link to="/about" className="btn btn-ghost">
-              Khám phá IDI
+              {t('actions.exploreIdi')}
               <span aria-hidden="true">→</span>
             </Link>
           </div>

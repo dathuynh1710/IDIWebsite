@@ -1,10 +1,12 @@
 import { Link } from 'react-router'
+import { useLanguage } from '@hooks/useLanguage'
 
 export default function NavbarBrand() {
+  const { t } = useLanguage()
   return (
     <Link
       to="/"
-      aria-label="Trang chủ IDI Seafood"
+      aria-label={`${t('nav.home')} IDI Seafood`}
       className="flex flex-shrink-0 items-center"
     >
       <img

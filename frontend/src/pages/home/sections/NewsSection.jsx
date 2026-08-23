@@ -10,7 +10,7 @@ const CATEGORY_COLORS = {
   green: { bg: 'bg-seafoam-pale', text: 'text-seafoam' },
 }
 
-const DATE_LOCALES = { vi: 'vi-VN', en: 'en-US', zh: 'zh-CN' }
+const DATE_LOCALES = { vi: 'vi-VN', en: 'en-US', 'zh-CN': 'zh-CN' }
 
 function formatDate(iso, language) {
   if (!iso) return ''
@@ -41,7 +41,7 @@ function LoadingCards() {
 }
 
 export default function NewsSection() {
-  const { language } = useLanguage()
+  const { language, t } = useLanguage()
   const [requestKey, setRequestKey] = useState(0)
   const [status, setStatus] = useState('loading')
   const [response, setResponse] = useState({
@@ -92,7 +92,7 @@ export default function NewsSection() {
             </RevealOnScroll>
           </div>
           <RevealOnScroll direction="right">
-            <Link to="/news" className="btn btn-secondary whitespace-nowrap">Xem tất cả →</Link>
+            <Link to="/news" className="btn btn-secondary whitespace-nowrap">{t('common.viewAll')} →</Link>
           </RevealOnScroll>
         </div>
 
@@ -103,7 +103,7 @@ export default function NewsSection() {
             <h3 className="text-xl font-bold text-ocean-deep">Không thể tải tin mới</h3>
             <p className="mt-2 text-sm">Vui lòng kiểm tra kết nối và thử lại.</p>
             <button type="button" onClick={() => setRequestKey(key => key + 1)} className="btn btn-primary mt-6">
-              Thử tải lại
+              {t('actions.retryLoad')}
             </button>
           </div>
         ) : articles.length === 0 ? (
@@ -154,7 +154,7 @@ export default function NewsSection() {
                       )}
                       <div className="mt-5 flex items-center gap-3 text-xs font-semibold text-seafoam">
                         <span className="inline-flex items-center gap-1.5">
-                          Đọc thêm <span aria-hidden="true">→</span>
+                          {t('common.readMore')} <span aria-hidden="true">→</span>
                         </span>
                         {pageConfig.showReadingTime && article.readTime > 0 && (
                           <span className="font-medium text-storm-grey">{article.readTime} phút</span>

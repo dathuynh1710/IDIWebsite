@@ -2,8 +2,10 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useSearchParams } from 'react-router'
 import PageHead from '@components/common/PageHead'
 import { productsService } from '@services/products.service'
+import { useLanguage } from '@hooks/useLanguage'
 
 function ProductCard({ product, category, onOpen }) {
+  const { t } = useLanguage()
   return (
     <div className="colsl">
       <article className="itproducthb">
@@ -12,7 +14,7 @@ function ProductCard({ product, category, onOpen }) {
             type="button"
             className="nonepointe"
             onClick={onOpen}
-            aria-label={`Xem chi tiết ${product.name}`}
+            aria-label={`${t('actions.viewDetails')} ${product.name}`}
             aria-haspopup="dialog"
           >
             <img src={product.image} alt={product.name} loading="lazy" />
@@ -42,7 +44,7 @@ function ProductCard({ product, category, onOpen }) {
 
           <div className="dsviews">
             <button type="button" className="chitietpopup" onClick={onOpen} aria-haspopup="dialog">
-              <span>Xem chi tiết</span>
+              <span>{t('actions.viewDetails')}</span>
             </button>
           </div>
         </div>
@@ -52,6 +54,7 @@ function ProductCard({ product, category, onOpen }) {
 }
 
 function ProductModal({ product, isClosing, onClose, closeButtonRef, dialogRef }) {
+  const { t } = useLanguage()
   if (!product) return null
 
   return (
@@ -75,7 +78,7 @@ function ProductModal({ product, isClosing, onClose, closeButtonRef, dialogRef }
           type="button"
           className="product-modal__close"
           onClick={onClose}
-          aria-label="Đóng thông tin sản phẩm"
+          aria-label={t('common.close')}
         >
           <span aria-hidden="true">×</span>
         </button>
@@ -137,11 +140,11 @@ function ProductModal({ product, isClosing, onClose, closeButtonRef, dialogRef }
 
           <div className="product-modal__actions">
             <Link to="/contact" className="btn btn-primary">
-              Yêu cầu tư vấn
+              {t('actions.requestAdvice')}
               <span aria-hidden="true">→</span>
             </Link>
             <button type="button" className="btn btn-secondary" onClick={onClose}>
-              Tiếp tục xem sản phẩm
+              {t('actions.continueProducts')}
             </button>
           </div>
         </div>
@@ -151,6 +154,7 @@ function ProductModal({ product, isClosing, onClose, closeButtonRef, dialogRef }
 }
 
 export default function ProductsPage() {
+  const { language, t } = useLanguage()
   const [searchParams, setSearchParams] = useSearchParams()
   const [catalog, setCatalog] = useState({ categories: [], total: 0 })
   const [loadError, setLoadError] = useState(false)
@@ -179,7 +183,7 @@ export default function ProductsPage() {
   useEffect(() => {
     let isMounted = true
 
-    productsService.getCatalog({ locale: 'vi' })
+    productsService.getCatalog({ locale: language })
       .then((data) => {
         if (!isMounted) return
         setCatalog(data)
@@ -192,7 +196,7 @@ export default function ProductsPage() {
     return () => {
       isMounted = false
     }
-  }, [])
+  }, [language])
 
   const selectCategory = (category) => {
     setSearchParams({ category: category.slug })
@@ -306,7 +310,7 @@ export default function ProductsPage() {
                   className={activeCategory === null ? 'active' : ''}
                 >
                   <button type="button" onClick={selectAllProducts}>
-                    <span>Tất cả</span>
+                    <span>{t('actions.all')}</span>
                   </button>
                 </li>
                 {catalog.categories.map(category => (

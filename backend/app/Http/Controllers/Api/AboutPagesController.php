@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Page;
+use App\Support\Locale;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -23,6 +24,7 @@ class AboutPagesController extends Controller
             ->orderBy('sort_order')
             ->orderBy('id')
             ->get()
+            ->filter(fn (Page $page): bool => filled($page->getTranslation('title', $requestedLocale, false)))
             ->map(fn (Page $page): array => $this->page($page, $requestedLocale))
             ->values();
 
@@ -63,15 +65,17 @@ class AboutPagesController extends Controller
             : null;
 
         abort_if(! $page, 404);
+        abort_unless(
+            filled($page->getTranslation('title', $requestedLocale, false)),
+            404
+        );
 
         return response()->json(['data' => $this->page($page, $requestedLocale)]);
     }
 
     private function page(Page $page, string $requestedLocale): array
     {
-        $locale = filled($page->getTranslation('title', $requestedLocale, false))
-            ? $requestedLocale
-            : 'vi';
+        $locale = $requestedLocale;
         $media = $page->featuredMedia;
         $mediaAlt = is_array($media?->alt_text)
             ? ($media->alt_text[$locale] ?? $media->alt_text['vi'] ?? null)
@@ -127,9 +131,7 @@ class AboutPagesController extends Controller
 
     private function locale(Request $request): string
     {
-        $locale = $request->string('locale', $request->string('lang', 'vi')->toString())->toString();
-
-        return in_array($locale, ['vi', 'en', 'zh'], true) ? $locale : 'vi';
+        return Locale::fromRequest($request);
     }
 
     private function ensureModuleEnabled(): void

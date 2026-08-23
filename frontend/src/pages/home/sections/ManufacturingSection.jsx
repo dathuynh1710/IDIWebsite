@@ -1,5 +1,6 @@
 import { Link } from 'react-router'
 import RevealOnScroll from '@components/common/RevealOnScroll'
+import { useLanguage } from '@hooks/useLanguage'
 
 const CAPABILITIES = [
   { label: 'Công suất mỗi năm', value: '100.000 MT', icon: '⚡' },
@@ -11,6 +12,7 @@ const CAPABILITIES = [
 ]
 
 export default function ManufacturingSection() {
+  const { t } = useLanguage()
   return (
     <section
       className="py-24 lg:py-36 relative overflow-hidden"
@@ -70,7 +72,7 @@ export default function ManufacturingSection() {
 
             <RevealOnScroll delay={600}>
               <Link to="/sustainability" className="btn btn-ghost">
-                Tìm hiểu thêm →
+                {t('actions.learnMore')}
               </Link>
             </RevealOnScroll>
           </div>

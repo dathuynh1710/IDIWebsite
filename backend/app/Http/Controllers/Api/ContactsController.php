@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\ContactMessage;
+use App\Support\Locale;
 use App\Support\Toast;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -49,10 +50,10 @@ class ContactsController extends Controller
             'message' => ['required', 'string', 'min:10', 'max:1000'],
             'consent' => ['accepted'],
             'companyWebsite' => ['nullable', 'string', 'max:255'],
-            'locale' => ['nullable', 'string', 'in:vi,en,zh'],
+            'locale' => ['nullable', 'string', 'in:vi,en,zh,zh-CN'],
         ]);
 
-        $locale = $data['locale'] ?? 'vi';
+        $locale = Locale::normalize($data['locale'] ?? 'vi');
         $locale = DB::table('locales')->where('code', $locale)->exists() ? $locale : null;
 
         $message = ContactMessage::create([

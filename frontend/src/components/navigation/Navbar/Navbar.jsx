@@ -3,40 +3,19 @@ import { Link, useLocation } from 'react-router'
 import { cn } from '@utils/cn'
 import NavbarBrand from './NavbarBrand'
 import NavbarDesktop from './NavbarDesktop'
-
-const MOBILE_MENU_LINKS = [
-  {
-    label: 'Về IDI',
-    href: '/about',
-    children: [
-      { label: 'Lịch sử phát triển', href: '/about/story' },
-      { label: 'Giá trị cốt lõi', href: '/about/values' },
-    ],
-  },
-  { label: 'Sản phẩm', href: '/products' },
-  { label: 'Phát triển bền vững', href: '/sustainability' },
-  {
-    label: 'Nhà đầu tư',
-    href: '/investors',
-    children: [
-      { label: 'Tổng quan', href: '/investors' },
-      { label: 'Thông báo', href: '/investors/announcements' },
-      { label: 'Báo cáo tài chính', href: '/investors/financials' },
-      { label: 'Báo cáo thường niên', href: '/investors/annual-reports' },
-      { label: 'Đại hội cổ đông', href: '/investors/agm' },
-      { label: 'Trái phiếu', href: '/investors/green-bond' },
-    ],
-  },
-  { label: 'Tin tức',    href: '/news' },
-  { label: 'Món ăn',     href: '/recipes' },
-  { label: 'Tuyển dụng', href: '/careers' },
-  { label: 'Liên hệ',    href: '/contact' },
-]
+import LanguageSwitcher from '@components/navigation/LanguageSwitcher'
+import { NAV_ITEMS, localizedNavItems } from '@data/navigation'
+import { useLanguage } from '@hooks/useLanguage'
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
   const location = useLocation()
+  const { t } = useLanguage()
+  const mobileMenuLinks = [
+    ...localizedNavItems(NAV_ITEMS, t),
+    { id: 'contact', label: t('nav.contact'), href: '/contact' },
+  ]
 
   // Detect scroll to switch from transparent → solid
   useEffect(() => {
@@ -80,21 +59,10 @@ export default function Navbar() {
             {/* Right: Language + CTA + Hamburger */}
             <div className="flex items-center gap-3">
               {/* Language switcher */}
-              <div className={cn(
+              <LanguageSwitcher className={cn(
                 'hidden xl:flex items-center gap-1 text-xs font-semibold',
                 scrolled || !isHeroPage ? 'text-storm-grey' : 'text-white/80',
-              )}>
-                <button className={cn(
-                  'px-2 py-1 rounded transition-colors',
-                  scrolled || !isHeroPage
-                    ? 'text-ocean-deep'
-                    : 'text-white',
-                )}>VI</button>
-                <span className="opacity-30">|</span>
-                <button className="px-2 py-1 rounded hover:opacity-100 opacity-60 transition-opacity">EN</button>
-                <span className="opacity-30">|</span>
-                <button className="px-2 py-1 rounded hover:opacity-100 opacity-60 transition-opacity">中文</button>
-              </div>
+              )} buttonClassName={scrolled || !isHeroPage ? 'text-ocean-deep' : 'text-white'} />
 
               {/* Contact CTA */}
               <Link
@@ -104,7 +72,7 @@ export default function Navbar() {
                   scrolled || !isHeroPage ? 'btn-primary' : 'btn-gold',
                 )}
               >
-                Liên hệ
+                {t('nav.contact')}
               </Link>
 
               {/* Mobile hamburger */}
@@ -114,7 +82,7 @@ export default function Navbar() {
                   'xl:hidden flex flex-col justify-center items-center w-10 h-10 gap-1.5',
                   scrolled || !isHeroPage ? 'text-ocean-deep' : 'text-white',
                 )}
-                aria-label={mobileOpen ? 'Đóng menu' : 'Mở menu'}
+                aria-label={mobileOpen ? t('nav.closeMenu') : t('nav.openMenu')}
                 aria-expanded={mobileOpen}
               >
                 <span className={cn('block w-6 h-0.5 bg-current transition-all duration-300', mobileOpen && 'rotate-45 translate-y-2')} />
@@ -138,7 +106,7 @@ export default function Navbar() {
           {/* Drawer content */}
           <div className="relative z-10 flex flex-col h-full pt-[72px] overflow-y-auto animate-slide-in-left">
             <nav className="container py-8 flex flex-col gap-1">
-              {MOBILE_MENU_LINKS.map((link) => (
+              {mobileMenuLinks.map((link) => (
                 <div key={link.href} className="border-b border-white/10">
                   <Link
                     to={link.href}
@@ -169,15 +137,9 @@ export default function Navbar() {
             {/* Mobile CTA */}
             <div className="container pb-8 mt-auto flex flex-col gap-3">
               <Link to="/contact" className="btn btn-gold w-full text-center uppercase tracking-[0.035em]">
-                Yêu cầu báo giá
+                {t('nav.requestQuote')}
               </Link>
-              <div className="flex justify-center gap-4 text-sm text-white/50">
-                <button className="hover:text-white transition-colors">VI</button>
-                <span>|</span>
-                <button className="hover:text-white transition-colors">English</button>
-                <span>|</span>
-                <button className="hover:text-white transition-colors">中文</button>
-              </div>
+              <LanguageSwitcher className="justify-center gap-3 text-sm text-white/50" buttonClassName="hover:text-white" />
             </div>
           </div>
         </div>

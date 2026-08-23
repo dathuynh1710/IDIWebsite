@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\JobApplication;
 use App\Models\JobPosition;
 use App\Models\Media;
+use App\Support\Locale;
 use App\Support\Toast;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -35,7 +36,10 @@ class CareersController extends Controller
     public function show(Request $request, string $slug)
     {
         $locale = $this->locale($request);
-        $position = JobPosition::where('is_active', true)->where("slug->{$locale}", $slug)->firstOrFail();
+        $position = JobPosition::where('is_active', true)
+            ->where("translation_status->{$locale}", 'published')
+            ->where("slug->{$locale}", $slug)
+            ->firstOrFail();
 
         return response()->json(['data' => $this->position($position, $locale, true)]);
     }
@@ -78,9 +82,7 @@ class CareersController extends Controller
 
     private function locale(Request $request): string
     {
-        $locale = $request->string('locale', $request->string('lang', 'vi')->toString())->toString();
-
-        return in_array($locale, ['vi', 'en', 'zh'], true) ? $locale : 'vi';
+        return Locale::fromRequest($request);
     }
 
     private function position(JobPosition $position, string $locale, bool $full = false): array

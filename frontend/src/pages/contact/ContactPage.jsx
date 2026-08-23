@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router'
 import PageHead from '@components/common/PageHead'
 import { inquiryService } from '@services/inquiry.service'
+import { useLanguage } from '@hooks/useLanguage'
 import toast from '@/utils/toast'
 
 const INITIAL_FORM = {
@@ -89,6 +90,7 @@ function FormField({ label, name, error, required = true, children }) {
 }
 
 export default function ContactPage() {
+  const { t } = useLanguage()
   const [form, setForm] = useState(INITIAL_FORM)
   const [errors, setErrors] = useState({})
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -225,7 +227,7 @@ export default function ContactPage() {
                     Mã tham chiếu của bạn là <strong className="text-ocean-deep">{referenceId}</strong>.
                   </p>
                   <button type="button" onClick={startNewInquiry} className="btn btn-secondary mt-8">
-                    Gửi yêu cầu khác
+                    {t('actions.submitAnotherInquiry')}
                   </button>
                 </div>
               ) : (
@@ -415,7 +417,7 @@ export default function ContactPage() {
                         disabled={isSubmitting}
                         className="btn btn-primary min-w-40 disabled:cursor-wait disabled:opacity-65"
                       >
-                        {isSubmitting ? 'Đang gửi...' : 'Gửi liên hệ'}
+                        {isSubmitting ? t('actions.sending') : t('actions.submitContact')}
                         {!isSubmitting && <span aria-hidden="true">→</span>}
                       </button>
                     </div>

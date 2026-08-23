@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router'
 import RevealOnScroll from '@components/common/RevealOnScroll'
 import { productsService } from '@services/products.service'
+import { useLanguage } from '@hooks/useLanguage'
 
 const CATEGORY_PRESENTATION = {
   'pangasius-fillet': { badge: 'Bán chạy', badgeColor: 'badge-gold' },
@@ -11,12 +12,13 @@ const CATEGORY_PRESENTATION = {
 }
 
 export default function ProductsSection() {
+  const { language, t } = useLanguage()
   const [categories, setCategories] = useState([])
 
   useEffect(() => {
     let isMounted = true
 
-    productsService.getCatalog({ locale: 'vi' })
+    productsService.getCatalog({ locale: language })
       .then((catalog) => {
         if (isMounted) setCategories(catalog.categories)
       })
@@ -25,7 +27,7 @@ export default function ProductsSection() {
     return () => {
       isMounted = false
     }
-  }, [])
+  }, [language])
 
   return (
     <section className="py-24 lg:py-36 bg-white">
@@ -43,7 +45,7 @@ export default function ProductsSection() {
           </div>
           <RevealOnScroll direction="right">
             <Link to="/products" className="btn btn-secondary whitespace-nowrap">
-              Xem toàn bộ danh mục →
+              {t('actions.viewCatalog')}
             </Link>
           </RevealOnScroll>
         </div>
@@ -90,7 +92,7 @@ export default function ProductsSection() {
                     </p>
 
                     <div className="flex items-center gap-1.5 text-coral-gold text-xs font-semibold mt-3 translate-y-1 opacity-0 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">
-                      Xem thông số
+                      {t('actions.viewDetails')}
                       <svg className="w-3.5 h-3.5" viewBox="0 0 14 14" fill="none">
                         <path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                       </svg>
@@ -106,7 +108,7 @@ export default function ProductsSection() {
           <p className="text-center text-storm-grey text-sm mt-10">
             Tất cả sản phẩm đều có định dạng đông IQF và Block ·{' '}
             <Link to="/contact" className="text-seafoam hover:text-seafoam-light font-semibold transition-colors">
-              Nhận sản xuất theo quy cách riêng
+              {t('actions.customProduction')}
             </Link>
           </p>
         </RevealOnScroll>

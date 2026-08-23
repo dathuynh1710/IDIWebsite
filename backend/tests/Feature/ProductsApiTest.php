@@ -52,5 +52,9 @@ class ProductsApiTest extends TestCase
             ->assertOk()
             ->assertJsonPath('data.name', 'Ức Cá Tra')
             ->assertJsonPath('data.shelfLife', '24 tháng');
+
+        $this->getJson('/api/products/uc-ca-tra?locale=zh-CN')
+            ->assertOk()
+            ->assertJsonPath('data.name', 'Pangasius Belly');
     }
 }

@@ -19,7 +19,7 @@ const CATEGORY_STYLES = [
   'bg-[#FFF1EA] text-[#A5542D]',
 ]
 
-const DATE_LOCALES = { vi: 'vi-VN', en: 'en-US', zh: 'zh-CN' }
+const DATE_LOCALES = { vi: 'vi-VN', en: 'en-US', 'zh-CN': 'zh-CN' }
 
 function categoryStyle(category) {
   const token = `${category?.code ?? ''}${category?.slug ?? ''}${category?.name ?? ''}`
@@ -89,6 +89,7 @@ function ArticleMeta({ article, pageConfig, language, featured = false }) {
 }
 
 function NewsCard({ article, pageConfig, language }) {
+  const { t } = useLanguage()
   return (
     <article className="group flex h-full flex-col overflow-hidden rounded-2xl border border-light-mist bg-white transition-all duration-300 hover:-translate-y-1 hover:border-transparent hover:shadow-xl">
       <Link
@@ -115,7 +116,7 @@ function NewsCard({ article, pageConfig, language }) {
           to={`/news/${article.slug}`}
           className="inline-flex items-center gap-2 text-sm font-semibold text-seafoam transition-all group-hover:gap-3"
         >
-          Đọc bài viết <span aria-hidden="true">→</span>
+          {t('common.readMore')} <span aria-hidden="true">→</span>
         </Link>
       </div>
     </article>
@@ -149,7 +150,7 @@ function paginationItems(currentPage, lastPage) {
 }
 
 export default function NewsPage() {
-  const { language } = useLanguage()
+  const { language, t } = useLanguage()
   const [query, setQuery] = useState('')
   const debouncedQuery = useDebounce(query.trim(), 350)
   const [category, setCategory] = useState('')
@@ -290,7 +291,7 @@ export default function NewsPage() {
                     <p className="mb-8 leading-relaxed text-storm-grey">{featuredArticle.excerpt}</p>
                   )}
                   <Link to={`/news/${featuredArticle.slug}`} className="btn btn-primary self-start">
-                    Đọc bài nổi bật <span aria-hidden="true">→</span>
+                    {t('actions.featuredRead')} <span aria-hidden="true">→</span>
                   </Link>
                 </div>
               </article>
@@ -351,7 +352,7 @@ export default function NewsPage() {
                   }`}
                   aria-pressed={!category}
                 >
-                  Tất cả <span className={!category ? 'text-white/55' : 'text-storm-grey/60'}>{allCategoryCount}</span>
+                  {t('actions.all')} <span className={!category ? 'text-white/55' : 'text-storm-grey/60'}>{allCategoryCount}</span>
                 </button>
                 {result.categories.map(item => {
                   const isActive = category === item.slug
@@ -379,7 +380,7 @@ export default function NewsPage() {
             <p>Hiển thị <strong className="text-ink">{result.total}</strong> bài viết</p>
             {hasFilters && (
               <button type="button" onClick={clearFilters} className="font-semibold text-seafoam hover:text-seafoam-light">
-                Xóa bộ lọc
+                {t('actions.clearFilters')}
               </button>
             )}
           </div>
@@ -391,7 +392,7 @@ export default function NewsPage() {
               <h3 className="mb-2 text-xl font-bold text-ocean-deep">Không thể tải tin tức</h3>
               <p className="mb-6 text-sm text-storm-grey">Vui lòng kiểm tra kết nối và thử lại.</p>
               <button type="button" onClick={() => setRequestKey(key => key + 1)} className="btn btn-primary">
-                Thử tải lại
+                {t('actions.retryLoad')}
               </button>
             </div>
           ) : result.items.length > 0 ? (
@@ -407,7 +408,7 @@ export default function NewsPage() {
               <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-full bg-seafoam-pale text-2xl">🔎</div>
               <h3 className="mb-2 text-xl font-bold text-ocean-deep">Không tìm thấy bài viết</h3>
               <p className="mb-6 text-sm text-storm-grey">Hãy thử từ khóa khác hoặc xóa bộ lọc hiện tại.</p>
-              <button type="button" onClick={clearFilters} className="btn btn-secondary">Xem tất cả tin tức</button>
+              <button type="button" onClick={clearFilters} className="btn btn-secondary">{t('actions.allNews')}</button>
             </div>
           )}
 
@@ -419,7 +420,7 @@ export default function NewsPage() {
                 disabled={currentPage === 1 || status === 'refreshing'}
                 className="h-10 rounded-lg border border-light-mist bg-white px-4 text-sm font-semibold text-ocean-deep transition hover:border-seafoam disabled:cursor-not-allowed disabled:opacity-40"
               >
-                Trước
+                {t('actions.previous')}
               </button>
               {paginationItems(currentPage, result.lastPage).map((item, index) => (
                 item === '…' ? (
@@ -448,7 +449,7 @@ export default function NewsPage() {
                 disabled={currentPage === result.lastPage || status === 'refreshing'}
                 className="h-10 rounded-lg border border-light-mist bg-white px-4 text-sm font-semibold text-ocean-deep transition hover:border-seafoam disabled:cursor-not-allowed disabled:opacity-40"
               >
-                Sau
+                {t('actions.next')}
               </button>
             </nav>
           )}

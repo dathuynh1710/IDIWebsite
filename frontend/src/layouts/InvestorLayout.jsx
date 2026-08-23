@@ -1,7 +1,10 @@
 import { NavLink, Outlet } from 'react-router'
-import { INVESTOR_NAV } from '@data/navigation'
+import { INVESTOR_NAV, localizedNavItems } from '@data/navigation'
+import { useLanguage } from '@hooks/useLanguage'
 
 export default function InvestorLayout() {
+  const { t } = useLanguage()
+  const investorNav = localizedNavItems(INVESTOR_NAV, t)
   return (
     <div className="bg-[radial-gradient(circle_at_100%_0%,rgba(26,147,111,0.11),transparent_30rem)]">
       <div className="container pb-20 pt-28 sm:pt-32">
@@ -12,10 +15,10 @@ export default function InvestorLayout() {
                 <span className="text-[10px] font-extrabold uppercase tracking-[0.16em] text-coral-light">
                   IDI · HOSE
                 </span>
-                <strong className="mt-1 block text-lg">Nhà đầu tư</strong>
+                <strong className="mt-1 block text-lg">{t('nav.investors')}</strong>
               </div>
-              <nav aria-label="Danh mục nhà đầu tư" className="flex gap-2 overflow-x-auto p-2 lg:block">
-                {INVESTOR_NAV.map((item) => (
+              <nav aria-label={t('nav.investorMenu')} className="flex gap-2 overflow-x-auto p-2 lg:block">
+                {investorNav.map((item) => (
                   <NavLink
                     key={item.id}
                     to={item.href}
@@ -33,7 +36,7 @@ export default function InvestorLayout() {
                 ))}
               </nav>
               <div className="hidden border-t border-light-mist p-5 lg:block">
-                <span className="text-[10px] font-extrabold uppercase tracking-[0.12em] text-storm-grey">Liên hệ IR</span>
+                <span className="text-[10px] font-extrabold uppercase tracking-[0.12em] text-storm-grey">{t('nav.irContact')}</span>
                 <a href="mailto:info@idiseafood.com" className="mt-2 block break-all text-sm font-bold text-ocean-deep hover:text-seafoam">
                   info@idiseafood.com
                 </a>

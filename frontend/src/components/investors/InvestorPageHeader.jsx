@@ -1,16 +1,18 @@
 import PageHead from '@components/common/PageHead'
+import { useLanguage } from '@hooks/useLanguage'
 
-export default function InvestorPageHeader({ title, description, eyebrow = 'Quan hệ cổ đông', updated, seo }) {
+export default function InvestorPageHeader({ title, description, eyebrow, updated, seo }) {
+  const { t } = useLanguage()
   return (
     <>
       <PageHead
-        title={seo?.title || `${title} | Nhà đầu tư IDI`}
+        title={seo?.title || `${title} | ${t('nav.investors')} IDI`}
         description={seo?.description || description}
       />
       <header className="mb-8 border-b border-light-mist pb-7">
         <div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
           <div className="max-w-3xl">
-            <span className="section-eyebrow">{eyebrow}</span>
+            <span className="section-eyebrow">{eyebrow ?? t('nav.investors')}</span>
             <h1 className="text-[clamp(2rem,4vw,3.15rem)] font-extrabold leading-[1.08] tracking-[-0.035em] text-ocean-deep">
               {title}
             </h1>

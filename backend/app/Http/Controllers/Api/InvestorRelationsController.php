@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\DocumentCategory;
 use App\Models\InvestorDocument;
 use App\Models\InvestorDocumentFile;
+use App\Support\Locale;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -218,9 +219,7 @@ class InvestorRelationsController extends Controller
 
     private function locale(Request $request): string
     {
-        $locale = $request->string('locale', $request->string('lang', 'vi')->toString())->toString();
-
-        return in_array($locale, ['vi', 'en', 'zh'], true) ? $locale : 'vi';
+        return Locale::fromRequest($request);
     }
 
     private function ensureModuleEnabled(): void

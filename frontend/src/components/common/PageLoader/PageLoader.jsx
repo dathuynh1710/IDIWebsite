@@ -3,6 +3,7 @@
  * Shown by the Suspense boundary in RootLayout.
  */
 export default function PageLoader() {
+  const { t } = useLanguage()
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-arctic-white">
       <div className="flex flex-col items-center gap-4">
@@ -18,9 +19,10 @@ export default function PageLoader() {
           <p className="text-sm font-semibold text-ocean-deep tracking-widest uppercase">
             IDI Seafood
           </p>
-          <p className="text-xs text-storm-grey">Loading...</p>
+          <p className="text-xs text-storm-grey">{t('common.loading')}</p>
         </div>
       </div>
     </div>
   )
 }
+import { useLanguage } from '@hooks/useLanguage'

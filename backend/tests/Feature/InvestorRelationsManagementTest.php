@@ -10,6 +10,7 @@ use App\Livewire\Admin\Investors\Settings;
 use App\Models\DocumentCategory;
 use App\Models\InvestorDocument;
 use App\Models\User;
+use Database\Seeders\InvestorDocumentCategorySeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
@@ -227,6 +228,49 @@ class InvestorRelationsManagementTest extends TestCase
             ->assertViewHas('categories', fn ($categories): bool => $categories->total() === 16 && $categories->count() === 5)
             ->call('nextPage')
             ->assertSet('paginators.page', 2);
+    }
+
+    public function test_category_list_keeps_parent_and_children_together_as_a_tree(): void
+    {
+        $parent = DocumentCategory::create([
+            'name' => ['vi' => 'Báo cáo tài chính'],
+            'slug' => ['vi' => 'bao-cao-tai-chinh'],
+            'sort_order' => 10,
+            'is_active' => true,
+        ]);
+        $child = DocumentCategory::create([
+            'parent_id' => $parent->id,
+            'name' => ['vi' => 'Năm 2026'],
+            'slug' => ['vi' => 'bao-cao-tai-chinh-nam-2026'],
+            'sort_order' => 100,
+            'is_active' => true,
+        ]);
+
+        $this->assertIsInt($child->fresh()->parent_id);
+
+        Livewire::actingAs($this->editor())->test(CategoryIndex::class)
+            ->assertViewHas('categories', function ($categories) use ($parent, $child): bool {
+                $items = collect($categories->items());
+
+                return $items->pluck('id')->all() === [$parent->id, $child->id]
+                    && $items[0]->tree_depth === 0
+                    && $items[1]->tree_depth === 1
+                    && $categories->total() === 1;
+            })
+            ->assertSee('1 nhánh gốc')
+            ->assertSee('Danh mục gốc');
+    }
+
+    public function test_legacy_investor_category_seeder_creates_the_complete_reference_tree(): void
+    {
+        $this->seed(InvestorDocumentCategorySeeder::class);
+
+        $this->assertSame(68, DocumentCategory::count());
+        $this->assertSame(8, DocumentCategory::whereNull('parent_id')->count());
+        $this->assertSame(2, DocumentCategory::where('name->vi', 'Năm 2026')
+            ->whereHas('parent', fn ($query) => $query->where('slug->vi', 'dai-hoi-co-dong'))
+            ->count());
+        $this->assertSame(18, DocumentCategory::whereHas('parent', fn ($query) => $query->where('slug->vi', 'bao-cao-tai-chinh'))->count());
     }
 
     public function test_investor_category_delete_waits_for_custom_modal_confirmation(): void

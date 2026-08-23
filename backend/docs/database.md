@@ -22,7 +22,7 @@ unchanged.
   `product_attributes`, `product_documents`, `product_view_statistics`.
 - Editorial: `post_categories`, `posts`, `tags`, `post_tag`, `pages`,
   `page_sections`.
-- Recipes: `recipes`, `recipe_ingredients`, `recipe_steps`, `product_recipe`.
+- Recipes: `recipes`, `product_recipe`.
 - Investor relations: `document_categories`, `investor_documents`,
   `investor_document_files`.
 - Recruitment and contact: `job_positions`, `job_applications`,
@@ -73,8 +73,8 @@ JSON columns by table:
 - Editorial: the equivalent multilingual fields on `post_categories`,
   `posts`, and `pages`; `tags.name`, `tags.slug`; `page_sections.title`,
   `content`, `payload`.
-- Recipes: multilingual content/SEO/status fields on `recipes`;
-  `recipe_ingredients.name`, `unit`, `note`; `recipe_steps.instruction`.
+- Recipes: multilingual summary, two-column rich content (`content_left`,
+  `content_right`), SEO and publication status fields on `recipes`.
 - Investor/recruitment/contact: multilingual content on
   `document_categories`, `investor_documents`, `investor_document_files`,
   `job_positions`, and `office_locations`.

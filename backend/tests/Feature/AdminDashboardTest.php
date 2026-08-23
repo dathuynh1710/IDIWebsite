@@ -277,6 +277,51 @@ class AdminDashboardTest extends TestCase
         $this->assertSame(1, substr_count($response->getContent(), 'class="sidebar-link is-active"'));
     }
 
+    public function test_sidebar_notification_bells_show_only_new_item_counts(): void
+    {
+        $user = User::factory()->create();
+        $user->givePermissionTo([
+            Permission::findOrCreate('contacts.manage', 'web'),
+            Permission::findOrCreate('recruitment.view', 'web'),
+        ]);
+
+        foreach (['new', 'new', 'in_progress'] as $index => $status) {
+            ContactMessage::create([
+                'full_name' => "Người liên hệ {$index}",
+                'email' => "contact{$index}@example.com",
+                'message' => 'Nội dung liên hệ',
+                'status' => $status,
+            ]);
+        }
+
+        foreach (['new', 'new', 'new', 'reviewing'] as $index => $status) {
+            JobApplication::create([
+                'full_name' => "Ứng viên {$index}",
+                'email' => "candidate{$index}@example.com",
+                'status' => $status,
+            ]);
+        }
+
+        $response = $this->actingAs($user)->get('/admin');
+
+        $response
+            ->assertOk()
+            ->assertSee('title="Thông báo"', false)
+            ->assertSee('aria-label="Thông báo: 2 mục mới"', false)
+            ->assertSee('aria-label="Thông báo: 3 mục mới"', false);
+
+        $this->assertSame(2, substr_count($response->getContent(), 'class="sidebar-notification-bell"'));
+        $this->assertSame(2, substr_count($response->getContent(), 'class="sidebar-notification-badge"'));
+
+        ContactMessage::query()->update(['status' => 'in_progress']);
+        JobApplication::query()->update(['status' => 'reviewing']);
+
+        $emptyResponse = $this->actingAs($user)->get('/admin');
+
+        $this->assertSame(2, substr_count($emptyResponse->getContent(), 'class="sidebar-notification-bell"'));
+        $this->assertStringNotContainsString('class="sidebar-notification-badge"', $emptyResponse->getContent());
+    }
+
     public function test_user_without_product_permission_is_forbidden(): void
     {
         $this->actingAs(User::factory()->create())->get('/admin/products')->assertForbidden();

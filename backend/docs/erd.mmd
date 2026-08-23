@@ -42,9 +42,6 @@ erDiagram
     pages ||--o{ pages : parent
     pages ||--o{ page_sections : owns
 
-    recipes ||--o{ recipe_ingredients : owns
-    recipes ||--o{ recipe_steps : owns
-    media ||--o{ recipe_steps : illustrates
     products ||--o{ product_recipe : relates
     recipes ||--o{ product_recipe : relates
 

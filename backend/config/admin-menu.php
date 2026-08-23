@@ -15,6 +15,10 @@ return [
                 'icon' => 'mail',
                 'permission' => 'contacts.manage',
                 'active' => 'admin.contacts.*',
+                'notification' => [
+                    'key' => 'contacts',
+                    'route' => 'admin.contacts.index',
+                ],
                 'children' => [
                     ['label' => 'Cấu hình liên lạc', 'route' => 'admin.contacts.settings'],
                     ['label' => 'Quản lý thư liên hệ', 'route' => 'admin.contacts.index'],
@@ -84,6 +88,10 @@ return [
                 'icon' => 'users',
                 'permission' => 'recruitment.view',
                 'active' => 'admin.recruitment.*',
+                'notification' => [
+                    'key' => 'recruitment',
+                    'route' => 'admin.recruitment.applications.index',
+                ],
                 'children' => [
                     ['label' => 'Cấu hình chung', 'route' => 'admin.recruitment.settings'],
                     ['label' => 'Quản lý tuyển dụng', 'route' => 'admin.recruitment.positions.index'],

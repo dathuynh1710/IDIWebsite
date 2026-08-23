@@ -6,6 +6,7 @@ use App\Livewire\AdminComponent;
 use App\Models\Media;
 use App\Models\Recipe;
 use App\Support\RecipeRoutes;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
@@ -30,23 +31,13 @@ class Form extends AdminComponent
 
     public bool $remove_video = false;
 
-    public string $servings = '';
-
-    public ?int $preparation_time = null;
-
-    public ?int $cooking_time = null;
-
-    public string $difficulty = 'easy';
-
     public int $sort_order = 0;
 
     public bool $is_featured = false;
 
     public bool $is_active = true;
 
-    public bool $show_ingredients = true;
-
-    public bool $show_steps = true;
+    public string $published_at = '';
 
     public array $title = ['vi' => '', 'en' => '', 'zh' => ''];
 
@@ -54,83 +45,38 @@ class Form extends AdminComponent
 
     public array $summary = ['vi' => '', 'en' => '', 'zh' => ''];
 
-    public array $content = ['vi' => '', 'en' => '', 'zh' => ''];
+    public array $content_left = ['vi' => '', 'en' => '', 'zh' => ''];
+
+    public array $content_right = ['vi' => '', 'en' => '', 'zh' => ''];
 
     public array $seo_title = ['vi' => '', 'en' => '', 'zh' => ''];
 
     public array $meta_description = ['vi' => '', 'en' => '', 'zh' => ''];
 
-    public array $translation_status = ['vi' => 'draft', 'en' => 'draft', 'zh' => 'draft'];
-
-    public array $locale_published_at = ['vi' => '', 'en' => '', 'zh' => ''];
-
-    public array $ingredients = [];
-
-    public array $steps = [];
-
     public function mount(?Recipe $recipe = null): void
     {
         $recipe = $recipe?->exists ? $recipe : null;
         Gate::authorize($recipe ? 'recipes.update' : 'recipes.create');
-        $this->recipe = $recipe?->load(['featuredMedia', 'videoMedia', 'ingredients', 'steps']);
+        $this->recipe = $recipe?->load(['featuredMedia', 'videoMedia']);
 
         if (! $recipe) {
-            $this->addIngredient();
-            $this->addStep();
+            $this->published_at = now()->format('Y-m-d\TH:i');
 
             return;
         }
 
-        foreach (['code', 'servings', 'preparation_time', 'cooking_time', 'difficulty', 'sort_order', 'is_featured', 'is_active', 'show_ingredients', 'show_steps'] as $field) {
+        foreach (['code', 'sort_order', 'is_featured', 'is_active'] as $field) {
             $this->{$field} = $recipe->{$field} ?? $this->{$field};
         }
-        foreach (['title', 'slug', 'summary', 'content', 'seo_title', 'meta_description', 'translation_status', 'locale_published_at'] as $field) {
+        foreach (['title', 'slug', 'summary', 'content_left', 'content_right', 'seo_title', 'meta_description'] as $field) {
             foreach (['vi', 'en', 'zh'] as $locale) {
                 $this->{$field}[$locale] = $recipe->getTranslation($field, $locale, false) ?? $this->{$field}[$locale];
             }
         }
-        $this->ingredients = $recipe->ingredients->map(fn ($item) => [
-            'quantity' => $item->quantity ?? '',
-            'name' => $this->translationsFor($item, 'name'),
-            'unit' => $this->translationsFor($item, 'unit'),
-            'note' => $this->translationsFor($item, 'note'),
-        ])->all();
-        $this->steps = $recipe->steps->map(fn ($item) => [
-            'instruction' => $this->translationsFor($item, 'instruction'),
-        ])->all();
-        if ($this->ingredients === []) {
-            $this->addIngredient();
-        }
-        if ($this->steps === []) {
-            $this->addStep();
-        }
-    }
-
-    public function addIngredient(): void
-    {
-        $this->ingredients[] = [
-            'quantity' => '',
-            'name' => ['vi' => '', 'en' => '', 'zh' => ''],
-            'unit' => ['vi' => '', 'en' => '', 'zh' => ''],
-            'note' => ['vi' => '', 'en' => '', 'zh' => ''],
-        ];
-    }
-
-    public function removeIngredient(int $index): void
-    {
-        unset($this->ingredients[$index]);
-        $this->ingredients = array_values($this->ingredients);
-    }
-
-    public function addStep(): void
-    {
-        $this->steps[] = ['instruction' => ['vi' => '', 'en' => '', 'zh' => '']];
-    }
-
-    public function removeStep(int $index): void
-    {
-        unset($this->steps[$index]);
-        $this->steps = array_values($this->steps);
+        $publishedAt = collect($recipe->getTranslations('locale_published_at'))->filter()->first();
+        $this->published_at = $publishedAt
+            ? Carbon::parse($publishedAt)->format('Y-m-d\TH:i')
+            : $recipe->created_at->format('Y-m-d\TH:i');
     }
 
     public function generateSlug(string $locale): void
@@ -154,74 +100,62 @@ class Form extends AdminComponent
     {
         $this->slug = collect($this->slug)->map(fn ($value) => Str::slug((string) $value))->all();
         $recipeId = $this->recipe?->id;
-        $statuses = 'draft,translating,review,scheduled,published,hidden,archived';
         $validated = $this->validate([
             'code' => ['nullable', 'string', 'max:100', Rule::unique('recipes', 'code')->ignore($recipeId)],
             'featured_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
             'video_file' => ['nullable', 'file', 'mimes:mp4,webm,mov', 'max:51200'],
             'remove_image' => ['boolean'], 'remove_video' => ['boolean'],
-            'servings' => ['nullable', 'string', 'max:100'],
-            'preparation_time' => ['nullable', 'integer', 'min:0', 'max:10000'],
-            'cooking_time' => ['nullable', 'integer', 'min:0', 'max:10000'],
-            'difficulty' => ['required', 'in:easy,medium,hard'],
             'sort_order' => ['required', 'integer', 'min:0', 'max:999999'],
             'is_featured' => ['required', 'boolean'], 'is_active' => ['required', 'boolean'],
-            'show_ingredients' => ['required', 'boolean'], 'show_steps' => ['required', 'boolean'],
+            'published_at' => ['required', 'date'],
             'title.vi' => ['required', 'string', 'max:255'],
             'title.en' => ['nullable', 'string', 'max:255'], 'title.zh' => ['nullable', 'string', 'max:255'],
             'slug.vi' => ['required', 'string', 'max:255', 'regex:/^[a-z0-9]+(?:-[a-z0-9]+)*$/'],
             'slug.en' => ['nullable', 'string', 'max:255', 'regex:/^[a-z0-9]+(?:-[a-z0-9]+)*$/'],
             'slug.zh' => ['nullable', 'string', 'max:255', 'regex:/^[a-z0-9]+(?:-[a-z0-9]+)*$/'],
             'summary.*' => ['nullable', 'string', 'max:2000'],
-            'content.*' => ['nullable', 'string', 'max:100000'],
+            'content_left.*' => ['nullable', 'string', 'max:100000'],
+            'content_right.*' => ['nullable', 'string', 'max:100000'],
             'seo_title.*' => ['nullable', 'string', 'max:255'],
             'meta_description.*' => ['nullable', 'string', 'max:500'],
-            'translation_status.*' => ['required', "in:{$statuses}"],
-            'locale_published_at.*' => ['nullable', 'date'],
-            'locale_published_at.vi' => ['required_if:translation_status.vi,scheduled'],
-            'locale_published_at.en' => ['required_if:translation_status.en,scheduled'],
-            'locale_published_at.zh' => ['required_if:translation_status.zh,scheduled'],
-            'ingredients' => ['array', 'max:100'],
-            'ingredients.*.quantity' => ['nullable', 'string', 'max:100'],
-            'ingredients.*.name.*' => ['nullable', 'string', 'max:255'],
-            'ingredients.*.unit.*' => ['nullable', 'string', 'max:100'],
-            'ingredients.*.note.*' => ['nullable', 'string', 'max:500'],
-            'steps' => ['array', 'max:100'],
-            'steps.*.instruction.*' => ['nullable', 'string', 'max:5000'],
         ], [], [
-            'code'                => 'Mã recipe',
-            'featured_image'      => 'Ảnh đại diện',
-            'video_file'          => 'Video',
-            'servings'            => 'Khẩu phần',
-            'preparation_time'    => 'Thời gian chuẩn bị',
-            'cooking_time'        => 'Thời gian nấu',
-            'difficulty'          => 'Độ khó',
-            'sort_order'          => 'Thứ tự hiển thị',
-            'title.vi'            => 'Tiêu đề (Tiếng Việt)',
-            'title.en'            => 'Tiêu đề (English)',
-            'title.zh'            => 'Tiêu đề (中文)',
-            'slug.vi'             => 'Đường dẫn (Tiếng Việt)',
-            'slug.en'             => 'Đường dẫn (English)',
-            'slug.zh'             => 'Đường dẫn (中文)',
-            'summary.vi'          => 'Tóm tắt (Tiếng Việt)',
-            'summary.en'          => 'Tóm tắt (English)',
-            'summary.zh'          => 'Tóm tắt (中文)',
-            'seo_title.vi'        => 'Tiêu đề SEO (Tiếng Việt)',
-            'seo_title.en'        => 'Tiêu đề SEO (English)',
-            'seo_title.zh'        => 'Tiêu đề SEO (中文)',
+            'code' => 'Mã recipe',
+            'featured_image' => 'Ảnh đại diện',
+            'video_file' => 'Video',
+            'sort_order' => 'Thứ tự hiển thị',
+            'published_at' => 'Ngày đăng',
+            'title.vi' => 'Tiêu đề (Tiếng Việt)',
+            'title.en' => 'Tiêu đề (English)',
+            'title.zh' => 'Tiêu đề (中文)',
+            'slug.vi' => 'Đường dẫn (Tiếng Việt)',
+            'slug.en' => 'Đường dẫn (English)',
+            'slug.zh' => 'Đường dẫn (中文)',
+            'summary.vi' => 'Tóm tắt (Tiếng Việt)',
+            'summary.en' => 'Tóm tắt (English)',
+            'summary.zh' => 'Tóm tắt (中文)',
+            'seo_title.vi' => 'Tiêu đề SEO (Tiếng Việt)',
+            'seo_title.en' => 'Tiêu đề SEO (English)',
+            'seo_title.zh' => 'Tiêu đề SEO (中文)',
             'meta_description.vi' => 'Meta description (Tiếng Việt)',
             'meta_description.en' => 'Meta description (English)',
             'meta_description.zh' => 'Meta description (中文)',
-            'locale_published_at.vi' => 'Ngày đăng (Tiếng Việt)',
-            'locale_published_at.en' => 'Ngày đăng (English)',
-            'locale_published_at.zh' => 'Ngày đăng (中文)',
         ]);
 
         $localized = [];
-        foreach (['title', 'slug', 'summary', 'seo_title', 'meta_description', 'translation_status', 'locale_published_at'] as $field) {
+        foreach (['title', 'slug', 'summary', 'seo_title', 'meta_description'] as $field) {
             $localized[$field] = $this->cleanTranslations($validated[$field] ?? []);
         }
-        $localized['content'] = collect($validated['content'] ?? [])->map(fn ($html) => $this->sanitizeHtml((string) $html))->filter()->all();
+        foreach (['content_left', 'content_right'] as $field) {
+            $localized[$field] = collect($validated[$field] ?? [])->map(fn ($html) => $this->sanitizeHtml((string) $html))->filter()->all();
+        }
+        $publishedAt = Carbon::parse($validated['published_at'])->toIso8601String();
+        $localized['translation_status'] = collect(['vi', 'en', 'zh'])->mapWithKeys(
+            fn (string $locale): array => [$locale => filled($localized['title'][$locale] ?? null) ? 'published' : 'draft']
+        )->all();
+        $localized['locale_published_at'] = collect(['vi', 'en', 'zh'])
+            ->filter(fn (string $locale): bool => filled($localized['title'][$locale] ?? null))
+            ->mapWithKeys(fn (string $locale): array => [$locale => $publishedAt])
+            ->all();
 
         DB::transaction(function () use ($validated, $localized): void {
             $imageId = $this->remove_image ? null : $this->recipe?->featured_media_id;
@@ -236,11 +170,8 @@ class Form extends AdminComponent
             $data = array_merge($localized, [
                 'code' => filled($validated['code']) ? Str::upper(trim($validated['code'])) : null,
                 'featured_media_id' => $imageId, 'video_media_id' => $videoId,
-                'servings' => filled($validated['servings']) ? trim($validated['servings']) : null,
-                'preparation_time' => $validated['preparation_time'], 'cooking_time' => $validated['cooking_time'],
-                'difficulty' => $validated['difficulty'], 'sort_order' => $validated['sort_order'],
+                'sort_order' => $validated['sort_order'],
                 'is_featured' => $validated['is_featured'], 'is_active' => $validated['is_active'],
-                'show_ingredients' => $validated['show_ingredients'], 'show_steps' => $validated['show_steps'],
                 'updated_by' => auth()->id(),
             ]);
 
@@ -251,30 +182,10 @@ class Form extends AdminComponent
                 $this->recipe = Recipe::create($data);
             }
 
-            $this->recipe->ingredients()->delete();
-            foreach ($validated['ingredients'] ?? [] as $sortOrder => $item) {
-                $name = $this->cleanTranslations($item['name'] ?? []);
-                if ($name === [] && blank($item['quantity'] ?? null)) {
-                    continue;
-                }
-                $this->recipe->ingredients()->create([
-                    'quantity' => filled($item['quantity'] ?? null) ? trim($item['quantity']) : null,
-                    'name' => $name, 'unit' => $this->cleanTranslations($item['unit'] ?? []),
-                    'note' => $this->cleanTranslations($item['note'] ?? []), 'sort_order' => $sortOrder,
-                ]);
-            }
-            $this->recipe->steps()->delete();
-            foreach ($validated['steps'] ?? [] as $sortOrder => $item) {
-                $instruction = $this->cleanTranslations($item['instruction'] ?? []);
-                if ($instruction === []) {
-                    continue;
-                }
-                $this->recipe->steps()->create(['instruction' => $instruction, 'sort_order' => $sortOrder]);
-            }
             RecipeRoutes::sync($this->recipe);
         });
 
-        $this->recipe->refresh()->load(['featuredMedia', 'videoMedia', 'ingredients', 'steps']);
+        $this->recipe->refresh()->load(['featuredMedia', 'videoMedia']);
         $this->featured_image = null;
         $this->video_file = null;
         $this->remove_image = false;
@@ -283,11 +194,6 @@ class Form extends AdminComponent
             $this->js("history.replaceState({}, '', '".route('admin.recipes.edit', $this->recipe)."')");
         }
         $this->toast($recipeId ? 'Cập nhật công thức thành công.' : 'Tạo công thức thành công.');
-    }
-
-    private function translationsFor($model, string $field): array
-    {
-        return array_replace(['vi' => '', 'en' => '', 'zh' => ''], $model->getTranslations($field));
     }
 
     private function cleanTranslations(array $values): array
@@ -324,7 +230,6 @@ class Form extends AdminComponent
     {
         return view('livewire.admin.recipes.form', [
             'locales' => config('admin.locales'),
-            'difficulties' => ['easy' => 'Dễ', 'medium' => 'Trung bình', 'hard' => 'Khó'],
             'breadcrumbs' => [
                 ['label' => 'Bảng điều khiển', 'route' => 'admin.dashboard'],
                 ['label' => 'Quản lý Recipes', 'route' => 'admin.recipes.index'],

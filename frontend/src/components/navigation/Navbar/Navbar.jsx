@@ -28,6 +28,7 @@ const MOBILE_MENU_LINKS = [
     ],
   },
   { label: 'Tin tức',    href: '/news' },
+  { label: 'Món ăn',     href: '/recipes' },
   { label: 'Tuyển dụng', href: '/careers' },
   { label: 'Liên hệ',    href: '/contact' },
 ]

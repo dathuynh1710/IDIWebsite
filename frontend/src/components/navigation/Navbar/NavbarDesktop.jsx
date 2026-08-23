@@ -1,41 +1,6 @@
 import { Link, useLocation } from 'react-router'
+import { NAV_ITEMS } from '@data/navigation'
 import { cn } from '@utils/cn'
-
-const NAV_ITEMS = [
-  {
-    label: 'Về IDI',
-    href: '/about',
-    children: [
-      { label: 'Lịch sử phát triển', href: '/about/story' },
-      { label: 'Giá trị cốt lõi', href: '/about/values' },
-    ],
-  },
-  {
-    label: 'Sản phẩm',
-    href: '/products',
-    children: [
-      { label: 'Cá tra phi lê',     href: '/products?category=pangasius-fillet' },
-      { label: 'Cá tra cắt khúc',   href: '/products?category=pangasius-portions' },
-      { label: 'Cá nguyên con',     href: '/products?category=whole-fish' },
-      { label: 'Sản phẩm chế biến', href: '/products?category=value-added' },
-    ],
-  },
-  { label: 'Phát triển bền vững', href: '/sustainability', children: null },
-  {
-    label: 'Nhà đầu tư',
-    href: '/investors',
-    children: [
-      { label: 'Tổng quan', href: '/investors' },
-      { label: 'Thông báo', href: '/investors/announcements' },
-      { label: 'Báo cáo tài chính', href: '/investors/financials' },
-      { label: 'Báo cáo thường niên', href: '/investors/annual-reports' },
-      { label: 'Đại hội cổ đông', href: '/investors/agm' },
-      { label: 'Trái phiếu', href: '/investors/green-bond' },
-    ],
-  },
-  { label: 'Tin tức', href: '/news', children: null },
-  { label: 'Tuyển dụng', href: '/careers', children: null },
-]
 
 export default function NavbarDesktop({ scrolled }) {
   const location = useLocation()

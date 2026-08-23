@@ -187,6 +187,7 @@
 .media-remove-button { width: 100%; margin-top: 8px; }
 .file-selection { display: flex; align-items: center; gap: 8px; padding: 10px 12px; margin-bottom: 8px; border: 1px solid #cfe0ec; border-radius: 7px; color: #285e82; background: #f2f8fc; font-size: 12px; }
 .recipe-meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.recipe-content-columns { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; gap: 18px; }
 .recipe-product-select { min-height: 112px; }
 .recipe-builder { border: 1px solid var(--admin-border); border-radius: 10px; overflow: hidden; background: #fbfcfd; }
 .recipe-builder-heading { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 14px 16px; border-bottom: 1px solid var(--admin-border); background: #f6f9fb; }

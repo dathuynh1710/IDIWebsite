@@ -119,6 +119,7 @@ export const NAV_PATHS = Object.freeze({
   SUSTAINABILITY: '/sustainability',
   INVESTORS:      '/investors',
   NEWS:           '/news',
+  RECIPES:        '/recipes',
   CAREERS:        '/careers',
   CONTACT:        '/contact',
 })

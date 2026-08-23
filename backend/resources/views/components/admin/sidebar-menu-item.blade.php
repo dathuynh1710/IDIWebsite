@@ -6,7 +6,8 @@
     $href = isset($item['route']) ? route($item['route']) : ($item['url'] ?? '#');
     $menuKey = $item['key'] ?? $activePattern ?: \Illuminate\Support\Str::slug($item['label']);
 @endphp
-<li @if($hasChildren && $isActive) x-init="openMenu = @js($menuKey)" @endif>
+<li class="sidebar-menu-item {{ isset($item['notification']) ? 'has-notification' : '' }}"
+    @if($hasChildren && $isActive) x-init="openMenu = @js($menuKey)" @endif>
     @if($hasChildren)
         <button type="button" class="sidebar-link {{ $isActive ? 'is-active' : '' }}"
             @click="openMenu = openMenu === @js($menuKey) ? null : @js($menuKey)"
@@ -16,6 +17,12 @@
             <span class="sidebar-label">{{ $item['label'] }}</span>
             <x-ui.icon name="chevron-down" class="sidebar-chevron" />
         </button>
+        @isset($item['notification'])
+            <x-admin.notification-bell
+                :count="$item['notification']['count'] ?? 0"
+                :href="route($item['notification']['route'])"
+            />
+        @endisset
         <ul class="sidebar-submenu" x-show="openMenu === @js($menuKey)" x-collapse.duration.220ms x-cloak>
             @foreach($item['children'] as $child)
                 <li>

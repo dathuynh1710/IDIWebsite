@@ -14,8 +14,9 @@ class RecipeController extends Controller
     {
         Gate::authorize('recipes.view');
         $locale = in_array($request->query('locale'), ['vi', 'en', 'zh'], true) ? $request->query('locale') : 'vi';
+
         return view('admin.recipes.preview', [
-            'recipe' => $recipe->load(['featuredMedia', 'videoMedia', 'ingredients', 'steps', 'products']),
+            'recipe' => $recipe->load(['featuredMedia', 'videoMedia']),
             'locale' => $locale,
         ]);
     }

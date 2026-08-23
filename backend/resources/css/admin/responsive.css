@@ -352,6 +352,32 @@
         padding-inline: 11px;
     }
 
+    .sidebar-collapsed .sidebar-menu-item.has-notification > .sidebar-link {
+        padding-left: 11px;
+        padding-right: 46px;
+    }
+
+    .sidebar-collapsed .sidebar-notification-bell {
+        top: 8px;
+        right: 8px;
+        width: 28px;
+        height: 28px;
+    }
+
+    .sidebar-collapsed .sidebar-notification-bell .icon {
+        width: 18px;
+        height: 18px;
+    }
+
+    .sidebar-collapsed .sidebar-notification-badge {
+        top: -5px;
+        right: -7px;
+        min-width: 17px;
+        height: 17px;
+        padding-inline: 4px;
+        font-size: 9px;
+    }
+
     .sidebar-close,
     .mobile-menu-button {
         display: inline-grid;
@@ -587,6 +613,7 @@
     }
 
     .recipe-meta-grid,
+    .recipe-content-columns,
     .recipe-ingredient-fields {
         grid-template-columns: 1fr;
     }

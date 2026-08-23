@@ -14,6 +14,7 @@ class DatabaseSeeder extends Seeder
             ContentSeeder::class,
             IdiNewsSeeder::class,
             BusinessSeeder::class,
+            InvestorDocumentCategorySeeder::class,
             ContactSampleSeeder::class,
             PresentationSeeder::class,
             LocalizedRouteSeeder::class,

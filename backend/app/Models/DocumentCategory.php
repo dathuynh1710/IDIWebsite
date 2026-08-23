@@ -23,9 +23,11 @@ class DocumentCategory extends Model
     protected function casts(): array
     {
         return [
+            'parent_id' => 'integer',
             'name' => 'array',
             'slug' => 'array',
             'description' => 'array',
+            'sort_order' => 'integer',
             'is_active' => 'boolean',
         ];
     }

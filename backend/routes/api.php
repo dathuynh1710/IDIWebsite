@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\ContactsController;
 use App\Http\Controllers\Api\InvestorRelationsController;
 use App\Http\Controllers\Api\NewsController;
 use App\Http\Controllers\Api\ProductsController;
+use App\Http\Controllers\Api\RecipesController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/health', function () {
@@ -23,6 +24,8 @@ Route::get('/news', [NewsController::class, 'index']);
 Route::get('/news/{slug}', [NewsController::class, 'show']);
 Route::get('/products', [ProductsController::class, 'index']);
 Route::get('/products/{slug}', [ProductsController::class, 'show']);
+Route::get('/recipes', [RecipesController::class, 'index']);
+Route::get('/recipes/{slug}', [RecipesController::class, 'show']);
 Route::get('/careers', [CareersController::class, 'index']);
 Route::get('/careers/{slug}', [CareersController::class, 'show']);
 Route::post('/careers/applications', [CareersController::class, 'store']);

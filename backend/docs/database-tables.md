@@ -32,9 +32,7 @@
 | `post_tag` | Post-to-tag pivot. |
 | `pages` | Hierarchical multilingual CMS pages. |
 | `page_sections` | Ordered structured sections owned by pages. |
-| `recipes` | Multilingual recipe content and timing metadata. |
-| `recipe_ingredients` | Ordered multilingual recipe ingredients. |
-| `recipe_steps` | Ordered multilingual instructions with optional media. |
+| `recipes` | Multilingual recipe summary and two-column rich content. |
 | `product_recipe` | Product-to-recipe pivot. |
 | `document_categories` | Hierarchical investor-document taxonomy. |
 | `investor_documents` | Investor publication metadata and multilingual title. |

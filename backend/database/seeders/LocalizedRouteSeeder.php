@@ -79,10 +79,10 @@ class LocalizedRouteSeeder extends Seeder
                 'en' => ['slug' => 'sustainability', 'path' => '/en/sustainability'],
                 'zh' => ['slug' => 'kechixu-fazhan', 'path' => '/zh/kechixu-fazhan'],
             ]),
-            $this->definition('recipes', 'code', 'RECIPE_GRILLED_PANGASIUS', 'App\\Models\\Recipe', 'recipes.show', [
-                'vi' => ['slug' => 'ca-tra-nuong-sa', 'path' => '/vi/cong-thuc/ca-tra-nuong-sa'],
-                'en' => ['slug' => 'lemongrass-grilled-pangasius', 'path' => '/en/recipes/lemongrass-grilled-pangasius'],
-                'zh' => ['slug' => 'xiangmao-kao-basha-yu', 'path' => '/zh/shipu/xiangmao-kao-basha-yu'],
+            $this->definition('recipes', 'code', 'RECIPE_PANGASIUS_CURRY_COCONUT', 'App\\Models\\Recipe', 'recipes.show', [
+                'vi' => ['slug' => 'ca-ri-ca-tra-voi-dua-va-sa', 'path' => '/vi/cong-thuc/ca-ri-ca-tra-voi-dua-va-sa'],
+                'en' => ['slug' => 'pangasius-fish-curry-coconut-lemongrass', 'path' => '/en/recipes/pangasius-fish-curry-coconut-lemongrass'],
+                'zh' => ['slug' => 'yezi-xiangmao-basha-yu-gali', 'path' => '/zh/shipu/yezi-xiangmao-basha-yu-gali'],
             ]),
             $this->definition('investor_documents', 'document_number', 'AR-2025', 'App\\Models\\InvestorDocument', 'investor-documents.show', [
                 'vi' => ['slug' => 'bao-cao-thuong-nien-2025', 'path' => '/vi/quan-he-co-dong/bao-cao-thuong-nien-2025'],

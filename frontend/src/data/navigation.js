@@ -90,6 +90,13 @@ export const NAV_ITEMS = [
   },
 
   {
+    id: 'recipes',
+    label: 'Món ăn',
+    href: '/recipes',
+    children: null,
+  },
+
+  {
     id: 'careers',
     label: 'Tuyển dụng',
     href: '/careers',
@@ -123,6 +130,7 @@ export const FOOTER_LINKS = {
     links: [
       { label: 'Lịch sử phát triển', href: '/about/story' },
       { label: 'Phát triển bền vững', href: '/sustainability' },
+      { label: 'Món ăn', href: '/recipes' },
       { label: 'Tuyển dụng', href: '/careers' },
     ],
   },

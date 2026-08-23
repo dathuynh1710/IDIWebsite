@@ -1,3 +1,25 @@
+@php
+    $notificationCounts = [
+        'contacts' => Gate::allows('contacts.manage')
+            ? \App\Models\ContactMessage::where('status', 'new')->count()
+            : 0,
+        'recruitment' => Gate::allows('recruitment.view')
+            ? \App\Models\JobApplication::where('status', 'new')->count()
+            : 0,
+    ];
+
+    $menu = collect(config('admin-menu'))->map(function (array $group) use ($notificationCounts): array {
+        $group['items'] = collect($group['items'])->map(function (array $item) use ($notificationCounts): array {
+            if (isset($item['notification']['key'])) {
+                $item['notification']['count'] = $notificationCounts[$item['notification']['key']] ?? 0;
+            }
+
+            return $item;
+        })->all();
+
+        return $group;
+    })->all();
+@endphp
 <aside class="admin-sidebar" aria-label="Điều hướng quản trị">
     <div class="sidebar-brand">
         <a href="{{ route('admin.dashboard') }}" wire:navigate aria-label="IDI Seafood CMS">
@@ -10,7 +32,7 @@
     </div>
 
     <nav class="sidebar-nav" x-data="{ openMenu: null }">
-        @foreach(config('admin-menu') as $group)
+        @foreach($menu as $group)
             @if($group['section'])
                 <p class="sidebar-section">{{ $group['section'] }}</p>
             @endif

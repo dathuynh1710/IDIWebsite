@@ -4,6 +4,8 @@ namespace App\Livewire\Admin\Investors;
 
 use App\Livewire\AdminComponent;
 use App\Models\DocumentCategory;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Gate;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Url;
@@ -169,17 +171,59 @@ class CategoryIndex extends AdminComponent
 
     public function render()
     {
-        $categories = DocumentCategory::with('parent')->withCount('documents')
+        $allCategories = DocumentCategory::with('parent')->withCount(['documents', 'children'])
             ->filtered(trim($this->search), $this->active, $this->locale)
-            ->orderBy('parent_id')->orderByDesc('sort_order')->paginate($this->perPage);
+            ->get();
+
+        $categoriesById = $allCategories->keyBy(
+            fn (DocumentCategory $category): string => (string) $category->getKey()
+        );
+        $roots = $allCategories
+            ->filter(fn (DocumentCategory $category): bool => ! $category->parent_id
+                || ! $categoriesById->has((string) $category->parent_id))
+            ->sort($this->treeSorter());
+        $page = $this->getPage();
+        $pageRoots = $roots->forPage($page, $this->perPage);
+        $treeItems = $this->flattenTree($pageRoots, $allCategories);
+        $categories = new LengthAwarePaginator(
+            $treeItems,
+            $roots->count(),
+            $this->perPage,
+            $page,
+            ['path' => request()->url(), 'query' => request()->query()]
+        );
+
         foreach ($categories as $category) {
             $this->sortOrders[$category->id] ??= $category->sort_order;
         }
 
         return view('livewire.admin.investors.category-index', [
             'categories' => $categories,
+            'categoryCount' => $allCategories->count(),
             'perPageOptions' => collect([5, 10, 15, 20, 50, 100, $this->perPage])->unique()->sort()->values()->all(),
             'breadcrumbs' => [['label' => 'Bảng điều khiển', 'route' => 'admin.dashboard'], ['label' => 'Quan hệ cổ đông'], ['label' => 'Danh mục']],
         ]);
+    }
+
+    private function flattenTree(Collection $roots, Collection $allCategories, int $depth = 0): Collection
+    {
+        $flattened = collect();
+
+        foreach ($roots as $root) {
+            $root->setAttribute('tree_depth', $depth);
+            $flattened->push($root);
+
+            $children = $allCategories
+                ->where('parent_id', $root->id)
+                ->sort($this->treeSorter());
+            $flattened = $flattened->concat($this->flattenTree($children, $allCategories, $depth + 1));
+        }
+
+        return $flattened;
+    }
+
+    private function treeSorter(): callable
+    {
+        return fn (DocumentCategory $left, DocumentCategory $right): int => [$right->sort_order, $left->id] <=> [$left->sort_order, $right->id];
     }
 }

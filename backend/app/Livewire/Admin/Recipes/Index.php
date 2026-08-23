@@ -23,9 +23,6 @@ class Index extends AdminComponent
     public string $search = '';
 
     #[Url(except: '')]
-    public string $difficulty = '';
-
-    #[Url(except: '')]
     public string $active = '';
 
     #[Url(except: '')]
@@ -58,7 +55,7 @@ class Index extends AdminComponent
 
     public function updated($property): void
     {
-        if (in_array($property, ['search', 'difficulty', 'active', 'date_from', 'date_to', 'locale'], true)) {
+        if (in_array($property, ['search', 'active', 'date_from', 'date_to', 'locale'], true)) {
             $this->resetPage();
             $this->selected = [];
         }
@@ -74,7 +71,7 @@ class Index extends AdminComponent
 
     public function resetFilters(): void
     {
-        $this->reset('search', 'difficulty', 'active', 'date_from', 'date_to');
+        $this->reset('search', 'active', 'date_from', 'date_to');
         $this->locale = 'vi';
         $this->resetPage();
     }
@@ -91,7 +88,7 @@ class Index extends AdminComponent
     public function duplicate(int $recipeId): void
     {
         Gate::authorize('recipes.create');
-        $source = Recipe::with(['ingredients', 'steps'])->findOrFail($recipeId);
+        $source = Recipe::findOrFail($recipeId);
         $copy = DB::transaction(function () use ($source): Recipe {
             $copy = $source->replicate();
             $suffix = now()->format('His');
@@ -104,12 +101,6 @@ class Index extends AdminComponent
             $copy->created_by = auth()->id();
             $copy->updated_by = auth()->id();
             $copy->save();
-            foreach ($source->ingredients as $ingredient) {
-                $copy->ingredients()->create($ingredient->only(['name', 'quantity', 'unit', 'note', 'sort_order']));
-            }
-            foreach ($source->steps as $step) {
-                $copy->steps()->create($step->only(['media_id', 'instruction', 'sort_order']));
-            }
             RecipeRoutes::sync($copy);
 
             return $copy;
@@ -232,7 +223,7 @@ class Index extends AdminComponent
     public function render()
     {
         $filters = [
-            'search' => trim($this->search), 'difficulty' => $this->difficulty,
+            'search' => trim($this->search),
             'active' => $this->active, 'date_from' => $this->date_from,
             'date_to' => $this->date_to, 'locale' => $this->locale,
         ];
@@ -244,7 +235,6 @@ class Index extends AdminComponent
 
         return view('livewire.admin.recipes.index', [
             'recipes' => $recipes,
-            'difficulties' => ['easy' => 'Dễ', 'medium' => 'Trung bình', 'hard' => 'Khó'],
             'breadcrumbs' => [
                 ['label' => 'Bảng điều khiển', 'route' => 'admin.dashboard'],
                 ['label' => 'Quản lý Recipes'],

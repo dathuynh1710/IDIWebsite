@@ -41,6 +41,8 @@ const GreenBondPage         = lazy(() => import('@pages/investors/GreenBondPage'
 
 const NewsPage              = lazy(() => import('@pages/news/NewsPage'))
 const NewsDetailPage        = lazy(() => import('@pages/news/NewsDetailPage'))
+const RecipesPage           = lazy(() => import('@pages/recipes/RecipesPage'))
+const RecipeDetailPage      = lazy(() => import('@pages/recipes/RecipeDetailPage'))
 
 const CareersPage           = lazy(() => import('@pages/careers/CareersPage'))
 
@@ -104,6 +106,10 @@ export const router = createBrowserRouter([
       // ── News
       { path: 'news', element: withSuspense(NewsPage) },
       { path: 'news/:slug', element: withSuspense(NewsDetailPage) },
+
+      // ── Recipes
+      { path: 'recipes', element: withSuspense(RecipesPage) },
+      { path: 'recipes/:slug', element: withSuspense(RecipeDetailPage) },
 
       // ── Careers
       { path: 'careers', element: withSuspense(CareersPage) },

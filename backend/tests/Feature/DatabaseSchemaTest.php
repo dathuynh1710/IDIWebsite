@@ -45,7 +45,7 @@ class DatabaseSchemaTest extends TestCase
             'product_categories' => ['name'],
             'posts' => ['title'],
             'pages' => ['title'],
-            'recipes' => ['title'],
+            'recipes' => ['title', 'summary', 'content_left', 'content_right'],
         ];
 
         foreach ($columns as $table => $expectedColumns) {
@@ -54,5 +54,10 @@ class DatabaseSchemaTest extends TestCase
                 "Missing multilingual columns on table: {$table}"
             );
         }
+
+        $this->assertFalse(Schema::hasTable('recipe_ingredients'));
+        $this->assertFalse(Schema::hasTable('recipe_steps'));
+        $this->assertFalse(Schema::hasColumn('recipes', 'servings'));
+        $this->assertFalse(Schema::hasColumn('recipes', 'difficulty'));
     }
 }

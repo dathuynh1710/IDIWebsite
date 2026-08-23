@@ -40,8 +40,10 @@ class RecipeManagementTest extends TestCase
         $this->actingAs($user)->get('/admin/recipes/create')
             ->assertOk()
             ->assertSee('Thêm Recipe mới')
-            ->assertSee('Nguyên liệu')
-            ->assertSee('Các bước thực hiện')
+            ->assertSee('Mô tả trái')
+            ->assertSee('Mô tả phải')
+            ->assertDontSee('Khẩu phần')
+            ->assertDontSee('Độ khó')
             ->assertSee('ckeditor5-textarea', false)
             ->assertDontSee('Trạng thái bản dịch')
             ->assertDontSee('Sản phẩm liên quan');
@@ -49,37 +51,26 @@ class RecipeManagementTest extends TestCase
         $this->actingAs($user)->get("/admin/recipes/{$recipe->id}/preview?locale=en")->assertOk()->assertSee('Grilled fish');
     }
 
-    public function test_recipe_can_be_created_with_multilingual_content_ingredients_steps_and_routes(): void
+    public function test_recipe_can_be_created_with_multilingual_two_column_content_and_routes(): void
     {
         Livewire::actingAs($this->recipeEditor())->test(Form::class)
             ->set('code', 'RECIPE_FISH_SOUP')
             ->set('title', ['vi' => 'Canh cá', 'en' => 'Fish soup', 'zh' => '鱼汤'])
             ->set('slug', ['vi' => 'canh-ca', 'en' => 'fish-soup', 'zh' => 'yu-tang'])
             ->set('summary.vi', 'Món canh thanh nhẹ.')
-            ->set('content.vi', '<p>Nội dung an toàn</p><script>alert(1)</script>')
-            ->set('translation_status', ['vi' => 'published', 'en' => 'review', 'zh' => 'draft'])
-            ->set('ingredients', [[
-                'quantity' => '500',
-                'name' => ['vi' => 'Cá', 'en' => 'Fish', 'zh' => '鱼'],
-                'unit' => ['vi' => 'g', 'en' => 'g', 'zh' => '克'],
-                'note' => ['vi' => '', 'en' => '', 'zh' => ''],
-            ]])
-            ->set('steps', [['instruction' => ['vi' => 'Nấu cá chín.', 'en' => 'Cook the fish.', 'zh' => '把鱼煮熟。']]])
-            ->set('show_ingredients', false)
-            ->set('show_steps', true)
-            ->set('servings', '4 người')
-            ->set('preparation_time', 15)
-            ->set('cooking_time', 25)
+            ->set('content_left.vi', '<h2>Thành phần</h2><p>Cá tra</p><script>alert(1)</script>')
+            ->set('content_right', ['vi' => '<h2>Cách làm</h2><p>Nấu cá chín.</p>', 'en' => '<p>Cook the fish.</p>', 'zh' => '<p>把鱼煮熟。</p>'])
+            ->set('published_at', '2026-08-20T09:05')
             ->call('save')
             ->assertHasNoErrors();
 
         $recipe = Recipe::where('code', 'RECIPE_FISH_SOUP')->firstOrFail();
         $this->assertSame('Fish soup', $recipe->getTranslation('title', 'en'));
-        $this->assertStringNotContainsString('<script', $recipe->getTranslation('content', 'vi'));
-        $this->assertSame('Fish', $recipe->ingredients()->first()->getTranslation('name', 'en'));
-        $this->assertSame('把鱼煮熟。', $recipe->steps()->first()->getTranslation('instruction', 'zh'));
-        $this->assertFalse($recipe->show_ingredients);
-        $this->assertTrue($recipe->show_steps);
+        $this->assertStringContainsString('Cá tra', $recipe->getTranslation('content_left', 'vi'));
+        $this->assertStringNotContainsString('<script', $recipe->getTranslation('content_left', 'vi'));
+        $this->assertStringContainsString('Cook the fish.', $recipe->getTranslation('content_right', 'en'));
+        $this->assertSame('published', $recipe->getTranslation('translation_status', 'en'));
+        $this->assertStringStartsWith('2026-08-20T09:05', $recipe->getTranslation('locale_published_at', 'vi'));
         $this->assertDatabaseHas('localized_routes', [
             'routeable_type' => Recipe::class,
             'routeable_id' => $recipe->id,
@@ -187,11 +178,10 @@ class RecipeManagementTest extends TestCase
             'summary' => ['vi' => 'Món cá nướng.'],
             'translation_status' => ['vi' => 'published', 'en' => 'published', 'zh' => 'review'],
             'sort_order' => 2,
-            'difficulty' => 'easy',
+            'content_left' => ['vi' => '<p>Cá 500 g</p>'],
+            'content_right' => ['vi' => '<p>Nướng cá.</p>', 'en' => '<p>Grill the fish.</p>'],
             'is_active' => true,
         ]);
-        $recipe->ingredients()->create(['name' => ['vi' => 'Cá'], 'quantity' => '500', 'unit' => ['vi' => 'g'], 'sort_order' => 0]);
-        $recipe->steps()->create(['instruction' => ['vi' => 'Nướng cá.'], 'sort_order' => 0]);
 
         return $recipe;
     }

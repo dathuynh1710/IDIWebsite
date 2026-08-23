@@ -15,11 +15,8 @@ return new class extends Migration
             $table->json('title');
             $table->json('slug');
             $table->json('summary')->nullable();
-            $table->json('content')->nullable();
-            $table->string('servings', 100)->nullable();
-            $table->unsignedInteger('preparation_time')->nullable();
-            $table->unsignedInteger('cooking_time')->nullable();
-            $table->string('difficulty', 50)->nullable();
+            $table->json('content_left')->nullable();
+            $table->json('content_right')->nullable();
             $table->json('seo_title')->nullable();
             $table->json('meta_description')->nullable();
             $table->json('translation_status')->nullable();
@@ -33,28 +30,6 @@ return new class extends Migration
             $table->softDeletes();
             $table->index(['is_featured', 'is_active']);
             $table->index(['is_active', 'sort_order']);
-        });
-
-        Schema::create('recipe_ingredients', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('recipe_id')->constrained('recipes')->cascadeOnDelete();
-            $table->json('name');
-            $table->string('quantity', 100)->nullable();
-            $table->json('unit')->nullable();
-            $table->json('note')->nullable();
-            $table->unsignedInteger('sort_order')->default(0);
-            $table->timestamps();
-            $table->index(['recipe_id', 'sort_order']);
-        });
-
-        Schema::create('recipe_steps', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('recipe_id')->constrained('recipes')->cascadeOnDelete();
-            $table->foreignId('media_id')->nullable()->constrained('media')->nullOnDelete();
-            $table->json('instruction');
-            $table->unsignedInteger('sort_order')->default(0);
-            $table->timestamps();
-            $table->index(['recipe_id', 'sort_order']);
         });
 
         Schema::create('product_recipe', function (Blueprint $table) {

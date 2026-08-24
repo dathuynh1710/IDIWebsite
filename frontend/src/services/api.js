@@ -29,6 +29,12 @@ api.interceptors.response.use(
       return Promise.reject(error)
     }
 
+    // A missing resource is rendered by the requesting page as its 404 state.
+    // Do not show a global error toast before that state is displayed.
+    if (error.response?.status === 404) {
+      return Promise.reject(error)
+    }
+
     const data = error.response?.data
     const notification = data?.toast
 

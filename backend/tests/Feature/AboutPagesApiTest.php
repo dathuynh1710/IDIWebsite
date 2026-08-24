@@ -33,6 +33,28 @@ class AboutPagesApiTest extends TestCase
             'is_active' => true,
         ]);
 
+        $message = Page::where('code', 'ABOUT_MESSAGE')->firstOrFail();
+        $this->assertSame('A Message from I.D.I', $message->getTranslation('title', 'en'));
+        $this->assertSame('a-message-from-i-d-i', $message->getTranslation('slug', 'en'));
+        $this->assertStringContainsString('Executive Advisor', $message->getTranslation('content', 'en'));
+        $this->assertStringContainsString('sustainability is not a choice', $message->getTranslation('summary', 'en'));
+        $this->assertSame('I.D.I 致辞', $message->getTranslation('title', 'zh'));
+        $this->assertSame('i-d-i-zhi-ci', $message->getTranslation('slug', 'zh'));
+        $this->assertStringContainsString('执行顾问', $message->getTranslation('content', 'zh'));
+        $this->assertStringContainsString('可持续发展不是一种选择', $message->getTranslation('summary', 'zh'));
+
+        $values = Page::where('code', 'ABOUT_VALUES')->firstOrFail();
+        $this->assertSame("I.D.I's Values", $values->getTranslation('title', 'en'));
+        $this->assertSame('核心价值观', $values->getTranslation('title', 'zh'));
+        $this->assertStringContainsString('We act with honesty and integrity', $values->getTranslation('content', 'en'));
+        $this->assertStringContainsString('我们秉持诚实与诚信', $values->getTranslation('content', 'zh'));
+
+        $history = Page::where('code', 'ABOUT_HISTORY')->firstOrFail();
+        $this->assertSame('A History of Innovation', $history->getTranslation('title', 'en'));
+        $this->assertSame('发展与创新历程', $history->getTranslation('title', 'zh'));
+        $this->assertStringContainsString('A history of responsibility', $history->getTranslation('content', 'en'));
+        $this->assertStringContainsString('责任相伴的发展历程', $history->getTranslation('content', 'zh'));
+
         $this->getJson('/api/about/ABOUT_HISTORY')
             ->assertOk()
             ->assertJsonPath('data.title', 'Lịch sử hình thành và đổi mới')

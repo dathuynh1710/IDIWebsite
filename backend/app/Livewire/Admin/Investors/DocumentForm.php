@@ -221,10 +221,36 @@ class DocumentForm extends AdminComponent
             || filled($this->document?->getTranslation('summary', $locale, false));
     }
 
+    private function categoryOptions(): array
+    {
+        $categories = DocumentCategory::orderByDesc('sort_order')->orderBy('id')->get();
+        $categoriesById = $categories->keyBy(fn (DocumentCategory $category): string => (string) $category->id);
+
+        return $categories
+            ->where('is_active', true)
+            ->mapWithKeys(function (DocumentCategory $category) use ($categoriesById): array {
+                $labels = [];
+                $current = $category;
+                $visited = [];
+
+                while ($current && ! isset($visited[$current->id])) {
+                    $visited[$current->id] = true;
+                    array_unshift($labels, $current->getTranslation('name', 'vi', false));
+                    $current = $current->parent_id
+                        ? $categoriesById->get((string) $current->parent_id)
+                        : null;
+                }
+
+                return [$category->id => implode(' → ', array_filter($labels))];
+            })
+            ->sort(SORT_NATURAL | SORT_FLAG_CASE)
+            ->all();
+    }
+
     public function render()
     {
         return view('livewire.admin.investors.document-form', [
-            'categories' => DocumentCategory::where('is_active', true)->orderByDesc('sort_order')->get(),
+            'categoryOptions' => $this->categoryOptions(),
             'maxUploadMegabytes' => $this->maxUploadMegabytes(),
             'currentFile' => $this->document?->files?->firstWhere('locale', 'vi'),
             'locales' => ['vi' => 'Tiếng Việt', 'en' => 'English', 'zh' => '中文'],

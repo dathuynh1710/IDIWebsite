@@ -81,6 +81,35 @@ class InvestorRelationsManagementTest extends TestCase
         Storage::disk('public')->assertExists($document->files->first()->media->directory.'/'.$document->files->first()->media->file_name);
     }
 
+    public function test_document_form_disambiguates_categories_with_the_same_name_by_parent_path(): void
+    {
+        $financialReports = DocumentCategory::create([
+            'name' => ['vi' => 'Báo cáo tài chính'],
+            'slug' => ['vi' => 'bao-cao-tai-chinh'],
+            'is_active' => true,
+        ]);
+        $annualReports = DocumentCategory::create([
+            'name' => ['vi' => 'Báo cáo thường niên'],
+            'slug' => ['vi' => 'bao-cao-thuong-nien'],
+            'is_active' => true,
+        ]);
+
+        foreach ([$financialReports, $annualReports] as $parent) {
+            DocumentCategory::create([
+                'parent_id' => $parent->id,
+                'name' => ['vi' => 'Năm 2024'],
+                'slug' => ['vi' => "{$parent->getTranslation('slug', 'vi')}-2024"],
+                'is_active' => true,
+            ]);
+        }
+
+        Livewire::actingAs($this->editor())->test(DocumentForm::class)
+            ->assertViewHas('categoryOptions', fn (array $options): bool => in_array('Báo cáo tài chính → Năm 2024', $options, true)
+                && in_array('Báo cáo thường niên → Năm 2024', $options, true))
+            ->assertSee('Báo cáo tài chính → Năm 2024')
+            ->assertSee('Báo cáo thường niên → Năm 2024');
+    }
+
     public function test_settings_are_multilingual_and_unauthorized_user_is_forbidden(): void
     {
         $user = $this->editor();

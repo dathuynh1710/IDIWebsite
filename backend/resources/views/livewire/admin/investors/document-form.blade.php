@@ -15,8 +15,8 @@
                             <label>Danh mục <span>*</span></label>
                             <select class="select" wire:model="document_category_id">
                                 <option value="">Chọn danh mục</option>
-                                @foreach($categories as $category)
-                                    <option value="{{ $category->id }}">{{ $category->getTranslation('name', 'vi', false) }}</option>
+                                @foreach($categoryOptions as $categoryId => $categoryLabel)
+                                    <option value="{{ $categoryId }}">{{ $categoryLabel }}</option>
                                 @endforeach
                             </select>
                             <x-form.field-error name="document_category_id" />

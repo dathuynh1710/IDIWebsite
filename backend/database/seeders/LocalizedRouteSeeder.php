@@ -67,12 +67,18 @@ class LocalizedRouteSeeder extends Seeder
             ]),
             $this->definition('pages', 'code', 'ABOUT_MESSAGE', 'App\\Models\\Page', 'about.show', [
                 'vi' => ['slug' => 'thong-diep-cua-cong-ty', 'path' => '/vi/gioi-thieu/thong-diep-cua-cong-ty'],
+                'en' => ['slug' => 'a-message-from-i-d-i', 'path' => '/en/about/a-message-from-i-d-i'],
+                'zh' => ['slug' => 'i-d-i-zhi-ci', 'path' => '/zh/guanyu/i-d-i-zhi-ci'],
             ]),
             $this->definition('pages', 'code', 'ABOUT_HISTORY', 'App\\Models\\Page', 'about.show', [
                 'vi' => ['slug' => 'lich-su-doi-moi', 'path' => '/vi/gioi-thieu/lich-su-doi-moi'],
+                'en' => ['slug' => 'a-history-of-innovation', 'path' => '/en/about/a-history-of-innovation'],
+                'zh' => ['slug' => 'fa-zhan-yu-chuang-xin-li-cheng', 'path' => '/zh/guanyu/fa-zhan-yu-chuang-xin-li-cheng'],
             ]),
             $this->definition('pages', 'code', 'ABOUT_VALUES', 'App\\Models\\Page', 'about.show', [
                 'vi' => ['slug' => 'gia-tri-cot-loi', 'path' => '/vi/gioi-thieu/gia-tri-cot-loi'],
+                'en' => ['slug' => 'i-d-i-s-values', 'path' => '/en/about/i-d-i-s-values'],
+                'zh' => ['slug' => 'he-xin-jia-zhi-guan', 'path' => '/zh/guanyu/he-xin-jia-zhi-guan'],
             ]),
             $this->definition('pages', 'code', 'SUSTAINABILITY', 'App\\Models\\Page', 'pages.show', [
                 'vi' => ['slug' => 'phat-trien-ben-vung', 'path' => '/vi/phat-trien-ben-vung'],

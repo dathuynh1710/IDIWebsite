@@ -3,6 +3,8 @@ import PageHead from '@components/common/PageHead'
 import { useLanguage } from '@hooks/useLanguage'
 import { aboutService } from '@services/about.service'
 import NotFoundPage from '@pages/errors/NotFoundPage'
+import CoreValuesContent from './CoreValuesContent'
+import HistoryContent from './HistoryContent'
 
 function LoadingState({ label }) {
   return (
@@ -69,7 +71,7 @@ export default function CmsAboutPage({ identifier }) {
         keywords={page.seo?.keywords}
       />
 
-      <main className={`cms-about-page cms-about-page--${templateClass}`}>
+      <main className={`cms-about-page cms-about-page--${templateClass}`} data-page-code={page.code}>
         <header className="cms-about-hero">
           <div className="container">
             <span className="cms-about-eyebrow">{t('nav.about')}</span>
@@ -88,7 +90,11 @@ export default function CmsAboutPage({ identifier }) {
             </section>
           )}
 
-          {page.content ? (
+          {page.content && page.code === 'ABOUT_HISTORY' ? (
+            <HistoryContent html={page.content} />
+          ) : page.content && page.code === 'ABOUT_VALUES' ? (
+            <CoreValuesContent html={page.content} />
+          ) : page.content ? (
             <div
               className="cms-about-rich"
               dangerouslySetInnerHTML={{ __html: page.content }}

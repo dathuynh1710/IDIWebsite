@@ -55,7 +55,17 @@ const CONTACT_INFO = [
   },
 ]
 
-const CERTIFICATIONS = ['ASC', 'BRC AA', 'GlobalGAP', 'IFS Higher', 'HACCP', 'HALAL']
+const CERTIFICATIONS = [
+  'BSCI',
+  'ASC',
+  'ISO 9001:2015',
+  'IFS Food',
+  'BRCGS',
+  'DIPOA Brazil',
+  'HACCP',
+  'JAKIM Halal',
+  'GCC Halal',
+]
 
 const currentYear = new Date().getFullYear()
 
@@ -69,27 +79,21 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-12 gap-10 lg:gap-8 xl:gap-12">
 
           {/* Brand column — wider */}
-          <div className="md:col-span-12 lg:col-span-3 xl:col-span-4">
+          <div className="text-center md:col-span-12 lg:col-span-3 xl:col-span-4">
             {/* Logo area */}
-            <Link to="/" className="inline-flex items-center gap-3 mb-6 group">
+            <Link to="/" className="group mb-6 inline-flex flex-col items-center gap-4">
               <img
                 src="/images/brand/idi-logo.png"
                 alt="IDI Seafood"
                 className="h-14 w-24 flex-shrink-0 rounded-md bg-white object-contain p-1"
               />
-              <div>
-                <div className="text-white font-bold text-base leading-tight">IDI Seafood</div>
-                <div className="text-white/40 text-[11px] tracking-wide">{t('footer.since')}</div>
-              </div>
+              <span className="max-w-xs text-sm font-bold leading-relaxed tracking-wide text-white">
+                {t('footer.legalName')}
+              </span>
             </Link>
 
-            <p className="text-white/55 text-sm leading-relaxed mb-6 max-w-xs">
-              {t('footer.description')}
-            </p>
-
-
             {/* Certifications mini badges */}
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap justify-center gap-2">
               {CERTIFICATIONS.map(cert => (
                 <span
                   key={cert}

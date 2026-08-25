@@ -1586,16 +1586,6 @@
   border-radius: 50%;
 }
 
-.core-values-pillar__header > span {
-  position: absolute;
-  top: 1.25rem;
-  right: 1.5rem;
-  color: rgb(255 255 255 / 35%);
-  font-size: 3rem;
-  font-weight: 900;
-  line-height: 1;
-}
-
 .core-values-pillar__header h2 {
   font-size: clamp(2rem, 4vw, 3.25rem);
   font-weight: 900;

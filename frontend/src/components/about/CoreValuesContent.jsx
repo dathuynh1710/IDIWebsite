@@ -67,7 +67,6 @@ function PillarSection({ section, index }) {
   return (
     <section className={`core-values-pillar core-values-pillar--${index + 1}`}>
       <header className="core-values-pillar__header">
-        <span aria-hidden="true">0{index + 2}</span>
         <h2>{section.title}</h2>
       </header>
       <div className="core-values-pillar__items">

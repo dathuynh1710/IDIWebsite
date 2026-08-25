@@ -46,9 +46,27 @@ class CareersController extends Controller
 
     public function store(Request $request)
     {
+        $locale = $this->locale($request);
+        $messages = match ($locale) {
+            'en' => [
+                'closed' => 'Applications are currently closed.',
+                'success' => 'Your CV was uploaded and your application was submitted successfully.',
+            ],
+            'zh' => [
+                'closed' => '在线申请通道目前已关闭。',
+                'success' => '您的简历已上传，申请已成功提交。',
+            ],
+            default => [
+                'closed' => 'Cổng ứng tuyển hiện đang tạm đóng.',
+                'success' => 'Tải CV và gửi hồ sơ thành công.',
+            ],
+        };
+
         $enabled = DB::table('module_settings')->join('modules', 'modules.id', '=', 'module_settings.module_id')
             ->where('modules.code', 'careers')->where('setting_key', 'application_enabled')->value('setting_value');
-        abort_if($enabled !== null && json_decode($enabled, true) === false, 403, 'Applications are currently closed.');
+        if ($enabled !== null && json_decode($enabled, true) === false) {
+            return Toast::json($messages['closed'], 'warning', [], 403);
+        }
 
         $data = $request->validate([
             'jobPositionId' => ['nullable', 'integer', 'exists:job_positions,id'],
@@ -74,7 +92,7 @@ class CareersController extends Controller
             'cover_letter' => trim($data['coverLetter'] ?? ''), 'cv_media_id' => $media->id,
         ]);
 
-        return Toast::json('Tải CV và gửi hồ sơ thành công.', 'success', [
+        return Toast::json($messages['success'], 'success', [
             'message' => 'Application received.',
             'referenceId' => 'IDI-'.now()->format('Ym').'-'.str_pad((string) $application->id, 6, '0', STR_PAD_LEFT),
         ], 201);

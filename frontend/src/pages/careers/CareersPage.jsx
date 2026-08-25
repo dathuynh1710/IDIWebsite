@@ -11,24 +11,9 @@ const DEFAULT_TEAM_IMAGE =
   'https://www.idiseafood.com/vnt_upload/recruitment/gt3.jpg'
 
 const BENEFITS = [
-  {
-    number: '01',
-    title: 'Bảo hiểm y tế',
-    description:
-      'Sức khỏe của bạn luôn được quan tâm. Bạn sẽ nhận được bảo hiểm y tế đáp ứng hầu hết các nhu cầu thiết yếu.',
-  },
-  {
-    number: '02',
-    title: 'Đánh giá thường xuyên',
-    description:
-      'Đánh giá hiệu suất hai chiều giúp tạo sự cân bằng, ghi nhận đóng góp và đo lường sự phát triển cùng nhau.',
-  },
-  {
-    number: '03',
-    title: 'Vị trí làm việc thuận tiện',
-    description:
-      'Làm việc tại trụ sở Đồng Tháp hoặc văn phòng đại diện ngay trung tâm Quận 5, Thành phố Hồ Chí Minh.',
-  },
+  { number: '01', key: 'health' },
+  { number: '02', key: 'reviews' },
+  { number: '03', key: 'locations' },
 ]
 
 const INITIAL_FORM = {
@@ -50,27 +35,29 @@ const MAX_FILE_SIZE = 10 * 1024 * 1024
 function validateField(name, value) {
   if (name === 'jobPositionId') return ''
   if (name === 'cv') {
-    if (!value) return 'Vui lòng chọn CV của bạn.'
+    if (!value) return 'careers.validation.cvRequired'
     if (!ACCEPTED_FILE_TYPES.includes(value.type)) {
-      return 'CV chỉ chấp nhận định dạng PDF, DOC hoặc DOCX.'
+      return 'careers.validation.cvType'
     }
-    if (value.size > MAX_FILE_SIZE) return 'Dung lượng CV không được vượt quá 10MB.'
+    if (value.size > MAX_FILE_SIZE) return 'careers.validation.cvSize'
     return ''
   }
 
   const text = value.trim()
-  if (!text) return 'Thông tin này là bắt buộc.'
-  if (name === 'fullName' && text.length < 2) return 'Họ tên cần có ít nhất 2 ký tự.'
+  if (!text) return 'careers.validation.required'
+  if (name === 'fullName' && text.length < 2) return 'careers.validation.fullName'
   if (name === 'phone' && !/^\+?[\d\s\-().]{7,20}$/.test(text)) {
-    return 'Vui lòng nhập số điện thoại hợp lệ.'
+    return 'careers.validation.phone'
   }
   if (name === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(text)) {
-    return 'Vui lòng nhập địa chỉ email hợp lệ.'
+    return 'careers.validation.email'
   }
   return ''
 }
 
 function FormField({ label, name, error, children }) {
+  const { t } = useLanguage()
+
   return (
     <label htmlFor={name} className="block">
       <span className="mb-2 block text-sm font-bold text-ocean-deep">
@@ -80,7 +67,7 @@ function FormField({ label, name, error, children }) {
       {children}
       {error && (
         <span id={`${name}-error`} className="mt-1.5 block text-xs font-semibold text-[#B93B2B]">
-          {error}
+          {t(error)}
         </span>
       )}
     </label>
@@ -152,7 +139,9 @@ export default function CareersPage() {
 
     if (Object.keys(nextErrors).length) {
       setErrors(nextErrors)
-      toast.validation(nextErrors)
+      toast.validation(Object.fromEntries(
+        Object.entries(nextErrors).map(([field, error]) => [field, t(error)]),
+      ))
       document.querySelector(`[name="${Object.keys(nextErrors)[0]}"]`)?.focus()
       return
     }
@@ -178,8 +167,8 @@ export default function CareersPage() {
   return (
     <>
       <PageHead
-        title={pageConfig?.seoTitle || 'Tuyển dụng | IDI Seafood'}
-        description={pageConfig?.metaDescription || 'Khám phá môi trường làm việc, phúc lợi và gửi CV ứng tuyển để đồng hành cùng IDI Seafood.'}
+        title={pageConfig?.seoTitle || t('careers.seoTitle')}
+        description={pageConfig?.metaDescription || t('careers.seoDescription')}
       />
 
       <main className="overflow-hidden bg-white">
@@ -188,7 +177,7 @@ export default function CareersPage() {
             {pageConfig?.heroMobile && <source media="(max-width: 639px)" srcSet={pageConfig.heroMobile} />}
             <img
               src={pageConfig?.heroDesktop || DEFAULT_HERO_IMAGE}
-              alt="Đội ngũ IDI tại nhà máy chế biến cá tra"
+              alt={t('careers.hero.imageAlt')}
               className="absolute inset-0 h-full w-full object-cover"
             />
           </picture>
@@ -197,14 +186,14 @@ export default function CareersPage() {
             <div className="max-w-3xl">
               <p className="mb-5 flex items-center gap-3 text-xs font-bold uppercase tracking-[0.24em] text-coral-light">
                 <span className="h-px w-10 bg-coral-light" />
-                {pageConfig?.title || 'Cơ hội nghề nghiệp tại IDI'}
+                {pageConfig?.title || t('careers.hero.eyebrow')}
               </p>
               <h1 className="text-balance text-[clamp(2.75rem,6.5vw,5.6rem)] font-extrabold leading-[0.98] tracking-[-0.045em] text-white">
-                Cùng chúng tôi
-                <span className="block text-seafoam-light">tạo nên giá trị</span>
+                {t('careers.hero.titleLine1')}
+                <span className="block text-seafoam-light">{t('careers.hero.titleLine2')}</span>
               </h1>
               <p className="mt-7 max-w-2xl text-lg leading-8 text-white/78 sm:text-xl">
-                Gia nhập một đội ngũ cùng chung khát vọng phát triển ngành thủy sản Việt Nam bền vững và vươn xa trên thị trường quốc tế.
+                {t('careers.hero.description')}
               </p>
               <a href="#ung-tuyen" className="btn btn-gold mt-8">
                 {t('actions.submitCv')}
@@ -217,17 +206,17 @@ export default function CareersPage() {
         <section className="section-padding">
           <div className="container grid items-center gap-12 lg:grid-cols-[1.05fr_0.95fr] lg:gap-20">
             <div>
-              <span className="section-eyebrow">Làm việc có ý nghĩa</span>
+              <span className="section-eyebrow">{t('careers.workplace.eyebrow')}</span>
               <h2 className="max-w-2xl text-balance text-ocean-deep">
-                Phát triển sự nghiệp trong một hệ sinh thái bền vững
+                {t('careers.workplace.title')}
               </h2>
               <div className="mt-6 h-1 w-20 rounded-full bg-coral-gold" />
               {pageConfig?.description ? (
                 <div className="mt-7 max-w-2xl space-y-5 text-lg leading-9 text-slate" dangerouslySetInnerHTML={{ __html: pageConfig.description }} />
               ) : (
                 <>
-                  <p className="mt-7 max-w-2xl text-lg leading-9 text-slate">Tại IDI, bảo vệ môi trường là một trong những mối quan tâm hàng đầu của chúng tôi vì chúng tôi hiểu rằng việc cải thiện chất lượng môi trường là điều thiết yếu để đạt được mức sống cao hơn cho cộng đồng thân yêu của chúng tôi.</p>
-                  <p className="mt-5 max-w-2xl leading-8 text-storm-grey">Mỗi thành viên đều có cơ hội học hỏi, phát huy năng lực và cùng xây dựng chuỗi giá trị thủy sản có trách nhiệm từ vùng nuôi đến thị trường toàn cầu.</p>
+                  <p className="mt-7 max-w-2xl text-lg leading-9 text-slate">{t('careers.workplace.paragraph1')}</p>
+                  <p className="mt-5 max-w-2xl leading-8 text-storm-grey">{t('careers.workplace.paragraph2')}</p>
                 </>
               )}
             </div>
@@ -236,14 +225,14 @@ export default function CareersPage() {
               <div className="absolute -bottom-5 -right-5 h-full w-full border border-seafoam/35" />
               <img
                 src={pageConfig?.gallery?.[0] || DEFAULT_TEAM_IMAGE}
-                alt="Nhân viên IDI trong dây chuyền sản xuất"
+                alt={t('careers.workplace.imageAlt')}
                 className="relative aspect-[4/3] w-full object-cover shadow-[0_30px_70px_-35px_rgba(11,37,69,0.55)]"
               />
               <div className="absolute -left-4 -top-5 bg-ocean-deep px-6 py-5 text-white shadow-xl sm:-left-6">
                 <span className="block text-xs font-bold uppercase tracking-[0.16em] text-coral-light">
-                  Đồng hành
+                  {t('careers.workplace.badge')}
                 </span>
-                <strong className="mt-1 block text-xl">Cùng phát triển</strong>
+                <strong className="mt-1 block text-xl">{t('careers.workplace.badgeTitle')}</strong>
               </div>
             </div>
           </div>
@@ -252,8 +241,8 @@ export default function CareersPage() {
         <section className="section-padding bg-arctic-white">
           <div className="container">
             <div className="mb-12 max-w-2xl">
-              <span className="section-eyebrow">Lợi ích</span>
-              <h2 className="text-balance text-ocean-deep">Tại sao bạn nên gia nhập cùng chúng tôi?</h2>
+              <span className="section-eyebrow">{t('careers.benefits.eyebrow')}</span>
+              <h2 className="text-balance text-ocean-deep">{t('careers.benefits.title')}</h2>
             </div>
 
             {pageConfig?.benefitsContent ? (
@@ -270,8 +259,8 @@ export default function CareersPage() {
                     </span>
                     <span className="h-px w-16 bg-light-mist transition-colors group-hover:bg-coral-gold" />
                   </div>
-                  <h3 className="mb-4 text-2xl text-ocean-deep">{benefit.title}</h3>
-                  <p className="text-sm leading-7 text-storm-grey">{benefit.description}</p>
+                  <h3 className="mb-4 text-2xl text-ocean-deep">{t(`careers.benefits.items.${benefit.key}.title`)}</h3>
+                  <p className="text-sm leading-7 text-storm-grey">{t(`careers.benefits.items.${benefit.key}.description`)}</p>
                 </article>
               ))}</div>
             )}
@@ -279,27 +268,27 @@ export default function CareersPage() {
             <div className="mt-8 grid overflow-hidden border border-light-mist bg-white lg:grid-cols-2">
               <div className="border-b border-light-mist p-7 sm:p-8 lg:border-b-0 lg:border-r">
                 <span className="text-xs font-extrabold uppercase tracking-[0.16em] text-seafoam">
-                  Trụ sở chính
+                  {t('careers.benefits.headOffice')}
                 </span>
                 <p className="mt-3 font-semibold leading-7 text-ocean-deep">
-                  Quốc lộ 80, Cụm công nghiệp Vàm Cống, ấp An Thạnh, xã Lấp Vò, Tỉnh Đồng Tháp, Việt Nam
+                  {t('careers.benefits.headOfficeAddress')}
                 </p>
               </div>
               <div className="p-7 sm:p-8">
                 <span className="text-xs font-extrabold uppercase tracking-[0.16em] text-seafoam">
-                  Văn phòng đại diện
+                  {t('careers.benefits.representativeOffice')}
                 </span>
                 <p className="mt-3 font-semibold leading-7 text-ocean-deep">
-                  9 Nguyễn Kim, phường 12, quận 5, Thành phố Hồ Chí Minh
+                  {t('careers.benefits.representativeOfficeAddress')}
                 </p>
                 <a
                   href="tel:+84932824888"
                   className="mt-2 inline-block text-sm font-bold text-seafoam transition hover:text-ocean-deep"
                 >
-                  Điện thoại: +84 932 824 888
+                  {t('careers.benefits.phone')}: +84 932 824 888
                 </a>
                 <p className="mt-2 text-sm leading-6 text-storm-grey">
-                  Ngay trung tâm Quận 5, thuận tiện tiếp cận nhà hàng, trung tâm chăm sóc sức khỏe, trường học và khu mua sắm.
+                  {t('careers.benefits.officeDescription')}
                 </p>
               </div>
             </div>
@@ -315,33 +304,29 @@ export default function CareersPage() {
               />
               <div className="relative z-10">
                 <span className="text-xs font-bold uppercase tracking-[0.2em] text-coral-light">
-                  Cơ hội nghề nghiệp
+                  {t('careers.application.eyebrow')}
                 </span>
                 <h2 className="mt-4 text-3xl font-extrabold text-white sm:text-4xl">
-                  Hãy để chúng tôi biết thêm về bạn
+                  {t('careers.application.title')}
                 </h2>
                 {pageConfig?.contactContent ? (
                   <div className="mt-5 leading-8 text-white/70" dangerouslySetInnerHTML={{ __html: pageConfig.contactContent }} />
                 ) : (
-                  <p className="mt-5 leading-8 text-white/65">Đăng CV tại đây để bộ phận tuyển dụng IDI có thể liên hệ khi có vị trí phù hợp với kinh nghiệm và định hướng của bạn.</p>
+                  <p className="mt-5 leading-8 text-white/65">{t('careers.application.description')}</p>
                 )}
 
                 <div className="mt-10 space-y-5 border-t border-white/12 pt-8">
-                  {[
-                    'Hồ sơ được bảo mật',
-                    'Tiếp nhận ứng tuyển chủ động',
-                    'Phản hồi khi có vị trí phù hợp',
-                  ].map(item => (
+                  {['privacy', 'proactive', 'response'].map(item => (
                     <div key={item} className="flex items-center gap-3 text-sm font-semibold text-white/80">
                       <span className="grid h-6 w-6 place-items-center rounded-full bg-seafoam text-xs text-white">✓</span>
-                      {item}
+                      {t(`careers.application.${item}`)}
                     </div>
                   ))}
                 </div>
 
                 <div className="mt-10 rounded-2xl border border-white/10 bg-white/5 p-5">
                   <span className="block text-xs font-bold uppercase tracking-[0.14em] text-seafoam-light">
-                    Hỗ trợ ứng tuyển
+                    {t('careers.application.support')}
                   </span>
                   <a
                     href="mailto:info@idiseafood.com"
@@ -360,11 +345,11 @@ export default function CareersPage() {
                     ✓
                   </div>
                   <span className="text-xs font-bold uppercase tracking-[0.16em] text-seafoam">
-                    Gửi hồ sơ thành công
+                    {t('careers.application.successEyebrow')}
                   </span>
-                  <h2 className="mt-3 text-3xl font-black text-ocean-deep">Cảm ơn bạn đã chọn IDI</h2>
+                  <h2 className="mt-3 text-3xl font-black text-ocean-deep">{t('careers.application.successTitle')}</h2>
                   <p className="mt-4 max-w-lg text-sm leading-7 text-storm-grey">
-                    Hồ sơ của bạn đã được tiếp nhận. Mã tham chiếu là{' '}
+                    {t('careers.application.successDescription')}{' '}
                     <strong className="text-ocean-deep">{referenceId}</strong>.
                   </p>
                   <button type="button" onClick={startNewApplication} className="btn btn-secondary mt-8">
@@ -377,29 +362,29 @@ export default function CareersPage() {
                     !
                   </div>
                   <span className="text-xs font-bold uppercase tracking-[0.16em] text-coral">
-                    Tạm ngưng nhận hồ sơ
+                    {t('careers.application.closedEyebrow')}
                   </span>
-                  <h2 className="mt-3 text-3xl font-black text-ocean-deep">Cổng ứng tuyển đang tạm đóng</h2>
+                  <h2 className="mt-3 text-3xl font-black text-ocean-deep">{t('careers.application.closedTitle')}</h2>
                   <p className="mt-4 max-w-lg text-sm leading-7 text-storm-grey">
-                    Hiện tại IDI chưa tiếp nhận hồ sơ trực tuyến. Bạn vẫn có thể theo dõi các vị trí đang tuyển và quay lại sau.
+                    {t('careers.application.closedDescription')}
                   </p>
                 </div>
               ) : (
                 <>
                   <div className="mb-8">
-                    <span className="section-eyebrow">Gửi ứng tuyển</span>
+                    <span className="section-eyebrow">{t('careers.application.formEyebrow')}</span>
                     <h2 className="mt-2 text-2xl font-black text-ocean-deep sm:text-3xl">
-                      Đăng CV của bạn tại đây
+                      {t('careers.application.formTitle')}
                     </h2>
                     <p className="mt-3 text-sm text-storm-grey">
-                      Tất cả các trường bên dưới đều là bắt buộc.
+                      {t('careers.application.requiredNote')}
                     </p>
                   </div>
 
                   <form onSubmit={handleSubmit} noValidate>
                     <div className="mb-6">
                       <label htmlFor="jobPositionId" className="block">
-                        <span className="mb-2 block text-sm font-bold text-ocean-deep">Vị trí quan tâm</span>
+                        <span className="mb-2 block text-sm font-bold text-ocean-deep">{t('careers.application.positionLabel')}</span>
                         <select
                           id="jobPositionId"
                           name="jobPositionId"
@@ -407,7 +392,7 @@ export default function CareersPage() {
                           onChange={handleChange}
                           className={inputClass('jobPositionId')}
                         >
-                          <option value="">{isLoadingOpenings ? 'Đang tải vị trí...' : 'Ứng tuyển tự do'}</option>
+                          <option value="">{isLoadingOpenings ? t('careers.application.loadingPositions') : t('careers.application.openApplication')}</option>
                           {openings.map(opening => (
                             <option key={opening.id} value={opening.id}>
                               {opening.title}{opening.location ? ` — ${opening.location}` : ''}
@@ -417,7 +402,7 @@ export default function CareersPage() {
                       </label>
                     </div>
                     <div className="grid gap-6 sm:grid-cols-2">
-                      <FormField label="Họ và tên" name="fullName" error={errors.fullName}>
+                      <FormField label={t('careers.application.fullName')} name="fullName" error={errors.fullName}>
                         <input
                           id="fullName"
                           name="fullName"
@@ -426,14 +411,14 @@ export default function CareersPage() {
                           value={form.fullName}
                           onChange={handleChange}
                           onBlur={handleBlur}
-                          placeholder="Nguyễn Văn A"
+                          placeholder={t('careers.application.fullNamePlaceholder')}
                           className={inputClass('fullName')}
                           aria-invalid={Boolean(errors.fullName)}
                           aria-describedby={errors.fullName ? 'fullName-error' : undefined}
                         />
                       </FormField>
 
-                      <FormField label="Điện thoại" name="phone" error={errors.phone}>
+                      <FormField label={t('careers.application.phone')} name="phone" error={errors.phone}>
                         <input
                           id="phone"
                           name="phone"
@@ -449,7 +434,7 @@ export default function CareersPage() {
                         />
                       </FormField>
 
-                      <FormField label="Email" name="email" error={errors.email}>
+                      <FormField label={t('careers.application.email')} name="email" error={errors.email}>
                         <input
                           id="email"
                           name="email"
@@ -465,7 +450,7 @@ export default function CareersPage() {
                         />
                       </FormField>
 
-                      <FormField label="Địa chỉ" name="address" error={errors.address}>
+                      <FormField label={t('careers.application.address')} name="address" error={errors.address}>
                         <input
                           id="address"
                           name="address"
@@ -474,7 +459,7 @@ export default function CareersPage() {
                           value={form.address}
                           onChange={handleChange}
                           onBlur={handleBlur}
-                          placeholder="Tỉnh/Thành phố"
+                          placeholder={t('careers.application.addressPlaceholder')}
                           className={inputClass('address')}
                           aria-invalid={Boolean(errors.address)}
                           aria-describedby={errors.address ? 'address-error' : undefined}
@@ -483,7 +468,7 @@ export default function CareersPage() {
                     </div>
 
                     <div className="mt-6">
-                      <FormField label="CV của bạn" name="cv" error={errors.cv}>
+                      <FormField label={t('careers.application.cv')} name="cv" error={errors.cv}>
                         <div
                           className={[
                             'rounded-xl border border-dashed bg-arctic-white p-5 transition',
@@ -502,7 +487,7 @@ export default function CareersPage() {
                             aria-describedby={errors.cv ? 'cv-error cv-note' : 'cv-note'}
                           />
                           <span id="cv-note" className="mt-3 block text-xs text-storm-grey">
-                            Định dạng DOC, DOCX hoặc PDF; dung lượng nhỏ hơn 10MB.
+                            {t('careers.application.fileNote')}
                           </span>
                         </div>
                       </FormField>
@@ -510,7 +495,7 @@ export default function CareersPage() {
 
                     <div className="mt-8 flex flex-col gap-4 border-t border-light-mist pt-7 sm:flex-row sm:items-center sm:justify-between">
                       <p className="text-xs leading-6 text-storm-grey">
-                        Bằng việc gửi hồ sơ, bạn đồng ý để IDI sử dụng thông tin cho mục đích tuyển dụng.
+                        {t('careers.application.consent')}
                       </p>
                       <button
                         type="submit"
@@ -532,9 +517,9 @@ export default function CareersPage() {
           <div className="container flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-center">
             <div>
               <span className="text-xs font-bold uppercase tracking-[0.18em] text-coral-light">
-                Muốn biết thêm về đội ngũ?
+                {t('careers.bottom.eyebrow')}
               </span>
-              <h2 className="mt-2 text-2xl text-white sm:text-3xl">Tìm hiểu thêm về I.D.I</h2>
+              <h2 className="mt-2 text-2xl text-white sm:text-3xl">{t('careers.bottom.title')}</h2>
             </div>
             <Link to="/about" className="btn btn-ghost">
               {t('actions.exploreIdi')}

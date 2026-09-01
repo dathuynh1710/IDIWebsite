@@ -3,6 +3,7 @@ import { Link } from 'react-router'
 import RevealOnScroll from '@components/common/RevealOnScroll'
 import { useLanguage } from '@hooks/useLanguage'
 import { DEFAULT_NEWS_PAGE_CONFIG, newsService } from '@services/news.service'
+import { getHomeTranslations } from '@/i18n/home'
 
 const CATEGORY_COLORS = {
   gold: { bg: 'bg-coral-pale', text: 'text-[#B37518]' },
@@ -23,9 +24,9 @@ function formatDate(iso, language) {
   })
 }
 
-function LoadingCards() {
+function LoadingCards({ label }) {
   return (
-    <div className="grid animate-pulse gap-6 sm:grid-cols-2 lg:grid-cols-3" aria-label="Đang tải tin mới">
+    <div className="grid animate-pulse gap-6 sm:grid-cols-2 lg:grid-cols-3" aria-label={label}>
       {Array.from({ length: 3 }, (_, index) => (
         <div key={index} className="overflow-hidden rounded-2xl border border-light-mist bg-white">
           <div className="aspect-[16/9] bg-light-mist" />
@@ -42,6 +43,7 @@ function LoadingCards() {
 
 export default function NewsSection() {
   const { language, t } = useLanguage()
+  const copy = getHomeTranslations(language).news
   const [requestKey, setRequestKey] = useState(0)
   const [status, setStatus] = useState('loading')
   const [response, setResponse] = useState({
@@ -84,11 +86,11 @@ export default function NewsSection() {
           <div>
             <RevealOnScroll>
               <span className="section-eyebrow">
-                {pageConfig.showFeaturedSection && response.featured.length ? 'Tin nổi bật' : 'Tin mới nhất'}
+                {pageConfig.showFeaturedSection && response.featured.length ? copy.featured : copy.latest}
               </span>
             </RevealOnScroll>
             <RevealOnScroll delay={80}>
-              <h2 className="mt-3 text-h2 font-bold text-ocean-deep">{pageConfig.title}</h2>
+              <h2 className="mt-3 text-h2 font-bold text-ocean-deep">{status === 'loading' ? copy.latest : pageConfig.title}</h2>
             </RevealOnScroll>
           </div>
           <RevealOnScroll direction="right">
@@ -97,18 +99,18 @@ export default function NewsSection() {
         </div>
 
         {status === 'loading' ? (
-          <LoadingCards />
+          <LoadingCards label={copy.loading} />
         ) : status === 'error' ? (
           <div className="rounded-2xl border border-dashed border-mist-mid bg-white px-6 py-12 text-center" role="alert">
-            <h3 className="text-xl font-bold text-ocean-deep">Không thể tải tin mới</h3>
-            <p className="mt-2 text-sm">Vui lòng kiểm tra kết nối và thử lại.</p>
+            <h3 className="text-xl font-bold text-ocean-deep">{copy.errorTitle}</h3>
+            <p className="mt-2 text-sm">{copy.errorText}</p>
             <button type="button" onClick={() => setRequestKey(key => key + 1)} className="btn btn-primary mt-6">
               {t('actions.retryLoad')}
             </button>
           </div>
         ) : articles.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-mist-mid bg-white px-6 py-12 text-center">
-            <p>Nội dung tin tức đang được cập nhật.</p>
+            <p>{copy.empty}</p>
           </div>
         ) : (
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -157,7 +159,7 @@ export default function NewsSection() {
                           {t('common.readMore')} <span aria-hidden="true">→</span>
                         </span>
                         {pageConfig.showReadingTime && article.readTime > 0 && (
-                          <span className="font-medium text-storm-grey">{article.readTime} phút</span>
+                          <span className="font-medium text-storm-grey">{t('common.minutes', { count: article.readTime })}</span>
                         )}
                       </div>
                     </div>

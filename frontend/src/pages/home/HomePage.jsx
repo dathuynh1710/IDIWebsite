@@ -6,6 +6,8 @@ import WhyChooseUsSection from './sections/WhyChooseUsSection'
 import ManufacturingSection from './sections/ManufacturingSection'
 import NewsSection from './sections/NewsSection'
 import PartnersCarousel from '@components/sections/PartnersCarousel'
+import { useLanguage } from '@hooks/useLanguage'
+import { getHomeTranslations } from '@/i18n/home'
 
 /**
  * HomePage
@@ -13,11 +15,14 @@ import PartnersCarousel from '@components/sections/PartnersCarousel'
  * Full-page landing for IDI Seafood — Vietnam's leading pangasius exporter.
  */
 export default function HomePage() {
+  const { language } = useLanguage()
+  const copy = getHomeTranslations(language)
+
   return (
     <>
       <PageHead
-        title="IDI Seafood — Nhà xuất khẩu cá tra hàng đầu Việt Nam"
-        description="Công ty Cổ phần Đầu tư và Phát triển Đa Quốc Gia I.D.I — cá tra đạt chuẩn ASC từ Đồng bằng sông Cửu Long, xuất khẩu đến hơn 50 quốc gia."
+        title={copy.seo.title}
+        description={copy.seo.description}
       />
 
       {/* 1. Hero — full-screen video with headline + stats bar */}

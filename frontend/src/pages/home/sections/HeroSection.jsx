@@ -1,21 +1,26 @@
 import { Link } from 'react-router'
 import { useLanguage } from '@hooks/useLanguage'
+import { getHomeTranslations } from '@/i18n/home'
 
-const STATS = [
-  { value: '50+', label: 'Quốc gia xuất khẩu' },
-  { value: '200+', label: 'Khách hàng' },
-  { value: '80+', label: 'Sản phẩm' },
-  { value: 'ASC', label: 'Chứng nhận quốc tế' },
-]
+const STAT_VALUES = ['50+', '200+', '80+', 'ASC']
+const VIDEO_BY_LANGUAGE = {
+  vi: '/videos/idi-food-30s-vi.mp4',
+  en: '/videos/idi-food-30s-en.mp4',
+  'zh-CN': '/videos/idi-food-30s-zh-cn.mp4',
+}
 
 export default function HeroSection() {
-  const { t } = useLanguage()
+  const { language, t } = useLanguage()
+  const copy = getHomeTranslations(language).hero
+  const stats = STAT_VALUES.map((value, index) => ({ value, label: copy.stats[index] }))
+  const videoSrc = VIDEO_BY_LANGUAGE[language] ?? VIDEO_BY_LANGUAGE.vi
   return (
     <section className="relative min-h-screen flex flex-col overflow-hidden">
 
       {/* ── Video Background ──────────────────────────────────── */}
       <div className="absolute inset-0">
         <video
+          key={language}
           className="w-full h-full object-cover"
           autoPlay
           muted
@@ -24,7 +29,7 @@ export default function HeroSection() {
           poster="https://idiseafood.com/vnt_upload/weblink/MAP_vn_1.jpg"
         >
           <source
-            src="https://idiseafood.com/vnt_upload/weblink/IDI_FOOD_30s_vn.mp4"
+            src={videoSrc}
             type="video/mp4"
           />
         </video>
@@ -45,8 +50,8 @@ export default function HeroSection() {
               style={{ animation: 'fadeInUp 0.6s ease forwards', animationDelay: '0ms' }}
             >
               <span className="w-2 h-2 rounded-full bg-coral-gold animate-pulse" />
-              <span className="hidden xs:inline">Tiên phong Trái phiếu Xanh ngành thủy sản khu vực</span>
-              <span className="xs:hidden">Tiên phong Trái phiếu Xanh</span>
+              <span className="hidden xs:inline">{copy.eyebrow}</span>
+              <span className="xs:hidden">{copy.eyebrowShort}</span>
             </div>
 
             {/* Main headline */}
@@ -54,9 +59,9 @@ export default function HeroSection() {
               className="text-display text-white mb-5 sm:mb-6 text-balance"
               style={{ animation: 'fadeInUp 0.7s ease forwards', animationDelay: '100ms', opacity: 0 }}
             >
-              Nhà xuất khẩu{' '}
-              <span className="text-coral-gold">cá tra</span>{' '}
-              hàng đầu Việt Nam
+              {copy.titleBefore}{' '}
+              <span className="text-coral-gold">{copy.titleAccent}</span>{' '}
+              {copy.titleAfter}
             </h1>
 
             {/* Sub-headline */}
@@ -64,9 +69,7 @@ export default function HeroSection() {
               className="text-lg sm:text-xl text-white/75 mb-8 sm:mb-10 max-w-xl leading-relaxed"
               style={{ animation: 'fadeInUp 0.7s ease forwards', animationDelay: '200ms', opacity: 0 }}
             >
-              Cá tra chất lượng cao đạt chuẩn ASC từ Đồng bằng sông Cửu Long,
-              vận hành theo chuỗi khép kín, truy xuất nguồn gốc minh bạch và
-              hiện diện tại hơn 50 quốc gia từ năm 1997.
+              {copy.description}
             </p>
 
             {/* CTAs */}
@@ -93,7 +96,7 @@ export default function HeroSection() {
       <div className="relative z-10 bg-white/8 backdrop-blur-md border-t border-white/10">
         <div className="container">
           <div className="grid grid-cols-2 md:grid-cols-4">
-            {STATS.map((stat, i) => (
+            {stats.map((stat, i) => (
               <div
                 key={stat.label}
                 className="py-5 px-4 text-center border-r border-white/10 last:border-0 md:border-r first:border-l-0"
@@ -107,12 +110,6 @@ export default function HeroSection() {
             ))}
           </div>
         </div>
-      </div>
-
-      {/* ── Scroll indicator ──────────────────────────────────── */}
-      <div className="absolute bottom-28 right-8 hidden lg:flex flex-col items-center gap-2 opacity-40">
-        <div className="w-px h-12 bg-white" style={{ animation: 'shimmer 2s ease-in-out infinite' }} />
-        <span className="text-white text-[10px] tracking-[0.2em] rotate-90 origin-center mt-2">CUỘN</span>
       </div>
 
     </section>

@@ -3,20 +3,23 @@ import { Link } from 'react-router'
 import RevealOnScroll from '@components/common/RevealOnScroll'
 import { productsService } from '@services/products.service'
 import { useLanguage } from '@hooks/useLanguage'
+import { getHomeTranslations } from '@/i18n/home'
 
 const CATEGORY_PRESENTATION = {
-  'pangasius-fillet': { badge: 'Bán chạy', badgeColor: 'badge-gold' },
-  'pangasius-portions': { badge: 'Nhà hàng', badgeColor: 'badge-blue' },
-  'whole-fish': { badge: 'Sẵn sàng xuất khẩu', badgeColor: 'badge-green' },
-  'value-added': { badge: 'Dòng sản phẩm mới', badgeColor: 'badge-gold' },
+  'pangasius-fillet': 'badge-gold',
+  'pangasius-portions': 'badge-blue',
+  'whole-fish': 'badge-green',
+  'value-added': 'badge-gold',
 }
 
 export default function ProductsSection() {
   const { language, t } = useLanguage()
+  const copy = getHomeTranslations(language).products
   const [categories, setCategories] = useState([])
 
   useEffect(() => {
     let isMounted = true
+    setCategories([])
 
     productsService.getCatalog({ locale: language })
       .then((catalog) => {
@@ -35,11 +38,11 @@ export default function ProductsSection() {
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-14">
           <div className="max-w-xl">
             <RevealOnScroll>
-              <span className="section-eyebrow">Danh mục sản phẩm</span>
+              <span className="section-eyebrow">{copy.eyebrow}</span>
             </RevealOnScroll>
             <RevealOnScroll delay={80}>
               <h2 className="text-h2 font-bold text-ocean-deep mt-3">
-                Cá tra chất lượng cao cho mọi thị trường
+                {copy.title}
               </h2>
             </RevealOnScroll>
           </div>
@@ -52,10 +55,8 @@ export default function ProductsSection() {
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
           {categories.map((category, index) => {
-            const presentation = CATEGORY_PRESENTATION[category.slug] ?? {
-              badge: 'Sản phẩm IDI',
-              badgeColor: 'badge-blue',
-            }
+            const badgeColor = CATEGORY_PRESENTATION[category.slug] ?? 'badge-blue'
+            const badge = copy.badges[category.slug] ?? copy.badges.fallback
             const sizes = category.products[0]?.sizes ?? []
 
             return (
@@ -78,8 +79,8 @@ export default function ProductsSection() {
                     <div className="absolute inset-0 bg-gradient-to-t from-ocean-deep via-ocean-deep/40 to-transparent" />
                   </div>
 
-                  <div className={`absolute top-4 left-4 badge ${presentation.badgeColor} text-[10px]`}>
-                    {presentation.badge}
+                  <div className={`absolute top-4 left-4 badge ${badgeColor} text-[10px]`}>
+                    {badge}
                   </div>
 
                   <div className="absolute bottom-0 left-0 right-0 p-5">
@@ -88,7 +89,7 @@ export default function ProductsSection() {
                     </h3>
                     <p className="text-white/70 text-xs mb-2">{category.description}</p>
                     <p className="text-white/50 text-[11px] font-mono">
-                      Kích cỡ: {sizes.join(' · ')}
+                      {copy.sizes}: {sizes.join(' · ')}
                     </p>
 
                     <div className="flex items-center gap-1.5 text-coral-gold text-xs font-semibold mt-3 translate-y-1 opacity-0 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">
@@ -106,7 +107,7 @@ export default function ProductsSection() {
 
         <RevealOnScroll delay={400}>
           <p className="text-center text-storm-grey text-sm mt-10">
-            Tất cả sản phẩm đều có định dạng đông IQF và Block ·{' '}
+            {copy.note} ·{' '}
             <Link to="/contact" className="text-seafoam hover:text-seafoam-light font-semibold transition-colors">
               {t('actions.customProduction')}
             </Link>

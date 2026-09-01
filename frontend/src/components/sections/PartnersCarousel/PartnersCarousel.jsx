@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
+import { useLanguage } from '@hooks/useLanguage'
+import { getHomeTranslations } from '@/i18n/home'
 
 const PARTNERS = [
   {
@@ -53,7 +55,7 @@ function getVisibleCount() {
   return 1
 }
 
-function PartnerLogo({ partner }) {
+function PartnerLogo({ partner, openLabel }) {
   const content = (
     <img
       src={partner.logo}
@@ -77,7 +79,7 @@ function PartnerLogo({ partner }) {
       target="_blank"
       rel="noreferrer"
       className="group flex h-36 items-center justify-center rounded-2xl border border-light-mist bg-white px-5 shadow-[0_8px_24px_-18px_rgba(11,37,69,0.45)] transition-all duration-300 hover:-translate-y-1 hover:border-seafoam/35 hover:shadow-[0_14px_30px_-18px_rgba(26,147,111,0.5)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-seafoam"
-      aria-label={`${partner.name} — mở website`}
+      aria-label={`${partner.name} — ${openLabel}`}
     >
       {content}
     </a>
@@ -85,6 +87,8 @@ function PartnerLogo({ partner }) {
 }
 
 export default function PartnersCarousel() {
+  const { language } = useLanguage()
+  const copy = getHomeTranslations(language).partners
   const [visibleCount, setVisibleCount] = useState(getVisibleCount)
   const maxIndex = Math.max(0, PARTNERS.length - visibleCount)
   const [current, setCurrent] = useState(0)
@@ -135,7 +139,7 @@ export default function PartnersCarousel() {
     <section
       className="relative overflow-hidden border-y border-light-mist py-12 sm:py-16"
       style={{ background: 'linear-gradient(135deg, #F8FAFB 0%, #EEF7F5 100%)' }}
-      aria-label="Đối tác và thành viên trong hệ sinh thái Sao Mai"
+      aria-label={copy.label}
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
       onFocusCapture={() => setPaused(true)}
@@ -166,7 +170,7 @@ export default function PartnersCarousel() {
                     className="shrink-0 px-3 sm:px-4"
                     style={{ width: `${100 / visibleCount}%` }}
                   >
-                    <PartnerLogo partner={partner} />
+                    <PartnerLogo partner={partner} openLabel={copy.open} />
                   </div>
                 ))}
               </div>
@@ -176,7 +180,7 @@ export default function PartnersCarousel() {
               type="button"
               onClick={goPrevious}
               className="absolute left-0 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-light-mist bg-white text-ocean-deep shadow-md transition-all hover:border-seafoam/30 hover:bg-seafoam hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-seafoam"
-              aria-label="Xem đối tác trước"
+              aria-label={copy.previous}
             >
               <svg className="h-7 w-7" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                 <path d="m15 5-7 7 7 7" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
@@ -187,7 +191,7 @@ export default function PartnersCarousel() {
               type="button"
               onClick={goNext}
               className="absolute right-0 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-light-mist bg-white text-ocean-deep shadow-md transition-all hover:border-seafoam/30 hover:bg-seafoam hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-seafoam"
-              aria-label="Xem đối tác tiếp theo"
+              aria-label={copy.next}
             >
               <svg className="h-7 w-7" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                 <path d="m9 5 7 7-7 7" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />

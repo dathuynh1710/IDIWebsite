@@ -64,23 +64,26 @@ function Timeline({ section }) {
 function Responsibility({ section }) {
   return (
     <section className="history-responsibility">
-      <div className="history-responsibility__copy">
-        <span className="history-responsibility__eyebrow" aria-hidden="true">I.D.I</span>
+      <header className="history-responsibility__heading">
         <h2>{section.title}</h2>
-        {section.description.map((paragraph, index) => <p key={index}>{paragraph}</p>)}
-      </div>
-      <div className="history-responsibility__visual" aria-hidden="true">
-        <div className="history-globe">
-          <span />
-          <span />
-          <span />
+      </header>
+      <div className="history-responsibility__body">
+        <div className="history-responsibility__copy">
+          {section.description.map((paragraph, index) => <p key={index}>{paragraph}</p>)}
         </div>
+        <figure className="history-responsibility__visual">
+          <img
+            src="https://idiseafood.com/vnt_upload/about/map.jpg"
+            alt={section.title}
+            loading="lazy"
+          />
+        </figure>
       </div>
     </section>
   )
 }
 
-export default function HistoryContent({ html }) {
+export default function HistoryContent({ html, summary }) {
   const history = useMemo(() => parseHistory(html), [html])
 
   if (!history || (!history.introduction.length && !history.sections.length)) {
@@ -89,17 +92,14 @@ export default function HistoryContent({ html }) {
 
   const timeline = history.sections.find(section => section.items.length > 0)
   const responsibility = history.sections.find(section => section !== timeline && section.description.length > 0)
+  const introduction = Array.from(new Set([summary, ...history.introduction].filter(Boolean)))
 
   return (
     <div className="history-layout">
-      {history.introduction.length > 0 && (
+      {introduction.length > 0 && (
         <section className="history-introduction">
-          <div className="history-introduction__mark" aria-hidden="true">
-            <strong>2008</strong>
-            <span>∞</span>
-          </div>
           <div className="history-introduction__copy">
-            {history.introduction.map((paragraph, index) => <p key={index}>{paragraph}</p>)}
+            {introduction.map((paragraph, index) => <p key={index}>{paragraph}</p>)}
           </div>
         </section>
       )}

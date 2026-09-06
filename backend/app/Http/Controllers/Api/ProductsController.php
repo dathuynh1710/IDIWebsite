@@ -82,6 +82,10 @@ class ProductsController extends Controller
     {
         $attributes = $product->productAttributes->keyBy(fn ($item) => $item->attribute?->code);
         $specs = $product->schema_extra ?? [];
+        $nutrition = collect($specs['nutrition'] ?? [])
+            ->only(['calories', 'protein', 'fat', 'saturated_fat'])
+            ->filter(fn (mixed $value): bool => filled($value))
+            ->all();
 
         return [
             'id' => $product->id,
@@ -89,18 +93,24 @@ class ProductsController extends Controller
             'sortOrder' => $product->sort_order,
             'slug' => $product->getTranslation('slug', $locale, false),
             'name' => $product->getTranslation('title', $locale, false),
-            'description' => $product->getTranslation('short_description', $locale, false),
             'image' => $product->featuredMedia?->url,
             'sizes' => $attributes->get('SIZE')?->value ?? [],
-            'freezingMethod' => $specs['freezing_method'] ?? 'IQF / Block Frozen',
-            'storageTemperature' => $specs['storage_temperature'] ?? '≤ -18°C',
-            'packaging' => $specs['packaging'] ?? 'Theo yêu cầu khách hàng',
-            'certifications' => $specs['certifications'] ?? ['ASC', 'BRC AA', 'HACCP'],
-            'origin' => $specs['origin'] ?? 'Đồng Tháp, Việt Nam',
-            'shelfLife' => $specs['shelf_life'] ?? '24 tháng',
+            'productSpecification' => $this->localizedDetail($specs['product_specification'] ?? null, $locale),
+            'presentation' => $this->localizedDetail($attributes->get('PACKING')?->value ?? [], $locale),
+            'packaging' => $this->localizedDetail($specs['packaging'] ?? null, $locale),
+            'nutrition' => $nutrition,
             'sourceUrl' => $specs['source_url'] ?? null,
             'isFeatured' => $product->is_featured,
         ];
+    }
+
+    private function localizedDetail(mixed $value, string $locale): mixed
+    {
+        if (! is_array($value) || array_is_list($value)) {
+            return $value;
+        }
+
+        return $value[$locale] ?? $value['en'] ?? $value['vi'] ?? null;
     }
 
     private function locale(Request $request): string

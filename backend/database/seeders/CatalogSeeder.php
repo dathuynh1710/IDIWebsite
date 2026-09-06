@@ -123,8 +123,10 @@ class CatalogSeeder extends Seeder
                 'unit' => null, 'options' => $this->json(self::SIZES), 'sort_order' => 0, 'is_active' => true,
             ]),
             'packing' => $this->upsertId('attributes', ['code' => 'PACKING'], [
-                'name' => $this->translations('Quy cách cấp đông', 'Freezing method', 'Freezing method'), 'type' => 'multiselect',
-                'unit' => null, 'options' => $this->json(['IQF', 'Block Frozen']), 'sort_order' => 1, 'is_active' => true,
+                'name' => $this->translations('Hình thức cấp đông', 'Presentation', 'Presentation'), 'type' => 'multiselect',
+                'unit' => null,
+                'options' => $this->json(['Individually Quick Frozen', 'Block Frozen', 'Đông lạnh nhanh riêng lẻ', 'Đông lạnh khối']),
+                'sort_order' => 1, 'is_active' => true,
             ]),
             'glazing' => $this->upsertId('attributes', ['code' => 'GLAZING'], [
                 'name' => $this->translations('Tỷ lệ mạ băng', 'Glazing', 'Glazing'), 'type' => 'number',
@@ -139,23 +141,20 @@ class CatalogSeeder extends Seeder
         $ids = [];
         foreach ($this->products() as $key => $product) {
             $sourceUrl = "https://idiseafood.com/vn/san-pham/popup.html/?do=detail_product&p_id={$product['sourceId']}";
-            $description = "Quy cách {$product['viName']}, kích cỡ 60g-120g, 120g-170g, 170g-220g và 220g-up.";
+            $details = $this->legacyDetails($product['sourceId']);
             $ids[$key] = $this->upsertId('products', ['sku' => $product['sku']], [
                 'product_category_id' => $categoryIds[$product['category']],
                 'featured_media_id' => $mediaIds[$key],
                 'title' => $this->translations($product['viName'], $product['enName'], $product['enName']),
                 'slug' => $this->translations($product['slug'], $product['slug'], $product['slug']),
-                'short_description' => $this->translations($description, $product['enName'], $product['enName']),
+                'short_description' => $this->translations(...array_values($details['product_specification'])),
                 'description' => null, 'content' => null,
                 'seo_title' => $this->translations($product['viName'].' | IDI Seafood', $product['enName'].' | IDI Seafood', $product['enName'].' | IDI Seafood'),
-                'meta_description' => $this->translations($description, $product['enName'], $product['enName']),
+                'meta_description' => $this->translations(...array_values($details['product_specification'])),
                 'og_title' => null, 'og_description' => null,
-                'schema_extra' => $this->json([
-                    'freezing_method' => 'IQF / Block Frozen', 'storage_temperature' => '≤ -18°C',
-                    'packaging' => 'Theo yêu cầu khách hàng', 'certifications' => ['ASC', 'BRC AA', 'HACCP'],
-                    'origin' => 'Đồng Tháp, Việt Nam', 'shelf_life' => '24 tháng',
+                'schema_extra' => $this->json(array_merge($details, [
                     'source_url' => $sourceUrl, 'source_product_id' => $product['sourceId'],
-                ]),
+                ])),
                 'translation_status' => $this->publishedStatus(), 'locale_published_at' => $this->publishedDates(),
                 'sort_order' => $product['sortOrder'], 'is_featured' => $product['featured'], 'is_active' => true,
                 'created_by' => $adminId, 'updated_by' => $adminId, 'deleted_at' => null,
@@ -167,8 +166,11 @@ class CatalogSeeder extends Seeder
 
     private function seedProductAttributes(array $productIds, array $attributeIds): void
     {
-        foreach ($productIds as $productId) {
-            foreach ([[$attributeIds['size'], self::SIZES, 0], [$attributeIds['packing'], ['IQF', 'Block Frozen'], 1]] as [$attributeId, $value, $sortOrder]) {
+        $products = $this->products();
+
+        foreach ($productIds as $key => $productId) {
+            $presentation = $this->legacyDetails($products[$key]['sourceId'])['presentation'];
+            foreach ([[$attributeIds['size'], self::SIZES, 0], [$attributeIds['packing'], $presentation, 1]] as [$attributeId, $value, $sortOrder]) {
                 $this->upsertId('product_attributes', [
                     'product_id' => $productId, 'attribute_id' => $attributeId,
                 ], [
@@ -177,6 +179,39 @@ class CatalogSeeder extends Seeder
                 ]);
             }
         }
+    }
+
+    /**
+     * Product details transcribed from each legacy popup linked by source_product_id.
+     * The older catalog contains Vietnamese copy for a subset of products and English copy for the rest.
+     *
+     * @return array{product_specification: array<string, string>, presentation: array<string, array<int, string>>, packaging: array<string, string>, nutrition: array<string, string>}
+     */
+    private function legacyDetails(int $_sourceId): array
+    {
+        return [
+            'product_specification' => [
+                'vi' => 'Phi lê có da, không xương, tách da, tách mỡ',
+                'en' => 'Skin-on, Boneless, Belly-off, Fat-off Fillets',
+                'zh' => '带皮、去骨、去腹肉、去脂鱼片',
+            ],
+            'presentation' => [
+                'vi' => ['Đông lạnh nhanh riêng lẻ', 'Đông lạnh khối'],
+                'en' => ['Individually Quick Frozen', 'Block Frozen'],
+                'zh' => ['单体速冻', '块冻'],
+            ],
+            'packaging' => [
+                'vi' => 'Bán sỉ đóng gói trong túi PE trơn, hoặc bán lẻ đóng gói trong túi in, gói hút chân không, v.v.',
+                'en' => 'Wholesales packaging in plain PE bags, or Retail packaging in printed bags, vacuum pack, etc.',
+                'zh' => '批发采用普通 PE 袋包装，零售采用印刷袋、真空包装等。',
+            ],
+            'nutrition' => [
+                'calories' => '82.7 Kcal',
+                'protein' => '15.50g',
+                'fat' => '1.86g',
+                'saturated_fat' => '0.66g',
+            ],
+        ];
     }
 
     private function seedProductDocuments(int $productId, int $mediaId): void

@@ -49,7 +49,7 @@ export default function WhyChooseUsSection() {
   const copy = getHomeTranslations(language).reasons
 
   return (
-    <section className="py-24 lg:py-36 bg-arctic-white">
+    <section className="bg-arctic-white py-16 lg:py-20">
       <div className="container">
 
         {/* Header */}
@@ -82,7 +82,7 @@ export default function WhyChooseUsSection() {
 
                 {/* Content */}
                 <h3 className="font-bold text-ocean-deep text-lg mb-3">{copy.items[i][0]}</h3>
-                <p className="text-storm-grey text-sm leading-relaxed mb-5 flex-1">{copy.items[i][1]}</p>
+                <p className="mb-5 flex-1 text-justify text-sm leading-relaxed text-storm-grey">{copy.items[i][1]}</p>
 
                 {/* Highlight pill */}
                 <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-seafoam">

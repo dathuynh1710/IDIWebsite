@@ -62,6 +62,7 @@ export default function CmsAboutPage({ identifier }) {
   }
 
   const templateClass = String(page.template || 'about').replace(/[^a-z0-9-]/gi, '')
+  const compactHero = page.code === 'ABOUT_HISTORY' || page.code === 'ABOUT_VALUES'
 
   return (
     <>
@@ -72,11 +73,10 @@ export default function CmsAboutPage({ identifier }) {
       />
 
       <main className={`cms-about-page cms-about-page--${templateClass}`} data-page-code={page.code}>
-        <header className="cms-about-hero">
+        <header className={`cms-about-hero${compactHero ? ' cms-about-hero--compact' : ''}`}>
           <div className="container">
-            <span className="cms-about-eyebrow">{t('nav.about')}</span>
             <h1>{page.title}</h1>
-            {!page.image && page.summary && <p>{page.summary}</p>}
+            {!compactHero && !page.image && page.summary && <p>{page.summary}</p>}
           </div>
         </header>
 
@@ -91,7 +91,7 @@ export default function CmsAboutPage({ identifier }) {
           )}
 
           {page.content && page.code === 'ABOUT_HISTORY' ? (
-            <HistoryContent html={page.content} />
+            <HistoryContent html={page.content} summary={page.summary} />
           ) : page.content && page.code === 'ABOUT_VALUES' ? (
             <CoreValuesContent html={page.content} />
           ) : page.content ? (

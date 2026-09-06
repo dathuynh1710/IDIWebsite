@@ -4,148 +4,147 @@ import PageHead from '@components/common/PageHead'
 import { productsService } from '@services/products.service'
 import { useLanguage } from '@hooks/useLanguage'
 
+const PRODUCT_DETAIL_LABELS = {
+  vi: {
+    specification: 'Quy cách sản phẩm',
+    size: 'Kích cỡ',
+    presentation: 'Hình thức cấp đông',
+    packaging: 'Đóng gói',
+    nutrition: 'Giá trị dinh dưỡng',
+    per100g: 'trên 100g',
+    calories: 'Năng lượng',
+    protein: 'Chất đạm',
+    fat: 'Chất béo',
+    saturatedFat: 'Chất béo bão hòa',
+  },
+  en: {
+    specification: 'Product Specification',
+    size: 'Size',
+    presentation: 'Presentation',
+    packaging: 'Packaging',
+    nutrition: 'Nutrition Fact',
+    per100g: 'per 100g',
+    calories: 'Calories',
+    protein: 'Protein',
+    fat: 'Fat',
+    saturatedFat: 'Saturated fat',
+  },
+  'zh-CN': {
+    specification: '产品规格',
+    size: '规格',
+    presentation: '冷冻方式',
+    packaging: '包装',
+    nutrition: '营养成分',
+    per100g: '每100克',
+    calories: '热量',
+    protein: '蛋白质',
+    fat: '脂肪',
+    saturatedFat: '饱和脂肪',
+  },
+}
+
 function ProductCard({ product, category, onOpen }) {
   const { t } = useLanguage()
+
   return (
-    <div className="colsl">
-      <article className="itproducthb">
-        <div className="thumb">
-          <button
-            type="button"
-            className="nonepointe"
-            onClick={onOpen}
-            aria-label={`${t('actions.viewDetails')} ${product.name}`}
-            aria-haspopup="dialog"
-          >
-            <img src={product.image} alt={product.name} loading="lazy" />
+    <article className="itproducthb">
+      <div className="thumb">
+        <button type="button" onClick={onOpen} aria-label={`${t('actions.viewDetails')} ${product.name}`} aria-haspopup="dialog">
+          <img src={product.image} alt={product.name} loading="lazy" />
+        </button>
+      </div>
+      <div className="decss">
+        <div className="dsmeta">
+          <span>{category}</span>
+        </div>
+        <div className="dstitle">
+          <h3><button type="button" onClick={onOpen} aria-haspopup="dialog">{product.name}</button></h3>
+        </div>
+        <div className="dsconts" aria-label="Quy cách sản phẩm">
+          <span className="size-label">Size</span>
+          {product.sizes.map(size => <span key={size} className="size-chip">{size}</span>)}
+        </div>
+        <div className="dsviews">
+          <button type="button" onClick={onOpen} aria-haspopup="dialog">
+            <span>{t('actions.viewDetails')}</span><span aria-hidden="true">→</span>
           </button>
         </div>
-
-        <div className="decss">
-          <div className="dsmeta">
-            <span>{category}</span>
-            <span>{product.freezingMethod}</span>
-          </div>
-
-          <div className="dstitle">
-            <h3>
-              <button type="button" className="chitietpopup" onClick={onOpen} aria-haspopup="dialog">
-                {product.name}
-              </button>
-            </h3>
-          </div>
-
-          <div className="dsconts" aria-label="Quy cách sản phẩm">
-            <span className="size-label">Size</span>
-            {product.sizes.map(size => (
-              <span key={size} className="size-chip">{size}</span>
-            ))}
-          </div>
-
-          <div className="dsviews">
-            <button type="button" className="chitietpopup" onClick={onOpen} aria-haspopup="dialog">
-              <span>{t('actions.viewDetails')}</span>
-            </button>
-          </div>
-        </div>
-      </article>
-    </div>
+      </div>
+    </article>
   )
 }
 
 function ProductModal({ product, isClosing, onClose, closeButtonRef, dialogRef }) {
-  const { t } = useLanguage()
+  const { language, t } = useLanguage()
   if (!product) return null
+
+  const labels = PRODUCT_DETAIL_LABELS[language] ?? PRODUCT_DETAIL_LABELS.vi
+  const presentation = Array.isArray(product.presentation) ? product.presentation.filter(Boolean) : []
+  const nutrition = [
+    [labels.calories, product.nutrition?.calories],
+    [labels.protein, product.nutrition?.protein],
+    [labels.fat, product.nutrition?.fat],
+    [labels.saturatedFat, product.nutrition?.saturated_fat],
+  ].filter(([, value]) => value)
 
   return (
     <div
       className={`product-modal${isClosing ? ' is-closing' : ''}`}
       role="presentation"
-      onMouseDown={(event) => {
-        if (event.target === event.currentTarget) onClose()
-      }}
+      onMouseDown={(event) => { if (event.target === event.currentTarget) onClose() }}
     >
-      <section
-        ref={dialogRef}
-        className="product-modal__dialog"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="product-modal-title"
-        aria-describedby="product-modal-description"
-      >
-        <button
-          ref={closeButtonRef}
-          type="button"
-          className="product-modal__close"
-          onClick={onClose}
-          aria-label={t('common.close')}
-        >
+      <section ref={dialogRef} className="product-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="product-modal-title" aria-describedby="product-modal-description">
+        <button ref={closeButtonRef} type="button" className="product-modal__close" onClick={onClose} aria-label={t('common.close')}>
           <span aria-hidden="true">×</span>
         </button>
-
         <div className="product-modal__media">
           <img src={product.image} alt={product.name} />
-          <div className="product-modal__media-label">
-            <span>IDI Seafood</span>
-            <strong>Chất lượng xuất khẩu</strong>
-          </div>
+          <div className="product-modal__media-label"><span>IDI Seafood</span><strong>Chất lượng xuất khẩu</strong></div>
         </div>
-
         <div className="product-modal__content">
-          <div className="product-modal__eyebrow">
-            <span>{product.category}</span>
-            <span>{product.freezingMethod}</span>
-          </div>
-
+          {product.category && <div className="product-modal__eyebrow"><span>{product.category}</span></div>}
           <h2 id="product-modal-title">{product.name}</h2>
-          <p id="product-modal-description" className="product-modal__description">
-            {product.description}
-          </p>
+          <div id="product-modal-description" className="product-modal__details">
+            {product.productSpecification && (
+              <section className="product-modal__detail-block">
+                <h3>{labels.specification}</h3>
+                <p>{product.productSpecification}</p>
+              </section>
+            )}
 
-          <div className="product-modal__sizes">
-            <span>Kích cỡ hiện có</span>
-            <div>
-              {product.sizes.map(size => (
-                <span key={size}>{size}</span>
-              ))}
-            </div>
+            {product.sizes?.length > 0 && (
+              <section className="product-modal__detail-block product-modal__sizes">
+                <h3>{labels.size}</h3>
+                <div>{product.sizes.map(size => <span key={size}>{size}</span>)}</div>
+              </section>
+            )}
+
+            {presentation.length > 0 && (
+              <section className="product-modal__detail-block product-modal__detail-block--wide">
+                <h3>{labels.presentation}</h3>
+                <p>{presentation.join(', ')}</p>
+              </section>
+            )}
+
+            {product.packaging && (
+              <section className="product-modal__detail-block product-modal__detail-block--wide">
+                <h3>{labels.packaging}</h3>
+                <p>{product.packaging}</p>
+              </section>
+            )}
+
+            {nutrition.length > 0 && (
+              <section className="product-modal__detail-block product-modal__detail-block--wide product-modal__nutrition">
+                <h3>{labels.nutrition} <small>{labels.per100g}</small></h3>
+                <dl>
+                  {nutrition.map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}
+                </dl>
+              </section>
+            )}
           </div>
-
-          <dl className="product-modal__specs">
-            <div>
-              <dt>Phương pháp cấp đông</dt>
-              <dd>{product.freezingMethod}</dd>
-            </div>
-            <div>
-              <dt>Nhiệt độ bảo quản</dt>
-              <dd>{product.storageTemperature}</dd>
-            </div>
-            <div>
-              <dt>Đóng gói</dt>
-              <dd>{product.packaging}</dd>
-            </div>
-            <div>
-              <dt>Chứng nhận</dt>
-              <dd>{product.certifications.join(' · ')}</dd>
-            </div>
-            <div>
-              <dt>Xuất xứ</dt>
-              <dd>{product.origin}</dd>
-            </div>
-            <div>
-              <dt>Thời hạn sử dụng</dt>
-              <dd>{product.shelfLife}</dd>
-            </div>
-          </dl>
-
           <div className="product-modal__actions">
-            <Link to="/contact" className="btn btn-primary">
-              {t('actions.requestAdvice')}
-              <span aria-hidden="true">→</span>
-            </Link>
-            <button type="button" className="btn btn-secondary" onClick={onClose}>
-              {t('actions.continueProducts')}
-            </button>
+            <Link to="/contact" className="btn btn-primary">{t('actions.requestAdvice')}<span aria-hidden="true">→</span></Link>
+            <button type="button" className="btn btn-secondary" onClick={onClose}>{t('actions.continueProducts')}</button>
           </div>
         </div>
       </section>
@@ -157,7 +156,6 @@ export default function ProductsPage() {
   const { language, t } = useLanguage()
   const [searchParams, setSearchParams] = useSearchParams()
   const [catalog, setCatalog] = useState({ categories: [], total: 0 })
-  const [loadError, setLoadError] = useState(false)
   const [selectedProduct, setSelectedProduct] = useState(null)
   const [isModalClosing, setIsModalClosing] = useState(false)
   const closeTimerRef = useRef(null)
@@ -165,53 +163,33 @@ export default function ProductsPage() {
   const dialogRef = useRef(null)
   const categoryParam = searchParams.get('category')
   const activeCategory = useMemo(
-    () => categoryParam
-      ? catalog.categories.find(category => category.slug === categoryParam) ?? null
-      : null,
+    () => categoryParam ? catalog.categories.find(category => category.slug === categoryParam) ?? null : null,
     [catalog.categories, categoryParam],
   )
   const allProducts = useMemo(
     () => catalog.categories
-      .flatMap(category => category.products.map(product => ({
-        ...product,
-        categoryName: category.name,
-      })))
+      .flatMap(category => category.products.map(product => ({ ...product, categoryName: category.name })))
       .sort((first, second) => second.sortOrder - first.sortOrder),
     [catalog.categories],
   )
+  const visibleProducts = activeCategory?.products ?? allProducts
 
   useEffect(() => {
     let isMounted = true
-
     productsService.getCatalog({ locale: language })
       .then((data) => {
         if (!isMounted) return
         setCatalog(data)
-        setLoadError(false)
       })
-      .catch(() => {
-        if (isMounted) setLoadError(true)
-      })
-
-    return () => {
-      isMounted = false
-    }
+      .catch(() => {})
+    return () => { isMounted = false }
   }, [language])
-
-  const selectCategory = (category) => {
-    setSearchParams({ category: category.slug })
-  }
-
-  const selectAllProducts = () => {
-    setSearchParams({})
-  }
 
   const openProduct = (product, category) => {
     if (closeTimerRef.current) window.clearTimeout(closeTimerRef.current)
     setIsModalClosing(false)
     setSelectedProduct({ ...product, category })
   }
-
   const closeProduct = useCallback(() => {
     if (!selectedProduct || isModalClosing) return
     setIsModalClosing(true)
@@ -223,103 +201,80 @@ export default function ProductsPage() {
 
   useEffect(() => {
     if (!selectedProduct) return undefined
-
     const previousOverflow = document.body.style.overflow
     document.body.style.overflow = 'hidden'
     closeButtonRef.current?.focus()
-
     const handleKeyDown = (event) => {
       if (event.key === 'Escape') closeProduct()
-      if (event.key === 'Tab') {
-        const focusableElements = dialogRef.current?.querySelectorAll(
-          'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled])',
-        )
-        if (!focusableElements?.length) return
-
-        const firstElement = focusableElements[0]
-        const lastElement = focusableElements[focusableElements.length - 1]
-        if (event.shiftKey && document.activeElement === firstElement) {
-          event.preventDefault()
-          lastElement.focus()
-        } else if (!event.shiftKey && document.activeElement === lastElement) {
-          event.preventDefault()
-          firstElement.focus()
-        }
+      if (event.key !== 'Tab') return
+      const focusableElements = dialogRef.current?.querySelectorAll('a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled])')
+      if (!focusableElements?.length) return
+      const firstElement = focusableElements[0]
+      const lastElement = focusableElements[focusableElements.length - 1]
+      if (event.shiftKey && document.activeElement === firstElement) {
+        event.preventDefault()
+        lastElement.focus()
+      } else if (!event.shiftKey && document.activeElement === lastElement) {
+        event.preventDefault()
+        firstElement.focus()
       }
     }
     window.addEventListener('keydown', handleKeyDown)
-
     return () => {
       document.body.style.overflow = previousOverflow
       window.removeEventListener('keydown', handleKeyDown)
     }
   }, [closeProduct, selectedProduct])
 
-  useEffect(
-    () => () => {
-      if (closeTimerRef.current) window.clearTimeout(closeTimerRef.current)
-    },
-    [],
-  )
+  useEffect(() => () => {
+    if (closeTimerRef.current) window.clearTimeout(closeTimerRef.current)
+  }, [])
 
   return (
     <>
-      <PageHead
-        title="Sản phẩm | IDI Seafood"
-        description="Danh mục sản phẩm cá tra IDI với quy trình khép kín, công nghệ hiện đại và tiêu chuẩn chất lượng quốc tế."
-      />
-
+      <PageHead title="Sản phẩm | IDI Seafood" description="Danh mục sản phẩm cá tra IDI với quy trình khép kín, công nghệ hiện đại và tiêu chuẩn chất lượng quốc tế." />
       <main className="products-page">
         <section className="products-catalog" id="products-catalog">
           <div className="container">
-            <div className="products-page__header">
-              <nav className="products-breadcrumb" aria-label="Đường dẫn trang">
-                <Link to="/">Trang chủ</Link>
-                <span aria-hidden="true">/</span>
-                <span aria-current="page">Sản phẩm</span>
-              </nav>
+            <header className="products-page__header">
+              <h1>Sản phẩm</h1>
+            </header>
 
-              <div className="products-page__heading">
-                <div className="products-catalog__intro">
-                  <span className="section-eyebrow">Danh mục sản phẩm</span>
-                  <h1>Cá tra chất lượng cao cho thị trường toàn cầu</h1>
+            <section className="products-introduction" aria-labelledby="products-introduction-title">
+              <p className="products-introduction__lead">
+                Cá tra bắt nguồn từ các ao và sông nước ngọt ở Đồng bằng sông Cửu Long và đã trở thành
+                thực phẩm chính trong bữa ăn hàng ngày của người dân Việt Nam. Các sản phẩm cá tra cũng
+                trở nên phổ biến với người tiêu dùng trên toàn thế giới, xuất khẩu đến hơn 130 quốc gia
+                và vùng lãnh thổ do hương vị phù hợp với nhiều nền ẩm thực khác nhau.
+              </p>
+
+              <div className="products-introduction__feature">
+                <figure className="products-introduction__media">
+                  <img
+                    src="https://idiseafood.com/vnt_upload/product/10_2020/dm1.jpg"
+                    alt="Các món ăn chế biến từ cá tra IDI"
+                    loading="eager"
+                  />
+                </figure>
+                <div className="products-introduction__content">
+                  <h2 id="products-introduction-title">Giới thiệu sản phẩm</h2>
                   <p>
-                    Khám phá các dòng cá tra được sản xuất theo chuỗi khép kín,
-                    cấp đông hiện đại và linh hoạt quy cách cho từng thị trường.
+                    Tại I.D.I chúng tôi quan niệm rằng thực phẩm không những cần có giá trị dinh dưỡng
+                    cao, mà còn phải khiến khách hàng cảm thấy ngon miệng. Vì thế, nhiệm vụ của chúng tôi
+                    là mang đến các sản phẩm đa dạng, ngon và bổ dưỡng cho các thế hệ hôm nay và mai sau.
                   </p>
                 </div>
-
-                <aside className="products-page__assurance" aria-label="Tiêu chuẩn sản phẩm">
-                  <div>
-                    <span className="products-page__assurance-label">Tiêu chuẩn xuất khẩu</span>
-                    <strong>{catalog.total} quy cách sản phẩm</strong>
-                    <p>ASC · BRC AA · HACCP · HALAL</p>
-                  </div>
-                  <Link to="/contact">
-                    Nhận tư vấn quy cách
-                    <span aria-hidden="true">→</span>
-                  </Link>
-                </aside>
               </div>
-            </div>
+            </section>
 
             <nav className="tpproductha" aria-label="Danh mục sản phẩm">
               <ul>
-                <li
-                  data-target="category-all"
-                  className={activeCategory === null ? 'active' : ''}
-                >
-                  <button type="button" onClick={selectAllProducts}>
-                    <span>{t('actions.all')}</span>
-                  </button>
+                <li className={activeCategory === null ? 'active' : ''}>
+                  <button type="button" onClick={() => setSearchParams({}, { preventScrollReset: true })} aria-pressed={activeCategory === null}><span>{t('actions.all')}</span></button>
                 </li>
                 {catalog.categories.map(category => (
-                  <li
-                    key={category.id}
-                    data-target={`category-${category.id}`}
-                    className={activeCategory?.id === category.id ? 'active' : ''}
-                  >
-                    <button type="button" onClick={() => selectCategory(category)}>
+                  <li key={category.id} className={activeCategory?.id === category.id ? 'active' : ''}>
+                    <button type="button" onClick={() => setSearchParams({ category: category.slug }, { preventScrollReset: true })} aria-pressed={activeCategory?.id === category.id}>
                       <span>{category.name}</span>
                     </button>
                   </li>
@@ -327,70 +282,20 @@ export default function ProductsPage() {
               </ul>
             </nav>
 
-            <div className="products-catalog__summary">
-              <div>
-                <span>Đang xem</span>
-                <h3>
-                  {loadError
-                    ? 'Không thể tải dữ liệu'
-                    : activeCategory?.name ?? (catalog.categories.length ? 'Tất cả sản phẩm' : 'Đang tải...')}
-                </h3>
-              </div>
-              <p>
-                {loadError
-                  ? 'Vui lòng thử tải lại trang.'
-                  : activeCategory?.description ?? (catalog.categories.length
-                    ? `Khám phá toàn bộ ${catalog.total} quy cách sản phẩm cá tra của IDI Seafood.`
-                    : '')}
-              </p>
-            </div>
-
-            <div className="tpproducthb">
-              <div
-                className={`hbconts${activeCategory === null ? ' active' : ''}`}
-                data-target="category-all"
-              >
-                <div className="slproducthb vhslickload">
-                  {allProducts.map(product => (
-                    <ProductCard
-                      key={product.id}
-                      product={product}
-                      category={product.categoryName}
-                      onOpen={() => openProduct(product, product.categoryName)}
-                    />
-                  ))}
-                </div>
-              </div>
-              {catalog.categories.map(category => (
-                <div
-                  key={category.id}
-                  className={`hbconts${activeCategory?.id === category.id ? ' active' : ''}`}
-                  data-target={`category-${category.id}`}
-                >
-                  <div className="slproducthb vhslickload">
-                    {category.products.map(product => (
-                      <ProductCard
-                        key={product.id}
-                        product={product}
-                        category={category.name}
-                        onOpen={() => openProduct(product, category.name)}
-                      />
-                    ))}
-                  </div>
-                </div>
+            <div className="slproducthb vhslickload">
+              {visibleProducts.map(product => (
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  category={product.categoryName ?? activeCategory?.name}
+                  onOpen={() => openProduct(product, product.categoryName ?? activeCategory?.name)}
+                />
               ))}
             </div>
           </div>
         </section>
       </main>
-
-      <ProductModal
-        product={selectedProduct}
-        isClosing={isModalClosing}
-        onClose={closeProduct}
-        closeButtonRef={closeButtonRef}
-        dialogRef={dialogRef}
-      />
+      <ProductModal product={selectedProduct} isClosing={isModalClosing} onClose={closeProduct} closeButtonRef={closeButtonRef} dialogRef={dialogRef} />
     </>
   )
 }

@@ -29,6 +29,14 @@ class ProductsApiTest extends TestCase
             ->assertJsonPath('categories.0.products.0.name', 'Cá Fillet, Tạo Hình Sạch')
             ->assertJsonPath('categories.0.products.0.sortOrder', 14)
             ->assertJsonPath('categories.0.products.0.sizes.0', '60g-120g')
+            ->assertJsonPath('categories.0.products.0.productSpecification', 'Phi lê có da, không xương, tách da, tách mỡ')
+            ->assertJsonPath('categories.0.products.0.presentation.0', 'Đông lạnh nhanh riêng lẻ')
+            ->assertJsonPath('categories.0.products.0.presentation.1', 'Đông lạnh khối')
+            ->assertJsonPath('categories.0.products.0.packaging', 'Bán sỉ đóng gói trong túi PE trơn, hoặc bán lẻ đóng gói trong túi in, gói hút chân không, v.v.')
+            ->assertJsonPath('categories.0.products.0.nutrition.calories', '82.7 Kcal')
+            ->assertJsonPath('categories.0.products.0.nutrition.protein', '15.50g')
+            ->assertJsonPath('categories.0.products.0.nutrition.fat', '1.86g')
+            ->assertJsonPath('categories.0.products.0.nutrition.saturated_fat', '0.66g')
             ->assertJsonPath('categories.0.products.0.image', 'https://idiseafood.com/vnt_upload/product/10_2020/dm2.jpg')
             ->assertJsonPath('categories.3.name', 'Các sản phẩm khác')
             ->assertJsonCount(3, 'categories.3.products');
@@ -51,10 +59,23 @@ class ProductsApiTest extends TestCase
         $this->getJson('/api/products/uc-ca-tra?locale=vi')
             ->assertOk()
             ->assertJsonPath('data.name', 'Ức Cá Tra')
-            ->assertJsonPath('data.shelfLife', '24 tháng');
+            ->assertJsonPath('data.productSpecification', 'Phi lê có da, không xương, tách da, tách mỡ')
+            ->assertJsonMissingPath('data.storageTemperature')
+            ->assertJsonMissingPath('data.certifications')
+            ->assertJsonMissingPath('data.origin')
+            ->assertJsonMissingPath('data.shelfLife');
 
         $this->getJson('/api/products/uc-ca-tra?locale=zh-CN')
             ->assertOk()
-            ->assertJsonPath('data.name', 'Pangasius Belly');
+            ->assertJsonPath('data.name', 'Pangasius Belly')
+            ->assertJsonPath('data.productSpecification', '带皮、去骨、去腹肉、去脂鱼片')
+            ->assertJsonPath('data.presentation.0', '单体速冻')
+            ->assertJsonPath('data.packaging', '批发采用普通 PE 袋包装，零售采用印刷袋、真空包装等。');
+
+        $this->getJson('/api/products/uc-ca-tra?locale=en')
+            ->assertOk()
+            ->assertJsonPath('data.productSpecification', 'Skin-on, Boneless, Belly-off, Fat-off Fillets')
+            ->assertJsonPath('data.presentation.0', 'Individually Quick Frozen')
+            ->assertJsonPath('data.packaging', 'Wholesales packaging in plain PE bags, or Retail packaging in printed bags, vacuum pack, etc.');
     }
 }

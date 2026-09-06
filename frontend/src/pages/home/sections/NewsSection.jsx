@@ -80,7 +80,7 @@ export default function NewsSection() {
   }, [pageConfig, response.featured, response.items])
 
   return (
-    <section className="bg-arctic-white py-20 lg:py-28">
+    <section className="bg-arctic-white py-16 lg:py-20">
       <div className="container">
         <div className="mb-12 flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
           <div>
@@ -94,7 +94,12 @@ export default function NewsSection() {
             </RevealOnScroll>
           </div>
           <RevealOnScroll direction="right">
-            <Link to="/news" className="btn btn-secondary whitespace-nowrap">{t('common.viewAll')} →</Link>
+            <Link to="/news" className="btn btn-secondary whitespace-nowrap">
+              {t('common.viewAll')}
+              <svg viewBox="0 0 20 20" fill="none" className="h-4 w-4" aria-hidden="true">
+                <path d="M4 10h12m-4-4 4 4-4 4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </Link>
           </RevealOnScroll>
         </div>
 
@@ -154,13 +159,24 @@ export default function NewsSection() {
                       {article.excerpt && (
                         <p className="flex-1 text-sm leading-relaxed text-storm-grey line-clamp-3">{article.excerpt}</p>
                       )}
-                      <div className="mt-5 flex items-center gap-3 text-xs font-semibold text-seafoam">
-                        <span className="inline-flex items-center gap-1.5">
-                          {t('common.readMore')} <span aria-hidden="true">→</span>
-                        </span>
+                      <div className="mt-6 flex items-center justify-between gap-4 border-t border-light-mist pt-4">
                         {pageConfig.showReadingTime && article.readTime > 0 && (
-                          <span className="font-medium text-storm-grey">{t('common.minutes', { count: article.readTime })}</span>
+                          <span className="inline-flex items-center gap-1.5 text-xs font-medium text-storm-grey">
+                            <svg viewBox="0 0 20 20" fill="none" className="h-4 w-4 text-mist-mid" aria-hidden="true">
+                              <circle cx="10" cy="10" r="7" stroke="currentColor" strokeWidth="1.5" />
+                              <path d="M10 6.5V10l2.5 1.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                            </svg>
+                            {t('common.minutes', { count: article.readTime })}
+                          </span>
                         )}
+                        <span className="ml-auto inline-flex items-center gap-2.5 text-sm font-bold text-seafoam">
+                          {t('common.readMore')}
+                          <span className="grid h-8 w-8 place-items-center rounded-full bg-seafoam-pale transition-all duration-300 group-hover:bg-seafoam group-hover:text-white" aria-hidden="true">
+                            <svg viewBox="0 0 20 20" fill="none" className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5">
+                              <path d="M4 10h12m-4-4 4 4-4 4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                            </svg>
+                          </span>
+                        </span>
                       </div>
                     </div>
                   </Link>

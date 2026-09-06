@@ -137,8 +137,7 @@ export default function PartnersCarousel() {
 
   return (
     <section
-      className="relative overflow-hidden border-y border-light-mist py-12 sm:py-16"
-      style={{ background: 'linear-gradient(135deg, #F8FAFB 0%, #EEF7F5 100%)' }}
+      className="relative overflow-hidden bg-arctic-white py-16 lg:py-20"
       aria-label={copy.label}
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}

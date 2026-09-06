@@ -98,9 +98,6 @@ export default function CoreValuesContent({ html }) {
   return (
     <div className="core-values-layout">
       <section className="core-values-showcase">
-        <header className="core-values-section-heading">
-          <h2>{values.title}</h2>
-        </header>
         <div className="core-values-grid">
           {values.items.map((item, index) => (
             <ValueCard item={item} index={index} key={`${item.title}-${index}`} />

@@ -16,6 +16,54 @@ const BENEFITS = [
   { number: '03', key: 'locations' },
 ]
 
+const JOBS_COPY = {
+  vi: {
+    eyebrow: 'Cơ hội tại IDI', title: 'Vị trí đang tuyển dụng',
+    role: 'Vị trí tuyển dụng', quantity: 'Số lượng', location: 'Nơi làm việc', apply: 'Ứng tuyển',
+    openings: 'vị trí', fullTime: 'Toàn thời gian',
+  },
+  en: {
+    eyebrow: 'Opportunities at IDI', title: 'Current openings',
+    role: 'Position', quantity: 'Openings', location: 'Location', apply: 'Apply now',
+    openings: 'positions', fullTime: 'Full-time',
+  },
+  'zh-CN': {
+    eyebrow: 'IDI 职业机会', title: '正在招聘的职位',
+    role: '招聘职位', quantity: '人数', location: '工作地点', apply: '立即申请',
+    openings: '个职位', fullTime: '全职',
+  },
+}
+
+const MOCK_JOB_OPENINGS = {
+  vi: [
+    { id: 'mock-sales', code: 'SALES_EXPORT_01', title: 'Chuyên viên kinh doanh xuất khẩu', department: 'Kinh doanh quốc tế', quantity: 2, location: 'Thành phố Hồ Chí Minh' },
+    { id: 'mock-qa', code: 'QA_SUPERVISOR_01', title: 'Giám sát đảm bảo chất lượng', department: 'Đảm bảo chất lượng', quantity: 1, location: 'Nhà máy Vàm Cống, Đồng Tháp' },
+    { id: 'mock-it', code: 'IT_SYSTEM_01', title: 'Nhân viên hệ thống công nghệ thông tin', department: 'Công nghệ thông tin', quantity: 2, location: 'Lấp Vò, Đồng Tháp' },
+    { id: 'mock-hr', code: 'HR_RECRUITMENT_01', title: 'Chuyên viên tuyển dụng và đào tạo', department: 'Nhân sự', quantity: 1, location: 'Lấp Vò, Đồng Tháp' },
+  ],
+  en: [
+    { id: 'mock-sales', code: 'SALES_EXPORT_01', title: 'Export sales executive', department: 'International Sales', quantity: 2, location: 'Ho Chi Minh City' },
+    { id: 'mock-qa', code: 'QA_SUPERVISOR_01', title: 'Quality assurance supervisor', department: 'Quality Assurance', quantity: 1, location: 'Vam Cong Factory, Dong Thap' },
+    { id: 'mock-it', code: 'IT_SYSTEM_01', title: 'IT systems specialist', department: 'Information Technology', quantity: 2, location: 'Lap Vo, Dong Thap' },
+    { id: 'mock-hr', code: 'HR_RECRUITMENT_01', title: 'Recruitment and training specialist', department: 'Human Resources', quantity: 1, location: 'Lap Vo, Dong Thap' },
+  ],
+  'zh-CN': [
+    { id: 'mock-sales', code: 'SALES_EXPORT_01', title: '出口销售专员', department: '国际销售部', quantity: 2, location: '胡志明市' },
+    { id: 'mock-qa', code: 'QA_SUPERVISOR_01', title: '质量保证主管', department: '质量保证部', quantity: 1, location: '同塔省 Vam Cong 工厂' },
+    { id: 'mock-it', code: 'IT_SYSTEM_01', title: '信息技术系统专员', department: '信息技术部', quantity: 2, location: '同塔省立武县' },
+    { id: 'mock-hr', code: 'HR_RECRUITMENT_01', title: '招聘与培训专员', department: '人力资源部', quantity: 1, location: '同塔省立武县' },
+  ],
+}
+
+function LocationIcon() {
+  return (
+    <svg viewBox="0 0 20 20" fill="none" className="h-4 w-4 shrink-0" aria-hidden="true">
+      <path d="M15.5 8.2c0 4.1-5.5 8.3-5.5 8.3S4.5 12.3 4.5 8.2a5.5 5.5 0 1 1 11 0Z" stroke="currentColor" strokeWidth="1.4" />
+      <circle cx="10" cy="8" r="1.8" stroke="currentColor" strokeWidth="1.4" />
+    </svg>
+  )
+}
+
 const INITIAL_FORM = {
   jobPositionId: '',
   fullName: '',
@@ -76,6 +124,8 @@ function FormField({ label, name, error, children }) {
 
 export default function CareersPage() {
   const { language, t } = useLanguage()
+  const jobsCopy = JOBS_COPY[language] ?? JOBS_COPY.vi
+  const mockJobs = MOCK_JOB_OPENINGS[language] ?? MOCK_JOB_OPENINGS.vi
   const [form, setForm] = useState(INITIAL_FORM)
   const [openings, setOpenings] = useState([])
   const [pageConfig, setPageConfig] = useState(null)
@@ -83,6 +133,7 @@ export default function CareersPage() {
   const [errors, setErrors] = useState({})
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [referenceId, setReferenceId] = useState('')
+  const [pendingJobCode, setPendingJobCode] = useState('')
   const fileInputRef = useRef(null)
 
   useEffect(() => {
@@ -104,8 +155,19 @@ export default function CareersPage() {
     return () => { active = false }
   }, [language])
 
+  useEffect(() => {
+    if (!pendingJobCode) return
+
+    const selectedOpening = openings.find(opening => opening.code === pendingJobCode)
+    if (!selectedOpening) return
+
+    setForm(current => ({ ...current, jobPositionId: String(selectedOpening.id) }))
+    setErrors(current => ({ ...current, jobPositionId: '' }))
+    setPendingJobCode('')
+  }, [openings, pendingJobCode])
+
   const inputClass = (name) => [
-    'h-12 w-full rounded-xl border bg-white px-4 text-sm text-ink outline-none transition',
+    'h-12 w-full rounded-lg border bg-white px-4 text-sm text-ink outline-none transition',
     'placeholder:text-storm-grey/55 focus:ring-2',
     errors[name]
       ? 'border-[#D46A5A] focus:border-[#D46A5A] focus:ring-[#D46A5A]/15'
@@ -164,6 +226,19 @@ export default function CareersPage() {
     setReferenceId('')
   }
 
+  const selectJobForApplication = (job) => {
+    const selectedOpening = openings.find(opening => opening.code === job.code)
+
+    setReferenceId('')
+    setPendingJobCode(selectedOpening ? '' : job.code)
+    if (selectedOpening) {
+      setForm(current => ({ ...current, jobPositionId: String(selectedOpening.id) }))
+      setErrors(current => ({ ...current, jobPositionId: '' }))
+    }
+
+    document.getElementById('ung-tuyen')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
+
   return (
     <>
       <PageHead
@@ -211,14 +286,16 @@ export default function CareersPage() {
                 {t('careers.workplace.title')}
               </h2>
               <div className="mt-6 h-1 w-20 rounded-full bg-coral-gold" />
-              {pageConfig?.description ? (
-                <div className="mt-7 max-w-2xl space-y-5 text-lg leading-9 text-slate" dangerouslySetInnerHTML={{ __html: pageConfig.description }} />
-              ) : (
-                <>
-                  <p className="mt-7 max-w-2xl text-lg leading-9 text-slate">{t('careers.workplace.paragraph1')}</p>
-                  <p className="mt-5 max-w-2xl leading-8 text-storm-grey">{t('careers.workplace.paragraph2')}</p>
-                </>
-              )}
+              <div className="careers-workplace-copy mt-7 max-w-2xl">
+                {pageConfig?.description ? (
+                  <div dangerouslySetInnerHTML={{ __html: pageConfig.description }} />
+                ) : (
+                  <>
+                    <p>{t('careers.workplace.paragraph1')}</p>
+                    <p>{t('careers.workplace.paragraph2')}</p>
+                  </>
+                )}
+              </div>
             </div>
 
             <div className="relative">
@@ -238,7 +315,7 @@ export default function CareersPage() {
           </div>
         </section>
 
-        <section className="section-padding bg-arctic-white">
+        <section className="section-padding bg-white">
           <div className="container">
             <div className="mb-12 max-w-2xl">
               <span className="section-eyebrow">{t('careers.benefits.eyebrow')}</span>
@@ -295,25 +372,94 @@ export default function CareersPage() {
           </div>
         </section>
 
-        <section id="ung-tuyen" className="scroll-mt-20 bg-seafoam-pale/45 section-padding-lg">
-          <div className="container grid overflow-hidden rounded-3xl border border-seafoam/15 bg-white shadow-[0_35px_90px_-50px_rgba(11,37,69,0.6)] lg:grid-cols-[0.72fr_1.28fr]">
-            <aside className="relative overflow-hidden bg-ocean-deep p-7 text-white sm:p-10 lg:p-12">
-              <div
-                className="absolute inset-0 opacity-30"
-                style={{ background: 'radial-gradient(circle at 0% 100%, #1A936F, transparent 46%)' }}
-              />
-              <div className="relative z-10">
-                <span className="text-xs font-bold uppercase tracking-[0.2em] text-coral-light">
-                  {t('careers.application.eyebrow')}
-                </span>
-                <h2 className="mt-4 text-3xl font-extrabold text-white sm:text-4xl">
-                  {t('careers.application.title')}
+        <section className="section-padding bg-arctic-white" aria-labelledby="career-openings-title">
+          <div className="container">
+            <div className="flex flex-col gap-6 border-b border-mist-mid pb-7 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <span className="section-eyebrow">{jobsCopy.eyebrow}</span>
+                <h2 id="career-openings-title" className="max-w-2xl text-balance text-ocean-deep">
+                  {jobsCopy.title}
                 </h2>
-                {pageConfig?.contactContent ? (
-                  <div className="mt-5 leading-8 text-white/70" dangerouslySetInnerHTML={{ __html: pageConfig.contactContent }} />
-                ) : (
-                  <p className="mt-5 leading-8 text-white/65">{t('careers.application.description')}</p>
-                )}
+              </div>
+              <div className="flex shrink-0 items-baseline gap-2 border-l-2 border-seafoam py-1 pl-4">
+                <strong className="text-3xl font-bold leading-none tabular-nums text-ocean-deep">{mockJobs.length}</strong>
+                <span className="text-xs font-bold uppercase tracking-[0.13em] text-seafoam">{jobsCopy.openings}</span>
+              </div>
+            </div>
+
+            <div className="mt-8">
+              <div className="hidden grid-cols-[minmax(0,1.45fr)_minmax(7rem,0.35fr)_minmax(14rem,0.65fr)_8.5rem] gap-6 border-b border-mist-mid px-5 pb-4 text-xs font-bold uppercase tracking-[0.1em] text-storm-grey lg:grid">
+                <span>{jobsCopy.role}</span>
+                <span>{jobsCopy.quantity}</span>
+                <span>{jobsCopy.location}</span>
+                <span className="sr-only">{jobsCopy.apply}</span>
+              </div>
+
+              <div className="grid gap-4 lg:gap-0">
+                {mockJobs.map((job, index) => (
+                  <article
+                    key={job.id}
+                    className="group grid gap-6 border border-light-mist bg-white p-5 transition-colors hover:border-seafoam/45 sm:p-6 lg:grid-cols-[minmax(0,1.45fr)_minmax(7rem,0.35fr)_minmax(14rem,0.65fr)_8.5rem] lg:items-center lg:border-x-0 lg:border-t-0 lg:px-5 lg:py-7 lg:hover:bg-seafoam-pale/35"
+                  >
+                    <div className="min-w-0">
+                      <div className="flex items-start gap-4">
+                        <span className="mt-1 text-xs font-bold tabular-nums text-seafoam" aria-hidden="true">
+                          {String(index + 1).padStart(2, '0')}
+                        </span>
+                        <div>
+                          <h3 className="text-lg font-bold leading-snug text-ocean-deep transition-colors group-hover:text-seafoam">
+                            {job.title}
+                          </h3>
+                          <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
+                            <span className="font-semibold text-storm-grey">{job.department}</span>
+                            <span className="h-1 w-1 rounded-full bg-mist-mid" aria-hidden="true" />
+                            <span className="text-storm-grey">{jobsCopy.fullTime}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div>
+                      <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-storm-grey lg:hidden">{jobsCopy.quantity}</span>
+                      <strong className="text-lg font-bold tabular-nums text-ocean-deep">{job.quantity}</strong>
+                    </div>
+
+                    <div>
+                      <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-storm-grey lg:hidden">{jobsCopy.location}</span>
+                      <p className="flex items-start gap-2 text-sm leading-6 text-slate"><LocationIcon /> {job.location}</p>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => selectJobForApplication(job)}
+                      className="inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 border border-ocean-deep px-4 text-sm font-semibold text-ocean-deep transition-colors hover:bg-ocean-deep hover:text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-seafoam"
+                      aria-label={`${jobsCopy.apply}: ${job.title}`}
+                    >
+                      {jobsCopy.apply} <span aria-hidden="true">→</span>
+                    </button>
+                  </article>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="ung-tuyen" className="scroll-mt-20 bg-[#F2F7F5] section-padding-lg">
+          <div className="container">
+            <div className="grid overflow-hidden rounded-[1.5rem] border border-[#D8E5E0] bg-white shadow-[0_30px_80px_-52px_rgba(11,37,69,0.55)] lg:grid-cols-[0.72fr_1.28fr]">
+              <aside className="relative overflow-hidden bg-ocean-deep p-7 text-white sm:p-10 lg:p-12">
+                <div className="relative z-10">
+                  <span className="text-xs font-bold uppercase tracking-[0.2em] text-coral-light">
+                    {t('careers.application.eyebrow')}
+                  </span>
+                  <h2 className="mt-4 text-3xl font-extrabold text-white sm:text-4xl">
+                    {t('careers.application.title')}
+                  </h2>
+                  {pageConfig?.contactContent ? (
+                    <div className="careers-application-copy mt-5" dangerouslySetInnerHTML={{ __html: pageConfig.contactContent }} />
+                  ) : (
+                    <p className="mt-5 leading-8 text-white/72">{t('careers.application.description')}</p>
+                  )}
 
                 <div className="mt-10 space-y-5 border-t border-white/12 pt-8">
                   {['privacy', 'proactive', 'response'].map(item => (
@@ -324,7 +470,7 @@ export default function CareersPage() {
                   ))}
                 </div>
 
-                <div className="mt-10 rounded-2xl border border-white/10 bg-white/5 p-5">
+                <div className="mt-10 rounded-xl border border-white/12 bg-white/[0.06] p-5">
                   <span className="block text-xs font-bold uppercase tracking-[0.14em] text-seafoam-light">
                     {t('careers.application.support')}
                   </span>
@@ -335,10 +481,10 @@ export default function CareersPage() {
                     info@idiseafood.com
                   </a>
                 </div>
-              </div>
-            </aside>
+                </div>
+              </aside>
 
-            <section className="p-6 sm:p-10 lg:p-12">
+              <section className="bg-white p-6 sm:p-10 lg:p-12">
               {referenceId ? (
                 <div className="flex min-h-[36rem] flex-col items-center justify-center text-center" role="status">
                   <div className="mb-6 grid h-20 w-20 place-items-center rounded-full bg-seafoam-pale text-3xl text-seafoam">
@@ -471,7 +617,7 @@ export default function CareersPage() {
                       <FormField label={t('careers.application.cv')} name="cv" error={errors.cv}>
                         <div
                           className={[
-                            'rounded-xl border border-dashed bg-arctic-white p-5 transition',
+                            'rounded-lg border border-dashed bg-arctic-white p-5 transition',
                             errors.cv ? 'border-[#D46A5A]' : 'border-mist-mid focus-within:border-seafoam',
                           ].join(' ')}
                         >
@@ -509,7 +655,8 @@ export default function CareersPage() {
                   </form>
                 </>
               )}
-            </section>
+              </section>
+            </div>
           </div>
         </section>
 

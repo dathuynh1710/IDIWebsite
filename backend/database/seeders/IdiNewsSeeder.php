@@ -324,7 +324,7 @@ class IdiNewsSeeder extends Seeder
         return [
             [
                 'code' => 'IDI_NEWS_20260427_AGM',
-                'category' => null,
+                'category' => 'activity',
                 'published_at' => '2026-04-27',
                 'title' => 'I.D.I TỔ CHỨC ĐẠI HỘI ĐỒNG CỔ ĐÔNG THƯỜNG NIÊN NĂM 2026',
                 'slug' => 'i-d-i-to-chuc-dai-hoi-dong-co-dong-thuong-nien-nam-2026',
@@ -430,7 +430,7 @@ HTML,
             ],
             [
                 'code' => 'IDI_NEWS_20240729_PATAGONIA_PARTNERSHIP',
-                'category' => null,
+                'category' => 'activity',
                 'published_at' => '2024-07-29',
                 'title' => 'KÝ KẾT ĐỐI TÁC CHIẾN LƯỢC PHÁT TRIỂN THỊ TRƯỜNG MỸ VÀ NAM MỸ',
                 'slug' => 'ky-ket-doi-tac-chien-luoc-phat-trien-thi-truong-my-va-nam-my',
@@ -451,7 +451,7 @@ HTML,
             ],
             [
                 'code' => 'IDI_NEWS_20240606_THAIFEX',
-                'category' => null,
+                'category' => 'activity',
                 'published_at' => '2024-06-06',
                 'title' => 'I.D.I CÓ MẶT THAM GIA HỘI CHỢ F&B THAIFEX – ANUGA ASIA 2024 TẠI THÁI LAN',
                 'slug' => 'i-d-i-co-mat-tham-gia-hoi-cho-f-b-thaifex-1717682545',

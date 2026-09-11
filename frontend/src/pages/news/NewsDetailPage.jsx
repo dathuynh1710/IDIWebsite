@@ -1,5 +1,6 @@
-import { Fragment, useEffect, useMemo, useState } from 'react'
+import { Fragment, useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router'
+import NewsImage from '@components/common/NewsImage'
 import PageHead from '@components/common/PageHead'
 import { useLanguage } from '@hooks/useLanguage'
 import { useScrollProgress } from '@hooks/useScrollProgress'
@@ -10,22 +11,7 @@ import {
 } from '@services/news.service'
 import { SITE_URL } from '@utils/constants'
 
-const CATEGORY_STYLES = [
-  'bg-[#EBF4FF] text-ocean-deep',
-  'bg-seafoam-pale text-seafoam',
-  'bg-coral-pale text-[#9A6517]',
-  'bg-[#F1EEFF] text-[#6246A8]',
-  'bg-[#E9F7FB] text-[#176B87]',
-  'bg-[#FFF1EA] text-[#A5542D]',
-]
-
 const DATE_LOCALES = { vi: 'vi-VN', en: 'en-US', 'zh-CN': 'zh-CN' }
-
-function categoryStyle(category) {
-  const token = `${category?.code ?? ''}${category?.slug ?? ''}${category?.name ?? ''}`
-  const score = Array.from(token).reduce((total, character) => total + character.charCodeAt(0), 0)
-  return CATEGORY_STYLES[score % CATEGORY_STYLES.length]
-}
 
 function formatDate(date, language) {
   if (!date) return ''
@@ -83,8 +69,8 @@ function ArticleBlock({ block, index }) {
           id={block.id ?? `noi-dung-${index}`}
           className={
             Heading === 'h2'
-              ? 'scroll-mt-28 pt-5 text-2xl font-black leading-tight text-ocean-deep sm:text-3xl'
-              : 'scroll-mt-28 pt-3 text-xl font-extrabold leading-tight text-ocean-deep sm:text-2xl'
+              ? 'w-full scroll-mt-28 pt-5 text-2xl font-black leading-tight text-ocean-deep sm:text-3xl'
+              : 'w-full scroll-mt-28 pt-3 text-xl font-extrabold leading-tight text-ocean-deep sm:text-2xl'
           }
         >
           <InlineContent nodes={block.children} fallback={block.text} />
@@ -181,7 +167,7 @@ function ArticleBlock({ block, index }) {
 
     default:
       return (
-        <p className={block.lead ? 'text-xl font-medium leading-9 text-slate' : 'text-base leading-8 text-slate sm:text-lg sm:leading-9'}>
+        <p className={block.lead ? 'text-justify text-xl font-medium leading-9 text-slate' : 'text-justify text-base leading-8 text-slate sm:text-lg sm:leading-9'}>
           <InlineContent nodes={block.children} fallback={block.text} />
         </p>
       )
@@ -190,57 +176,35 @@ function ArticleBlock({ block, index }) {
 
 function RelatedCard({ article, pageConfig, language }) {
   const date = formatDate(article.publishedAt, language)
+
   return (
-    <article className="group overflow-hidden rounded-2xl border border-light-mist bg-white">
-      <Link to={`/news/${article.slug}`} className="relative block aspect-[16/10] overflow-hidden bg-gradient-to-br from-ocean-deep to-seafoam" aria-label={`Đọc bài: ${article.title}`}>
-        {article.imageUrl ? (
-          <img
-            src={article.imageUrl}
-            alt={article.imageAlt || article.title}
-            className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-            loading="lazy"
-            onError={event => { event.currentTarget.style.display = 'none' }}
-          />
-        ) : pageConfig.showPlaceholderImage ? (
-          <span className="absolute inset-0 grid place-items-center text-3xl font-black tracking-[0.2em] text-white/45">IDI</span>
-        ) : null}
+    <article className="group border-b border-light-mist pb-6 last:border-b-0 last:pb-0">
+      <Link to={`/news/${article.slug}`} className="relative block aspect-[4/3] overflow-hidden bg-light-mist" aria-label={`Đọc bài: ${article.title}`}>
+        <NewsImage
+          article={article}
+          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.025]"
+        />
       </Link>
-      <div className="p-5">
-        <div className="mb-3 flex flex-wrap items-center gap-2 text-xs text-storm-grey">
-          {article.category && <span className="font-bold text-seafoam">{article.category.name}</span>}
-          {article.category && pageConfig.showPublishedDate && date && <span aria-hidden="true">·</span>}
-          {pageConfig.showPublishedDate && date && <time dateTime={article.publishedAt}>{date}</time>}
-        </div>
-        <h3 className="text-lg font-bold leading-snug text-ocean-deep group-hover:text-seafoam">
-          <Link to={`/news/${article.slug}`}>{article.title}</Link>
-        </h3>
-      </div>
+      <h3 className="mt-4 text-base font-bold leading-snug text-ocean-deep transition-colors group-hover:text-seafoam">
+        <Link to={`/news/${article.slug}`}>{article.title}</Link>
+      </h3>
+      {pageConfig.showPublishedDate && date && (
+        <time dateTime={article.publishedAt} className="mt-2 block text-xs text-storm-grey">{date}</time>
+      )}
     </article>
   )
 }
 
-function HeroMedia({ article, showPlaceholder }) {
-  const [failed, setFailed] = useState(false)
-  const showImage = article.imageUrl && !failed
-
-  if (!showImage && !showPlaceholder) return null
-
+function HeroMedia({ article }) {
   return (
-    <div className="container relative z-10 -mt-20 lg:-mt-28">
-      <figure className="relative min-h-[18rem] overflow-hidden rounded-3xl bg-gradient-to-br from-ocean-deep to-seafoam shadow-2xl lg:min-h-[34rem]">
-        {showImage ? (
-          <img
-            src={article.imageUrl}
-            alt={article.imageAlt || article.title}
-            className="absolute inset-0 h-full w-full object-cover"
-            fetchPriority="high"
-            onError={() => setFailed(true)}
-          />
-        ) : (
-          <span className="absolute inset-0 grid place-items-center text-5xl font-black tracking-[0.2em] text-white/45">IDI</span>
-        )}
-      </figure>
-    </div>
+    <figure className="relative aspect-[16/10] overflow-hidden bg-light-mist">
+      <NewsImage
+        article={article}
+        className="absolute inset-0 h-full w-full object-cover"
+        loading="eager"
+        fetchPriority="high"
+      />
+    </figure>
   )
 }
 
@@ -280,13 +244,12 @@ function ErrorState({ notFound, onRetry }) {
 
 export default function NewsDetailPage() {
   const { slug } = useParams()
-  const { language, t } = useLanguage()
+  const { language } = useLanguage()
   const progress = useScrollProgress()
   const [article, setArticle] = useState(null)
   const [pageConfig, setPageConfig] = useState(DEFAULT_NEWS_PAGE_CONFIG)
   const [related, setRelated] = useState([])
   const [status, setStatus] = useState('loading')
-  const [copyStatus, setCopyStatus] = useState('idle')
   const [requestKey, setRequestKey] = useState(0)
 
   useEffect(() => {
@@ -295,7 +258,6 @@ export default function NewsDetailPage() {
     setStatus('loading')
     setArticle(null)
     setRelated([])
-    setCopyStatus('idle')
 
     newsService.getBySlug(slug, { locale: language, signal: controller.signal })
       .then(async ({ article: data, pageConfig: config }) => {
@@ -322,31 +284,13 @@ export default function NewsDetailPage() {
     return () => controller.abort()
   }, [language, requestKey, slug])
 
-  const headings = useMemo(() => (
-    (article?.content ?? [])
-      .filter(block => block.type === 'heading')
-      .map((block, index) => ({ id: block.id ?? `noi-dung-${index}`, text: block.text }))
-  ), [article])
-
-  const shareUrl = typeof window === 'undefined' ? '' : window.location.href
-
-  const copyLink = async () => {
-    try {
-      await navigator.clipboard.writeText(shareUrl)
-      setCopyStatus('copied')
-      window.setTimeout(() => setCopyStatus('idle'), 1800)
-    } catch {
-      setCopyStatus('failed')
-    }
-  }
-
   if (status === 'loading') return <LoadingState />
   if (status === 'not-found') return <ErrorState notFound />
   if (status === 'error') return <ErrorState onRetry={() => setRequestKey(key => key + 1)} />
   if (!article) return null
 
   const date = formatDate(article.publishedAt, language)
-  const hasHeroMedia = Boolean(article.imageUrl || pageConfig.showPlaceholderImage)
+  const showRelated = pageConfig.showRelatedArticles && related.length > 0
 
   return (
     <>
@@ -363,108 +307,47 @@ export default function NewsDetailPage() {
 
       <div className="fixed left-0 top-0 z-[110] h-1 bg-coral-gold transition-[width] duration-150" style={{ width: `${progress}%` }} role="progressbar" aria-label="Tiến độ đọc bài" aria-valuemin="0" aria-valuemax="100" aria-valuenow={progress} />
 
-      <article className="bg-white">
-        <header className={`relative overflow-hidden bg-ocean-deep pt-28 text-white lg:pt-36 ${hasHeroMedia ? 'pb-32 lg:pb-48' : 'pb-20 lg:pb-28'}`}>
-          <div className="absolute inset-0 opacity-20" style={{ background: 'radial-gradient(circle at 85% 10%, #1A936F 0%, transparent 35%), radial-gradient(circle at 10% 90%, #E8A045 0%, transparent 28%)' }} />
-          <div className="container relative z-10">
-            {pageConfig.showBreadcrumb && (
-              <nav aria-label="Đường dẫn" className="mb-10 flex flex-wrap items-center gap-2 text-sm text-white/55">
-                <Link to="/" className="hover:text-white">Trang chủ</Link><span aria-hidden="true">/</span>
-                <Link to="/news" className="hover:text-white">Tin tức</Link><span aria-hidden="true">/</span>
-                <span className="max-w-xs truncate text-white/80" aria-current="page">{article.title}</span>
-              </nav>
-            )}
-            <div className="max-w-5xl">
-              {article.category && <span className={`inline-flex rounded-full px-4 py-1.5 text-xs font-bold ${categoryStyle(article.category)}`}>{article.category.name}</span>}
-              <h1 className="mt-6 max-w-5xl text-h1 font-black leading-[1.08] text-white text-balance">{article.title}</h1>
-              {article.excerpt && <p className="mt-6 max-w-3xl text-lg leading-8 text-white/65 sm:text-xl">{article.excerpt}</p>}
-              <div className="mt-8 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-white/60">
-                {pageConfig.showAuthor && article.authorName && <span className="font-bold text-white">{article.authorName}</span>}
-                {pageConfig.showPublishedDate && date && <time dateTime={article.publishedAt}>{date}</time>}
-                {pageConfig.showReadingTime && article.readTime > 0 && <span>{article.readTime} phút đọc</span>}
-                {pageConfig.showViewCount && article.viewCount > 0 && <span>{article.viewCount.toLocaleString(DATE_LOCALES[language])} lượt xem</span>}
+      <article className="bg-white pb-20 pt-28 lg:pb-28 lg:pt-36">
+        <div className="container">
+          <header className="border-b border-mist-mid pb-9 lg:pb-12">
+            <div className="w-full">
+              <div className="flex flex-wrap items-center gap-3 text-sm">
+                {article.category && <span className="font-bold uppercase tracking-[0.1em] text-seafoam">{article.category.name}</span>}
+                {article.category && pageConfig.showPublishedDate && date && <span className="text-mist-mid" aria-hidden="true">•</span>}
+                {pageConfig.showPublishedDate && date && <time dateTime={article.publishedAt} className="text-storm-grey">{date}</time>}
+              </div>
+              <h1 className="mt-5 max-w-[80rem] text-[clamp(2.25rem,4.2vw,4rem)] font-bold leading-[1.2] tracking-[-0.035em] text-ocean-deep text-balance">{article.title}</h1>
+            </div>
+          </header>
+
+          <div className={`grid gap-14 pt-10 lg:items-start lg:gap-16 lg:pt-14 ${showRelated ? 'lg:grid-cols-[minmax(0,1fr)_18rem]' : 'mx-auto max-w-4xl'}`}>
+            <div className="min-w-0">
+              <HeroMedia article={article} />
+
+              <div className="mt-10 w-full space-y-7 lg:mt-12">
+                {article.content.length > 0 ? article.content.map((block, index) => (
+                  <ArticleBlock key={`${block.type}-${block.id ?? index}`} block={block} index={index} />
+                )) : (
+                  <p className="border border-dashed border-mist-mid bg-arctic-white p-6 text-lg">Nội dung bài viết đang được cập nhật.</p>
+                )}
+
               </div>
             </div>
-          </div>
-        </header>
 
-        <HeroMedia article={article} showPlaceholder={pageConfig.showPlaceholderImage} />
-
-        <div className={`container grid gap-12 py-16 lg:grid-cols-[14rem_minmax(0,46rem)] lg:justify-center lg:gap-16 ${hasHeroMedia ? 'lg:py-24' : 'lg:py-20'}`}>
-          <aside className="lg:sticky lg:top-28 lg:self-start">
-            {headings.length > 0 && (
-              <div className="border-b border-light-mist pb-7">
-                <p className="mb-4 text-xs font-black uppercase tracking-[0.14em] text-ocean-deep">Trong bài viết</p>
-                <nav aria-label="Mục lục bài viết">
-                  <ol className="space-y-3">
-                    {headings.map((heading, index) => (
-                      <li key={heading.id}>
-                        <a href={`#${heading.id}`} className="flex gap-3 text-sm leading-5 text-storm-grey hover:text-seafoam">
-                          <span className="font-bold text-seafoam">{String(index + 1).padStart(2, '0')}</span><span>{heading.text}</span>
-                        </a>
-                      </li>
-                    ))}
-                  </ol>
-                </nav>
-              </div>
-            )}
-
-            {(pageConfig.showSocialShare || pageConfig.allowPrint || (pageConfig.showArticleSource && article.sourceUrl)) && (
-              <div className="space-y-2 pt-7">
-                <p className="mb-3 text-xs font-black uppercase tracking-[0.14em] text-ocean-deep">Tiện ích bài viết</p>
-                {pageConfig.showSocialShare && (
-                  <button type="button" onClick={copyLink} className="w-full rounded-lg border border-light-mist px-4 py-2.5 text-left text-sm font-bold text-ocean-deep transition hover:border-seafoam hover:text-seafoam">{t(`newsDetail.${copyStatus === 'idle' ? 'copyLink' : copyStatus === 'failed' ? 'copyFailed' : 'copied'}`)}</button>
-                )}
-                {pageConfig.allowPrint && (
-                  <button type="button" onClick={() => window.print()} className="w-full rounded-lg border border-light-mist px-4 py-2.5 text-left text-sm font-bold text-ocean-deep transition hover:border-seafoam hover:text-seafoam">{t('actions.printArticle')}</button>
-                )}
-                {pageConfig.showArticleSource && article.sourceUrl && (
-                  <a href={article.sourceUrl} target="_blank" rel="noreferrer noopener" className="block w-full rounded-lg border border-light-mist px-4 py-2.5 text-sm font-bold text-ocean-deep transition hover:border-seafoam hover:text-seafoam">Xem nguồn bài viết ↗</a>
-                )}
-              </div>
-            )}
-          </aside>
-
-          <div className="min-w-0 space-y-7">
-            {article.content.length > 0 ? article.content.map((block, index) => (
-              <ArticleBlock key={`${block.type}-${block.id ?? index}`} block={block} index={index} />
-            )) : (
-              <p className="rounded-xl bg-arctic-white p-6 text-lg">Nội dung bài viết đang được cập nhật.</p>
-            )}
-
-            {(pageConfig.showTags || (pageConfig.showAuthor && article.authorName)) && (
-              <footer className="mt-12 border-t border-light-mist pt-8">
-                {pageConfig.showTags && article.tags.length > 0 && (
-                  <div className="flex flex-wrap gap-2">
-                    {article.tags.map(tag => <span key={tag} className="rounded-full bg-arctic-white px-3 py-1.5 text-xs font-bold text-storm-grey">#{tag}</span>)}
-                  </div>
-                )}
-                {pageConfig.showAuthor && article.authorName && (
-                  <div className="mt-8 rounded-2xl border border-light-mist bg-arctic-white p-6">
-                    <span className="text-xs font-bold uppercase tracking-[0.12em] text-seafoam">Tác giả</span>
-                    <h3 className="mt-2 text-lg font-black text-ocean-deep">{article.authorName}</h3>
-                    {article.authorRole && <p className="mt-1 text-sm">{article.authorRole}</p>}
-                  </div>
-                )}
-              </footer>
+            {showRelated && (
+              <aside className="border-t-2 border-ocean-deep pt-5 lg:sticky lg:top-28" aria-labelledby="related-news-title">
+                <div className="mb-7 flex items-center justify-between gap-4">
+                  <h2 id="related-news-title" className="text-xl font-bold text-ocean-deep">Tin liên quan</h2>
+                  <Link to="/news" className="shrink-0 text-sm font-semibold text-seafoam hover:text-ocean-deep">Xem tất cả</Link>
+                </div>
+                <div className="space-y-6">
+                  {related.map(item => <RelatedCard key={item.id} article={item} pageConfig={pageConfig} language={language} />)}
+                </div>
+              </aside>
             )}
           </div>
         </div>
       </article>
-
-      {pageConfig.showRelatedArticles && related.length > 0 && (
-        <section className="border-t border-light-mist bg-arctic-white py-20 lg:py-24">
-          <div className="container">
-            <div className="mb-9 flex flex-wrap items-end justify-between gap-4">
-              <div><span className="section-eyebrow">Tiếp tục khám phá</span><h2 className="text-h2 font-black text-ocean-deep">Bài viết liên quan</h2></div>
-              <Link to="/news" className="font-bold text-seafoam hover:text-ocean-deep">{t('common.viewAll')} →</Link>
-            </div>
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {related.map(item => <RelatedCard key={item.id} article={item} pageConfig={pageConfig} language={language} />)}
-            </div>
-          </div>
-        </section>
-      )}
     </>
   )
 }

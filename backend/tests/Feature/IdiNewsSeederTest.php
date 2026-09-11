@@ -31,7 +31,13 @@ class IdiNewsSeederTest extends TestCase
             $latest->getTranslation('title', 'vi')
         );
         $this->assertSame('2026-04-27 00:00:00', $latest->getTranslation('locale_published_at', 'vi'));
-        $this->assertNull($latest->post_category_id);
+        $this->assertSame('ACTIVITY_NEWS', $latest->category?->code);
+
+        $this->assertSame(
+            0,
+            Post::query()->whereNull('post_category_id')->count(),
+            'Every seeded news article should belong to a category.'
+        );
 
         $award = Post::query()
             ->with(['featuredMedia', 'tags'])

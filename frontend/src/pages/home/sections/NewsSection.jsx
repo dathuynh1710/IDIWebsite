@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router'
+import NewsImage from '@components/common/NewsImage'
 import RevealOnScroll from '@components/common/RevealOnScroll'
 import { useLanguage } from '@hooks/useLanguage'
 import { DEFAULT_NEWS_PAGE_CONFIG, newsService } from '@services/news.service'
@@ -129,19 +130,11 @@ export default function NewsSection() {
                     className="group flex h-full flex-col overflow-hidden rounded-2xl border border-light-mist bg-white transition-all duration-300 hover:-translate-y-1 hover:border-transparent hover:shadow-xl"
                   >
                     <div className="relative aspect-[16/9] flex-shrink-0 overflow-hidden bg-gradient-to-br from-ocean-deep to-seafoam">
-                      {article.imageUrl ? (
-                        <img
-                          src={article.imageUrl}
-                          alt={article.imageAlt || article.title}
-                          className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-                          loading={pageConfig.lazyLoadImages ? 'lazy' : 'eager'}
-                          onError={(event) => {
-                            event.currentTarget.style.display = 'none'
-                          }}
-                        />
-                      ) : pageConfig.showPlaceholderImage ? (
-                        <span className="absolute inset-0 grid place-items-center text-3xl font-black tracking-[0.2em] text-white/45">IDI</span>
-                      ) : null}
+                      <NewsImage
+                        article={article}
+                        className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                        loading={pageConfig.lazyLoadImages ? 'lazy' : 'eager'}
+                      />
                     </div>
 
                     <div className="flex flex-1 flex-col p-6">

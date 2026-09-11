@@ -7,7 +7,6 @@ export default function AnnualReportsPage() {
       title="Báo cáo thường niên"
       description="Tổng quan hoạt động, quản trị và định hướng phát triển của IDI qua từng năm."
       libraryTitle="Kho báo cáo thường niên"
-      libraryDescription="Xem và tải báo cáo thường niên được công bố chính thức từ hệ thống IDI."
     />
   )
 }

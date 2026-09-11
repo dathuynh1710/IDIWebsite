@@ -7,7 +7,6 @@ export default function AGMPage() {
       title="Đại hội đồng cổ đông"
       description="Thư mời, tài liệu họp, biểu mẫu, biên bản và nghị quyết Đại hội đồng cổ đông của IDI."
       libraryTitle="Hồ sơ Đại hội đồng cổ đông"
-      libraryDescription="Tài liệu được sắp xếp theo ngày công bố và có thể lọc nhanh theo năm."
     />
   )
 }

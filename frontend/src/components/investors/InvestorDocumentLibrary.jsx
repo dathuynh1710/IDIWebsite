@@ -6,9 +6,17 @@ import { investorsService } from '@services/investors.service'
 const DATE_LOCALES = { vi: 'vi-VN', en: 'en-US', 'zh-CN': 'zh-CN' }
 const EMPTY_RESULT = { items: [], categories: [], years: [], total: 0, page: 1, limit: 20, lastPage: 1, pageConfig: null }
 const COPY = {
-  vi: { library: 'Thư viện tài liệu', description: 'Tra cứu các công bố và tài liệu dành cho cổ đông.', unavailableDate: 'Chưa cập nhật', loading: 'Đang tải tài liệu', search: 'Tìm tài liệu', searchPlaceholder: 'Tìm tên hoặc số hiệu...', year: 'Chọn năm', allYears: 'Tất cả năm', category: 'Chọn danh mục', allCategories: 'Tất cả danh mục', loadError: 'Không thể tải thư viện tài liệu', connection: 'Vui lòng kiểm tra kết nối và thử lại.', retry: 'Thử tải lại', quarter: 'Quý', fileAction: 'Xem / tải ↓', fileActionLabel: 'Xem hoặc tải tài liệu', noFile: 'Chưa có tệp', empty: 'Không tìm thấy tài liệu phù hợp.', clear: 'Xóa bộ lọc', showing: 'Hiển thị {{shown}} trong tổng số {{total}} tài liệu', pagination: 'Phân trang tài liệu', previous: 'Trước', next: 'Sau', page: 'Trang' },
-  en: { library: 'Document library', description: 'Search disclosures and documents for shareholders.', unavailableDate: 'Not updated', loading: 'Loading documents', search: 'Search documents', searchPlaceholder: 'Search by name or reference...', year: 'Select year', allYears: 'All years', category: 'Select category', allCategories: 'All categories', loadError: 'Unable to load document library', connection: 'Please check your connection and try again.', retry: 'Try again', quarter: 'Quarter', fileAction: 'View / download ↓', fileActionLabel: 'View or download document', noFile: 'No file', empty: 'No matching documents found.', clear: 'Clear filters', showing: 'Showing {{shown}} of {{total}} documents', pagination: 'Document pagination', previous: 'Previous', next: 'Next', page: 'Page' },
-  'zh-CN': { library: '文件库', description: '查询面向股东的公告和文件。', unavailableDate: '尚未更新', loading: '正在加载文件', search: '搜索文件', searchPlaceholder: '按名称或编号搜索...', year: '选择年份', allYears: '所有年份', category: '选择类别', allCategories: '所有类别', loadError: '无法加载文件库', connection: '请检查网络连接并重试。', retry: '重试', quarter: '季度', fileAction: '查看 / 下载 ↓', fileActionLabel: '查看或下载文件', noFile: '暂无文件', empty: '未找到匹配的文件。', clear: '清除筛选', showing: '显示 {{shown}} / 共 {{total}} 份文件', pagination: '文件分页', previous: '上一页', next: '下一页', page: '第' },
+  vi: { library: 'Tài liệu công bố', unavailableDate: 'Chưa cập nhật', loading: 'Đang tải tài liệu', search: 'Tìm tài liệu', searchPlaceholder: 'Tìm tài liệu, báo cáo...', year: 'Năm', allYears: 'Tất cả năm', category: 'Danh mục', allCategories: 'Tất cả danh mục', loadError: 'Không thể tải tài liệu', connection: 'Vui lòng kiểm tra kết nối và thử lại.', retry: 'Thử tải lại', quarter: 'Quý', view: 'Xem', viewLabel: 'Xem tài liệu', download: 'Tải tài liệu', noFile: 'Chưa có tệp', empty: 'Không tìm thấy tài liệu phù hợp.', noDocuments: 'Chưa có tài liệu được công bố.', clear: 'Xóa bộ lọc', results: '{{count}} tài liệu', dateColumn: 'Ngày', documentColumn: 'Nội dung tài liệu', metaColumn: 'Kỳ / Loại', actionColumn: 'Thao tác', pagination: 'Phân trang tài liệu', previous: 'Trước', next: 'Sau', page: 'Trang' },
+  en: { library: 'Published documents', unavailableDate: 'Not updated', loading: 'Loading documents', search: 'Search documents', searchPlaceholder: 'Search documents, reports...', year: 'Year', allYears: 'All years', category: 'Category', allCategories: 'All categories', loadError: 'Unable to load documents', connection: 'Please check your connection and try again.', retry: 'Try again', quarter: 'Quarter', view: 'View', viewLabel: 'View document', download: 'Download document', noFile: 'No file', empty: 'No matching documents found.', noDocuments: 'No documents have been published yet.', clear: 'Clear filters', results: '{{count}} documents', dateColumn: 'Date', documentColumn: 'Document', metaColumn: 'Period / Type', actionColumn: 'Actions', pagination: 'Document pagination', previous: 'Previous', next: 'Next', page: 'Page' },
+  'zh-CN': { library: '披露文件', unavailableDate: '尚未更新', loading: '正在加载文件', search: '搜索文件', searchPlaceholder: '搜索文件、报告...', year: '年份', allYears: '所有年份', category: '类别', allCategories: '所有类别', loadError: '无法加载文件', connection: '请检查网络连接并重试。', retry: '重试', quarter: '季度', view: '查看', viewLabel: '查看文件', download: '下载文件', noFile: '暂无文件', empty: '未找到匹配的文件。', noDocuments: '尚未发布文件。', clear: '清除筛选', results: '{{count}} 份文件', dateColumn: '日期', documentColumn: '文件内容', metaColumn: '期间 / 类型', actionColumn: '操作', pagination: '文件分页', previous: '上一页', next: '下一页', page: '第' },
+}
+
+function SearchIcon() {
+  return <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" className="h-5 w-5" stroke="currentColor" strokeWidth="1.8"><circle cx="11" cy="11" r="6.5" /><path d="m16 16 4 4" strokeLinecap="round" /></svg>
+}
+
+function DownloadIcon() {
+  return <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" className="h-4 w-4" stroke="currentColor" strokeWidth="1.8"><path d="M12 3v12m0 0 4-4m-4 4-4-4M5 20h14" strokeLinecap="round" strokeLinejoin="round" /></svg>
 }
 
 function formatDate(value, language, unavailableDate) {
@@ -24,30 +32,121 @@ function formatSize(bytes) {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
 }
 
+function DocumentToolbar({ labels, query, setQuery, year, setYear, category, setCategory, result, status, lockedCategory, hasFilters, resetFilters, t }) {
+  const controlClass = 'min-h-12 w-full rounded-lg border border-mist-mid bg-white px-3.5 text-sm font-semibold text-slate outline-none transition focus:border-seafoam focus:ring-2 focus:ring-seafoam/10'
+
+  return (
+    <div className="border-b border-light-mist bg-[#f4f7f9] p-3 sm:p-4">
+      <div className={`grid gap-2.5 ${lockedCategory ? 'md:grid-cols-[minmax(16rem,1fr)_10rem]' : 'md:grid-cols-[minmax(18rem,1fr)_9.5rem_13rem]'}`}>
+        <label className="relative block">
+          <span className="sr-only">{labels.search}</span>
+          <span className="pointer-events-none absolute inset-y-0 left-3.5 flex items-center text-storm-grey"><SearchIcon /></span>
+          <input id="investor-search" type="search" value={query} onChange={event => setQuery(event.target.value)} placeholder={labels.searchPlaceholder} className={`${controlClass} pl-11 font-normal placeholder:text-storm-grey`} />
+        </label>
+        <label>
+          <span className="sr-only">{labels.year}</span>
+          <select id="investor-year" value={year} onChange={event => setYear(event.target.value)} className={controlClass}>
+            <option value="">{labels.allYears}</option>
+            {result.years.map(item => <option key={item} value={item}>{item}</option>)}
+          </select>
+        </label>
+        {!lockedCategory && (
+          <label>
+            <span className="sr-only">{labels.category}</span>
+            <select id="investor-category" value={category} onChange={event => setCategory(event.target.value)} className={controlClass}>
+              <option value="">{labels.allCategories}</option>
+              {result.categories.map(item => <option key={item.id} value={item.slug}>{item.name} ({item.count})</option>)}
+            </select>
+          </label>
+        )}
+      </div>
+      <div className="mt-3 flex min-h-6 items-center justify-between gap-4 px-0.5 text-xs text-storm-grey">
+        <span aria-live="polite">{status === 'loading' ? labels.loading : t('', labels.results, { count: result.total })}</span>
+        {hasFilters && <button type="button" onClick={resetFilters} className="font-bold text-[#14785b] underline-offset-4 hover:text-ocean-deep hover:underline">{labels.clear}</button>}
+      </div>
+    </div>
+  )
+}
+
 function LoadingRows({ label }) {
   return (
-    <div className="divide-y divide-light-mist" aria-label={label}>
+    <div className="divide-y divide-light-mist" aria-label={label} aria-busy="true">
       {Array.from({ length: 5 }, (_, index) => (
-        <div key={index} className="grid animate-pulse gap-4 p-5 sm:grid-cols-[6.5rem_minmax(0,1fr)_8rem] sm:items-center sm:px-6">
-          <div className="h-4 rounded bg-light-mist" />
-          <div className="space-y-2"><div className="h-4 w-24 rounded bg-light-mist" /><div className="h-5 rounded bg-light-mist" /></div>
-          <div className="h-10 rounded-lg bg-light-mist" />
+        <div key={index} className="grid animate-pulse gap-3 px-4 py-5 md:grid-cols-[7.25rem_minmax(0,1fr)_9rem_6.5rem] md:items-center md:px-5">
+          <div className="h-4 w-20 rounded bg-light-mist" />
+          <div className="space-y-2"><div className="h-4 w-24 rounded bg-light-mist" /><div className="h-5 max-w-md rounded bg-light-mist" /></div>
+          <div className="h-4 w-24 rounded bg-light-mist" />
+          <div className="h-9 rounded-lg bg-light-mist" />
         </div>
       ))}
     </div>
   )
 }
 
-export default function InvestorDocumentLibrary({
-  category: lockedCategory = '',
-  title,
-  description,
-  onPageConfigChange,
-}) {
+function DocumentMeta({ document, labels }) {
+  const items = []
+  if (document.quarter) items.push(`${labels.quarter} ${document.quarter}`)
+  if (document.file?.extension) items.push(document.file.extension)
+  if (document.file?.size) items.push(formatSize(document.file.size))
+
+  return (
+    <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs font-semibold text-storm-grey md:block md:space-y-1">
+      {items.length > 0 ? items.map((item, index) => (
+        <span key={item} className="inline-flex items-center md:flex">
+          {index > 0 && <span aria-hidden="true" className="mr-2 text-mist-mid md:hidden">·</span>}
+          {item}
+        </span>
+      )) : <span>—</span>}
+      {document.documentNumber && <span className="block w-full truncate font-normal md:pt-0.5" title={document.documentNumber}>{document.documentNumber}</span>}
+    </div>
+  )
+}
+
+function DocumentRow({ document, language, labels }) {
+  const formattedDate = formatDate(document.publishedOn, language, labels.unavailableDate)
+  const titleClass = 'text-[15px] font-semibold leading-[1.5] tracking-[-0.01em] text-ocean-deep transition-colors sm:text-base'
+
+  return (
+    <article className="group m-3 grid gap-3 rounded-lg border border-light-mist px-4 py-4 transition-colors hover:bg-[#f8fbfa] md:m-0 md:grid-cols-[7.25rem_minmax(0,1fr)_9rem_6.5rem] md:items-center md:gap-4 md:rounded-none md:border-0 md:px-5 md:py-4">
+      <time className="hidden text-[13px] font-semibold tabular-nums text-slate md:block" dateTime={document.publishedOn ?? undefined}>{formattedDate}</time>
+      <div className="min-w-0">
+        <div className="mb-1.5 flex flex-wrap items-center gap-2">
+          <time className="text-xs font-semibold tabular-nums text-slate md:hidden" dateTime={document.publishedOn ?? undefined}>{formattedDate}</time>
+          {document.category?.name && <span className="rounded bg-seafoam-pale px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.07em] text-[#14785b]">{document.category.name}</span>}
+        </div>
+        <h3 className={titleClass}>
+          {document.file ? <a href={document.file.url} target="_blank" rel="noreferrer" className="hover:text-seafoam">{document.title}</a> : document.title}
+        </h3>
+        <div className="mt-2 md:hidden"><DocumentMeta document={document} labels={labels} /></div>
+      </div>
+      <div className="hidden md:block"><DocumentMeta document={document} labels={labels} /></div>
+      <div className="flex items-center gap-1.5 md:justify-end">
+        {document.file ? (
+          <>
+            <a href={document.file.url} target="_blank" rel="noreferrer" aria-label={`${labels.viewLabel}: ${document.title}`} className="inline-flex min-h-9 items-center rounded-md px-2.5 text-xs font-bold text-[#14785b] transition-colors hover:bg-seafoam-pale hover:text-ocean-deep">{labels.view}</a>
+            <a href={document.file.url} download aria-label={`${labels.download}: ${document.title}`} title={labels.download} className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-light-mist bg-white text-ocean-deep transition-colors hover:border-seafoam hover:bg-seafoam-pale hover:text-[#14785b]"><DownloadIcon /></a>
+          </>
+        ) : <span className="text-xs font-semibold text-storm-grey">{labels.noFile}</span>}
+      </div>
+    </article>
+  )
+}
+
+function DocumentList({ result, status, language, labels, hasFilters, resetFilters, retry }) {
+  if (status === 'loading') return <LoadingRows label={labels.loading} />
+  if (status === 'error') {
+    return <div className="px-6 py-14 text-center" role="alert"><h3 className="text-base font-bold text-ocean-deep">{labels.loadError}</h3><p className="mt-2 text-sm text-storm-grey">{labels.connection}</p><button type="button" onClick={retry} className="mt-4 text-sm font-bold text-[#14785b] hover:text-ocean-deep">{labels.retry}</button></div>
+  }
+  if (result.items.length === 0) {
+    return <div className="px-6 py-14 text-center"><p className="text-sm font-semibold text-slate">{hasFilters ? labels.empty : labels.noDocuments}</p>{hasFilters && <button type="button" onClick={resetFilters} className="mt-3 text-sm font-bold text-[#14785b] hover:text-ocean-deep">{labels.clear}</button>}</div>
+  }
+  return <div className={`transition-opacity md:divide-y md:divide-light-mist ${status === 'refreshing' ? 'opacity-50' : ''}`} aria-busy={status === 'refreshing'}>{result.items.map(document => <DocumentRow key={document.id} document={document} language={language} labels={labels} />)}</div>
+}
+
+export default function InvestorDocumentLibrary({ category: lockedCategory = '', title, onPageConfigChange }) {
   const { language, t } = useLanguage()
   const labels = COPY[language] ?? COPY.vi
   const resolvedTitle = title ?? labels.library
-  const resolvedDescription = description ?? labels.description
   const [query, setQuery] = useState('')
   const debouncedQuery = useDebounce(query.trim(), 350)
   const [year, setYear] = useState('')
@@ -67,122 +166,34 @@ export default function InvestorDocumentLibrary({
   useEffect(() => {
     const controller = new AbortController()
     setStatus(previous => previous === 'success' ? 'refreshing' : 'loading')
-
-    investorsService.getDocuments({
-      locale: language,
-      page,
-      category: lockedCategory || category,
-      year,
-      search: debouncedQuery,
-    }, { signal: controller.signal })
-      .then((data) => {
-        setResult(data)
-        setStatus('success')
-        onPageConfigChange?.(data.pageConfig)
-      })
-      .catch((error) => {
-        if (error?.code !== 'ERR_CANCELED') setStatus('error')
-      })
-
+    investorsService.getDocuments({ locale: language, page, category: lockedCategory || category, year, search: debouncedQuery }, { signal: controller.signal })
+      .then((data) => { setResult(data); setStatus('success'); onPageConfigChange?.(data.pageConfig) })
+      .catch((error) => { if (error?.code !== 'ERR_CANCELED') setStatus('error') })
     return () => controller.abort()
   }, [category, debouncedQuery, language, lockedCategory, onPageConfigChange, page, requestKey, year])
 
-  const resetFilters = () => {
-    setQuery('')
-    setYear('')
-    if (!lockedCategory) setCategory('')
-    setPage(1)
-  }
-
+  const updateQuery = (value) => { setQuery(value); setPage(1) }
+  const updateYear = (value) => { setYear(value); setPage(1) }
+  const updateCategory = (value) => { setCategory(value); setYear(''); setPage(1) }
+  const resetFilters = () => { setQuery(''); setYear(''); if (!lockedCategory) setCategory(''); setPage(1) }
   const hasFilters = Boolean(query || year || (!lockedCategory && category))
 
   return (
-    <section className="overflow-hidden rounded-2xl border border-light-mist bg-white shadow-[0_20px_55px_-45px_rgba(11,37,69,0.65)]">
-      <div className="border-b border-light-mist p-5 sm:p-6">
-        <div className="flex flex-col justify-between gap-5 xl:flex-row xl:items-end">
-          <div className="max-w-xl">
-            <h2 className="text-xl font-extrabold tracking-[-0.02em] text-ocean-deep">{resolvedTitle}</h2>
-            <p className="mt-1 text-sm leading-6">{resolvedDescription}</p>
-          </div>
-          <div className={`grid gap-2 ${lockedCategory ? 'sm:grid-cols-[minmax(14rem,1fr)_9rem]' : 'sm:grid-cols-[minmax(14rem,1fr)_9rem_12rem]'}`}>
-            <label className="sr-only" htmlFor="investor-search">{labels.search}</label>
-            <input
-              id="investor-search"
-              type="search"
-              value={query}
-              onChange={(event) => { setQuery(event.target.value); setPage(1) }}
-              placeholder={labels.searchPlaceholder}
-              className="min-h-11 rounded-lg border border-light-mist bg-arctic-white px-3 text-sm text-slate outline-none transition focus:border-seafoam focus:bg-white"
-            />
-            <label className="sr-only" htmlFor="investor-year">{labels.year}</label>
-            <select
-              id="investor-year"
-              value={year}
-              onChange={(event) => { setYear(event.target.value); setPage(1) }}
-              className="min-h-11 rounded-lg border border-light-mist bg-arctic-white px-3 text-sm font-semibold text-slate outline-none transition focus:border-seafoam"
-            >
-              <option value="">{labels.allYears}</option>
-              {result.years.map(item => <option key={item} value={item}>{item}</option>)}
-            </select>
-            {!lockedCategory && (
-              <>
-                <label className="sr-only" htmlFor="investor-category">{labels.category}</label>
-                <select
-                  id="investor-category"
-                  value={category}
-                  onChange={(event) => { setCategory(event.target.value); setYear(''); setPage(1) }}
-                  className="min-h-11 rounded-lg border border-light-mist bg-arctic-white px-3 text-sm font-semibold text-slate outline-none transition focus:border-seafoam"
-                >
-                  <option value="">{labels.allCategories}</option>
-                  {result.categories.map(item => <option key={item.id} value={item.slug}>{item.name} ({item.count})</option>)}
-                </select>
-              </>
-            )}
-          </div>
-        </div>
+    <section aria-labelledby="investor-library-title">
+      <div className="mb-3 flex items-baseline justify-between gap-4">
+        <h2 id="investor-library-title" className="text-lg font-extrabold tracking-[-0.02em] text-ocean-deep sm:text-xl">{resolvedTitle}</h2>
       </div>
-
-      {status === 'loading' ? <LoadingRows label={labels.loading} /> : status === 'error' ? (
-        <div className="px-6 py-14 text-center" role="alert">
-          <h3 className="font-bold text-ocean-deep">{labels.loadError}</h3>
-          <p className="mt-2 text-sm text-storm-grey">{labels.connection}</p>
-          <button type="button" onClick={() => setRequestKey(key => key + 1)} className="mt-4 text-sm font-bold text-seafoam hover:text-ocean-deep">{labels.retry}</button>
+      <div className="overflow-hidden rounded-xl border border-light-mist bg-white">
+        <DocumentToolbar labels={labels} query={query} setQuery={updateQuery} year={year} setYear={updateYear} category={category} setCategory={updateCategory} result={result} status={status} lockedCategory={lockedCategory} hasFilters={hasFilters} resetFilters={resetFilters} t={t} />
+        <div className="hidden grid-cols-[7.25rem_minmax(0,1fr)_9rem_6.5rem] gap-4 border-b border-light-mist bg-white px-5 py-2.5 text-[10px] font-bold uppercase tracking-[0.1em] text-storm-grey md:grid">
+          <span>{labels.dateColumn}</span><span>{labels.documentColumn}</span><span>{labels.metaColumn}</span><span className="text-right">{labels.actionColumn}</span>
         </div>
-      ) : result.items.length > 0 ? (
-        <div className={`divide-y divide-light-mist transition-opacity ${status === 'refreshing' ? 'opacity-55' : ''}`} aria-busy={status === 'refreshing'}>
-          {result.items.map(document => (
-            <article key={document.id} className="group grid gap-4 p-5 transition-colors hover:bg-arctic-white sm:grid-cols-[6.5rem_minmax(0,1fr)_auto] sm:items-center sm:px-6">
-              <time className="text-sm font-bold text-ocean-deep" dateTime={document.publishedOn ?? undefined}>{formatDate(document.publishedOn, language, labels.unavailableDate)}</time>
-              <div className="min-w-0">
-                <div className="mb-1.5 flex flex-wrap items-center gap-2">
-                  {document.category?.name && <span className="rounded-full bg-seafoam-pale px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-[0.08em] text-seafoam">{document.category.name}</span>}
-                  {document.quarter && <span className="text-xs font-semibold text-storm-grey">{labels.quarter} {document.quarter}</span>}
-                  {document.documentNumber && <span className="text-xs font-semibold text-storm-grey">{document.documentNumber}</span>}
-                  {document.file?.extension && <span className="text-xs font-semibold text-storm-grey">{document.file.extension}{document.file.size ? ` · ${formatSize(document.file.size)}` : ''}</span>}
-                </div>
-                <h3 className="text-[15px] font-bold leading-6 tracking-[-0.01em] text-slate transition-colors group-hover:text-ocean-deep">{document.title}</h3>
-                {document.summary && <p className="mt-1 line-clamp-2 text-xs leading-5 text-storm-grey">{document.summary}</p>}
-              </div>
-              {document.file ? (
-                <a href={document.file.url} target="_blank" rel="noreferrer" aria-label={`${labels.fileActionLabel}: ${document.title}`} className="inline-flex min-h-10 items-center justify-center rounded-lg border border-mist-mid px-4 text-xs font-extrabold text-ocean-deep transition hover:border-ocean-deep hover:bg-ocean-deep hover:text-white">{labels.fileAction}</a>
-              ) : <span className="text-xs font-semibold text-storm-grey">{labels.noFile}</span>}
-            </article>
-          ))}
-        </div>
-      ) : (
-        <div className="px-6 py-14 text-center">
-          <p className="font-semibold text-slate">{labels.empty}</p>
-          {hasFilters && <button type="button" onClick={resetFilters} className="mt-3 text-sm font-bold text-seafoam hover:text-ocean-deep">{labels.clear}</button>}
-        </div>
-      )}
-
-      <div className="flex flex-col gap-3 border-t border-light-mist bg-arctic-white px-5 py-4 text-xs text-storm-grey sm:flex-row sm:items-center sm:justify-between sm:px-6">
-        <span>{t('', labels.showing, { shown: result.items.length, total: result.total })}</span>
-        {result.lastPage > 1 && (
-          <nav className="flex items-center gap-2" aria-label={labels.pagination}>
-            <button type="button" onClick={() => setPage(value => Math.max(1, value - 1))} disabled={page === 1 || status === 'refreshing'} className="rounded-md border border-light-mist bg-white px-3 py-2 font-bold text-ocean-deep disabled:opacity-40">{labels.previous}</button>
+        <DocumentList result={result} status={status} language={language} labels={labels} hasFilters={hasFilters} resetFilters={resetFilters} retry={() => setRequestKey(key => key + 1)} />
+        {status !== 'error' && result.lastPage > 1 && (
+          <nav className="flex items-center justify-between gap-3 border-t border-light-mist bg-[#f8fafb] px-4 py-3 text-xs text-storm-grey sm:justify-end" aria-label={labels.pagination}>
+            <button type="button" onClick={() => setPage(value => Math.max(1, value - 1))} disabled={page === 1 || status === 'refreshing'} className="rounded-md border border-light-mist bg-white px-3 py-2 font-bold text-ocean-deep transition-colors hover:border-mist-mid disabled:opacity-40">{labels.previous}</button>
             <span>{labels.page} {result.page}/{result.lastPage}</span>
-            <button type="button" onClick={() => setPage(value => Math.min(result.lastPage, value + 1))} disabled={page === result.lastPage || status === 'refreshing'} className="rounded-md border border-light-mist bg-white px-3 py-2 font-bold text-ocean-deep disabled:opacity-40">{labels.next}</button>
+            <button type="button" onClick={() => setPage(value => Math.min(result.lastPage, value + 1))} disabled={page === result.lastPage || status === 'refreshing'} className="rounded-md border border-light-mist bg-white px-3 py-2 font-bold text-ocean-deep transition-colors hover:border-mist-mid disabled:opacity-40">{labels.next}</button>
           </nav>
         )}
       </div>

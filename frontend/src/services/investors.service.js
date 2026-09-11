@@ -2,7 +2,7 @@ import api from './api'
 
 export const DEFAULT_INVESTOR_PAGE_CONFIG = Object.freeze({
   title: 'Quan hệ cổ đông',
-  description: 'Thông tin và tài liệu công bố dành cho cổ đông IDI.',
+  description: 'Mang thành tâm biến thành lợi nhuận. I.D.I gặt hái được thành công của mình nhờ vào việc phát triển và tuân theo một chiến lược toàn diện, gắn kết các mục tiêu và nhiệm vụ với các tôn chỉ hoạt động vì Hành tinh, Con người và Sản phẩm.',
   seo: { title: 'Quan hệ cổ đông | IDI Seafood', description: '' },
   updatedAt: null,
 })

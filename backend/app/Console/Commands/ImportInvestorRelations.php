@@ -327,7 +327,7 @@ class ImportInvestorRelations extends Command
                 'zh' => '投资者关系',
             ], JSON_UNESCAPED_UNICODE),
             'description' => json_encode([
-                'vi' => 'Mang thành tâm biến thành lợi nhuận. I.D.I phát triển theo chiến lược toàn diện, gắn kết mục tiêu kinh doanh với Hành tinh, Con người và Sản phẩm.',
+                'vi' => 'Mang thành tâm biến thành lợi nhuận. I.D.I gặt hái được thành công của mình nhờ vào việc phát triển và tuân theo một chiến lược toàn diện, gắn kết các mục tiêu và nhiệm vụ với các tôn chỉ hoạt động vì Hành tinh, Con người và Sản phẩm.',
                 'en' => 'IDI creates long-term value through a comprehensive strategy connecting business goals with Planet, People and Product.',
                 'zh' => 'IDI 通过将商业目标与地球、人类和产品相结合的综合战略创造长期价值。',
             ], JSON_UNESCAPED_UNICODE),

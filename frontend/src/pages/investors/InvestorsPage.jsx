@@ -4,9 +4,8 @@ export default function InvestorsPage() {
   return (
     <InvestorDocumentsPage
       title="Quan hệ cổ đông"
-      description="Thông tin và tài liệu công bố minh bạch, kịp thời dành cho cổ đông IDI."
+      description="Mang thành tâm biến thành lợi nhuận. I.D.I gặt hái được thành công của mình nhờ vào việc phát triển và tuân theo một chiến lược toàn diện, gắn kết các mục tiêu và nhiệm vụ với các tôn chỉ hoạt động vì Hành tinh, Con người và Sản phẩm."
       libraryTitle="Công bố mới nhất"
-      libraryDescription="Theo dõi toàn bộ thông báo, báo cáo và tài liệu quản trị theo trình tự công bố mới nhất."
     />
   )
 }

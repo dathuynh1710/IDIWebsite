@@ -6,7 +6,7 @@ import { useLanguage } from '@hooks/useLanguage'
 import toast from '@/utils/toast'
 
 const INITIAL_FORM = {
-  inquiryType: 'Báo giá xuất khẩu',
+  inquiryType: 'export_quote',
   fullName: '',
   phone: '',
   email: '',
@@ -17,87 +17,82 @@ const INITIAL_FORM = {
   companyWebsite: '',
 }
 
-const CONTACT_CHANNELS = [
-  {
-    label: 'Trụ sở chính',
-    value: 'Quốc lộ 80, Cụm công nghiệp Vàm Cống, ấp An Thạnh, xã Lấp Vò, Tỉnh Đồng Tháp, Việt Nam',
-    href: null,
+const INQUIRY_OPTIONS = ['exportQuote', 'productAdvice', 'businessCooperation', 'investorRelations', 'careers', 'other']
+const INQUIRY_VALUES = {
+  exportQuote: 'export_quote',
+  productAdvice: 'product_advice',
+  businessCooperation: 'business_cooperation',
+  investorRelations: 'investor_relations',
+  careers: 'careers',
+  other: 'other',
+}
+
+const MAPS = {
+  headOffice: {
+    embed: 'https://www.google.com/maps?q=IDI+Seafood+Vam+Cong+Dong+Thap&output=embed',
   },
-  {
-    label: 'Điện thoại trụ sở',
-    value: '+84 2773 680 383 / +84 2777 300 468',
-    href: 'tel:+842773680383',
+  hcmOffice: {
+    embed: 'https://www.google.com/maps?q=9+Nguyen+Kim+Ward+12+District+5+Ho+Chi+Minh+City&output=embed',
   },
-  {
-    label: 'Fax',
-    value: '+84 2773 680 382',
-    href: 'tel:+842773680382',
-  },
-  {
-    label: 'Email',
-    value: 'info@idiseafood.com',
-    href: 'mailto:info@idiseafood.com',
-  },
-  {
-    label: 'Văn phòng đại diện Hồ Chí Minh',
-    value: '9 Nguyễn Kim, phường 12, quận 5, Thành phố Hồ Chí Minh, Việt Nam',
-    href: null,
-  },
-  {
-    label: 'Điện thoại văn phòng Hồ Chí Minh',
-    value: '+84 932 824 888',
-    href: 'tel:+84932824888',
-  },
-]
+}
 
 const REQUIRED_FIELDS = ['fullName', 'phone', 'email', 'address', 'subject', 'message', 'consent']
 
 function validateField(name, value) {
   const text = typeof value === 'string' ? value.trim() : value
-
-  if (name === 'consent') {
-    return value ? '' : 'Vui lòng đồng ý với chính sách bảo mật.'
-  }
-  if (!text) return 'Thông tin này là bắt buộc.'
-  if (name === 'fullName' && text.length < 2) return 'Họ tên cần có ít nhất 2 ký tự.'
-  if (name === 'phone' && !/^\+?[\d\s\-().]{7,20}$/.test(text)) {
-    return 'Vui lòng nhập số điện thoại hợp lệ.'
-  }
-  if (name === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(text)) {
-    return 'Vui lòng nhập địa chỉ email hợp lệ.'
-  }
-  if (name === 'subject' && text.length < 3) return 'Tiêu đề cần có ít nhất 3 ký tự.'
-  if (name === 'message' && text.length < 10) return 'Nội dung cần có ít nhất 10 ký tự.'
-  if (name === 'message' && text.length > 1000) return 'Nội dung không được vượt quá 1.000 ký tự.'
+  if (name === 'consent') return value ? '' : 'contact.validation.consent'
+  if (!text) return 'contact.validation.required'
+  if (name === 'fullName' && text.length < 2) return 'contact.validation.fullName'
+  if (name === 'phone' && !/^\+?[\d\s\-().]{7,20}$/.test(text)) return 'contact.validation.phone'
+  if (name === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(text)) return 'contact.validation.email'
+  if (name === 'subject' && text.length < 3) return 'contact.validation.subject'
+  if (name === 'message' && text.length < 10) return 'contact.validation.messageMin'
+  if (name === 'message' && text.length > 1000) return 'contact.validation.messageMax'
   return ''
 }
 
-function FormField({ label, name, error, required = true, children }) {
+function FormField({ label, name, error, children }) {
   return (
     <label className="block" htmlFor={name}>
       <span className="mb-2 block text-sm font-bold text-ocean-deep">
-        {label}
-        {required && <span className="ml-1 text-[#C04B38]" aria-hidden="true">*</span>}
+        {label}<span className="ml-1 text-[#B54735]" aria-hidden="true">*</span>
       </span>
       {children}
-      {error && (
-        <span id={`${name}-error`} className="mt-1.5 block text-xs font-medium text-[#B93B2B]">
-          {error}
-        </span>
-      )}
+      <span id={`${name}-error`} className="mt-1.5 block min-h-4 text-xs font-medium text-[#B23A2B]">
+        {error || ''}
+      </span>
     </label>
   )
 }
 
+function OfficeSection({ number, title, address, phoneChildren, accent = false }) {
+  return (
+    <article className="h-full rounded-xl bg-[#F4F7F7] p-6 sm:p-8">
+      <div className="flex h-full items-start gap-4 sm:gap-5">
+        <span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-xs font-black text-white ${accent ? 'bg-seafoam' : 'bg-ocean-deep'}`} aria-hidden="true">
+          {number}
+        </span>
+        <div className="min-w-0 flex-1">
+          <h3 className="text-xl font-black leading-tight text-ocean-deep sm:text-[1.4rem]">{title}</h3>
+          <p className="mt-2.5 max-w-2xl text-sm leading-6 text-storm-grey">{address}</p>
+          <div className="mt-5 text-sm leading-6">{phoneChildren}</div>
+        </div>
+      </div>
+    </article>
+  )
+}
+
 export default function ContactPage() {
-  const { t } = useLanguage()
+  const { t, language } = useLanguage()
   const [form, setForm] = useState(INITIAL_FORM)
   const [errors, setErrors] = useState({})
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [referenceId, setReferenceId] = useState('')
+  const [submitError, setSubmitError] = useState(false)
+  const [activeMap, setActiveMap] = useState('headOffice')
 
   const fieldClass = (name) => [
-    'h-12 w-full rounded-xl border bg-white px-4 text-sm text-ink outline-none transition',
+    'h-12 w-full rounded-lg border bg-white px-4 text-sm text-ink outline-none transition',
     'placeholder:text-storm-grey/55 focus:ring-2',
     errors[name]
       ? 'border-[#D46A5A] focus:border-[#D46A5A] focus:ring-[#D46A5A]/15'
@@ -108,9 +103,8 @@ export default function ContactPage() {
     const { name, value, type, checked } = event.target
     const nextValue = type === 'checkbox' ? checked : value
     setForm(current => ({ ...current, [name]: nextValue }))
-    if (errors[name]) {
-      setErrors(current => ({ ...current, [name]: validateField(name, nextValue) }))
-    }
+    setSubmitError(false)
+    if (errors[name]) setErrors(current => ({ ...current, [name]: validateField(name, nextValue) }))
   }
 
   const handleBlur = (event) => {
@@ -133,20 +127,20 @@ export default function ContactPage() {
 
     if (Object.keys(nextErrors).length) {
       setErrors(nextErrors)
-      toast.validation(nextErrors)
-      const firstInvalidField = document.querySelector(`[name="${Object.keys(nextErrors)[0]}"]`)
-      firstInvalidField?.focus()
+      toast.validation(Object.fromEntries(Object.entries(nextErrors).map(([key, value]) => [key, t(value)])))
+      document.querySelector(`[name="${Object.keys(nextErrors)[0]}"]`)?.focus()
       return
     }
 
     setIsSubmitting(true)
+    setSubmitError(false)
     try {
-      const result = await inquiryService.submitTrade(form)
+      const result = await inquiryService.submitTrade(form, language)
       setReferenceId(result.referenceId)
       setForm(INITIAL_FORM)
       setErrors({})
     } catch {
-      // The shared Axios interceptor displays the server or network error.
+      setSubmitError(true)
     } finally {
       setIsSubmitting(false)
     }
@@ -154,269 +148,112 @@ export default function ContactPage() {
 
   const startNewInquiry = () => {
     setReferenceId('')
+    setSubmitError(false)
     setForm(INITIAL_FORM)
   }
 
   return (
     <>
-      <PageHead
-        title="Liên hệ | IDI Seafood"
-        description="Liên hệ IDI Seafood để nhận báo giá, tư vấn sản phẩm cá tra, thông tin hợp tác và hỗ trợ xuất khẩu."
-      />
+      <PageHead title={t('contact.seoTitle')} description={t('contact.seoDescription')} />
 
-      <main className="bg-arctic-white pb-24 pt-28 lg:pb-32 lg:pt-32">
-        <div className="container">
-          <nav className="mb-8 flex items-center gap-2 text-sm text-storm-grey" aria-label="Đường dẫn trang">
-            <Link to="/" className="transition hover:text-seafoam">Trang chủ</Link>
-            <span aria-hidden="true">/</span>
-            <span className="font-semibold text-ocean-deep" aria-current="page">Liên hệ</span>
-          </nav>
+      <main className="bg-white pt-20 sm:pt-24">
+        <section className="border-b border-light-mist py-12 text-center sm:py-16 lg:py-20">
+          <div className="container">
+            <span className="section-eyebrow">{t('contact.hero.eyebrow')}</span>
+            <h1 className="mx-auto mt-3 max-w-4xl text-3xl font-black tracking-tight text-ocean-deep sm:text-4xl lg:text-5xl">
+              {t('contact.hero.title')}
+            </h1>
+            <p className="mx-auto mt-5 max-w-2xl text-sm leading-7 text-storm-grey sm:text-base">
+              {t('contact.hero.description')}
+            </p>
+          </div>
+        </section>
 
-          <div className="grid overflow-hidden rounded-3xl border border-light-mist bg-white shadow-2xl lg:grid-cols-[0.72fr_1.28fr]">
-            <aside className="relative overflow-hidden bg-[#102B4D] p-7 text-white sm:p-10 lg:p-12">
-              <div
-                className="absolute inset-0 opacity-20"
-                style={{ background: 'radial-gradient(circle at 0% 100%, #1A936F, transparent 42%)' }}
-              />
-              <div className="relative z-10">
-                <span className="mb-3 block text-xs font-bold uppercase tracking-[0.16em] text-coral-gold">
-                  Thông tin liên hệ
-                </span>
-                <h2 className="mb-10 text-2xl font-black text-white">IDI Seafood</h2>
-
-                <div className="space-y-7">
-                  {CONTACT_CHANNELS.map((channel, index) => (
-                    <div key={channel.label} className="grid grid-cols-[2.25rem_1fr] gap-3">
-                      <span className="flex h-9 w-9 items-center justify-center rounded-full border border-white/15 bg-white/5 text-xs font-black text-seafoam-light">
-                        {String(index + 1).padStart(2, '0')}
-                      </span>
-                      <div className="min-w-0">
-                        <span className="mb-1 block text-[10px] font-bold uppercase tracking-[0.14em] text-white/35">
-                          {channel.label}
-                        </span>
-                        {channel.href ? (
-                          <a
-                            href={channel.href}
-                            className="break-words text-sm font-bold text-white transition hover:text-coral-light"
-                          >
-                            {channel.value}
-                          </a>
-                        ) : (
-                          <p className="text-sm font-bold leading-relaxed text-white">{channel.value}</p>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-              </div>
-            </aside>
-
-            <section className="p-6 sm:p-10 lg:p-12">
+        <section className="bg-[#F3F6F6] py-12 sm:py-16 lg:py-20" aria-labelledby="contact-form-title">
+          <div className="container">
+            <div className="mx-auto max-w-5xl">
               {referenceId ? (
-                <div className="flex min-h-[38rem] flex-col items-center justify-center text-center" role="status">
-                  <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-seafoam-pale text-3xl text-seafoam">
-                    ✓
-                  </div>
-                  <span className="mb-3 text-xs font-bold uppercase tracking-[0.16em] text-seafoam">
-                    Gửi liên hệ thành công
-                  </span>
-                  <h2 className="mb-4 text-3xl font-black text-ocean-deep">Cảm ơn bạn đã liên hệ IDI</h2>
-                  <p className="max-w-lg text-sm leading-relaxed text-storm-grey">
-                    Chúng tôi đã tiếp nhận thông tin và sẽ phản hồi trong thời gian sớm nhất.
-                    Mã tham chiếu của bạn là <strong className="text-ocean-deep">{referenceId}</strong>.
+                <div className="flex min-h-[28rem] flex-col items-center justify-center text-center" role="status">
+                  <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-seafoam-pale text-2xl font-black text-seafoam" aria-hidden="true">✓</div>
+                  <span className="section-eyebrow">{t('contact.success.eyebrow')}</span>
+                  <h2 id="contact-form-title" className="mt-2 text-3xl font-black text-ocean-deep">{t('contact.success.title')}</h2>
+                  <p className="mt-4 max-w-lg text-sm leading-7 text-storm-grey">{t('contact.success.description')}</p>
+                  <p className="mt-4 rounded-lg bg-white px-4 py-3 text-sm text-storm-grey">
+                    {t('contact.success.referenceLabel')}: <strong className="text-ocean-deep">{referenceId}</strong>
                   </p>
                   <button type="button" onClick={startNewInquiry} className="btn btn-secondary mt-8">
-                    {t('actions.submitAnotherInquiry')}
+                    {t('actions.submitAnotherInquiry')} <span aria-hidden="true">→</span>
                   </button>
                 </div>
               ) : (
                 <>
-                  <div className="mb-8">
-                    <span className="section-eyebrow">Biểu mẫu liên hệ</span>
-                    <h2 className="mt-2 text-2xl font-black text-ocean-deep sm:text-3xl">
-                      Bạn đang cần IDI hỗ trợ điều gì?
-                    </h2>
-                    <p className="mt-3 text-sm text-storm-grey">
-                      Các trường có dấu <span className="text-[#C04B38]">*</span> là bắt buộc.
-                    </p>
-                  </div>
+                  <header className="mb-9 text-center">
+                    <span className="section-eyebrow">{t('contact.form.eyebrow')}</span>
+                    <h2 id="contact-form-title" className="mt-2 text-2xl font-black text-ocean-deep sm:text-3xl">{t('contact.form.title')}</h2>
+                    <p className="mt-3 text-sm text-storm-grey">{t('contact.form.requiredNote')}</p>
+                  </header>
+
+                  {submitError && (
+                    <div className="mb-6 rounded-lg border border-[#D46A5A]/35 bg-[#FFF5F2] px-4 py-3 text-sm text-[#9F3427]" role="alert">
+                      {t('contact.form.submitError')}
+                    </div>
+                  )}
 
                   <form onSubmit={handleSubmit} noValidate>
-                    <div className="mb-7">
+                    <div className="mb-2">
                       <label htmlFor="inquiryType" className="mb-2 block text-sm font-bold text-ocean-deep">
-                        Loại yêu cầu
+                        {t('contact.form.inquiryType')}<span className="ml-1 text-[#B54735]" aria-hidden="true">*</span>
                       </label>
-                      <select
-                        id="inquiryType"
-                        name="inquiryType"
-                        value={form.inquiryType}
-                        onChange={handleChange}
-                        className="h-12 w-full rounded-xl border border-light-mist bg-white px-4 text-sm text-ink outline-none transition focus:border-seafoam focus:ring-2 focus:ring-seafoam/15"
-                      >
-                        <option>Báo giá xuất khẩu</option>
-                        <option>Tư vấn sản phẩm</option>
-                        <option>Hợp tác kinh doanh</option>
-                        <option>Quan hệ nhà đầu tư</option>
-                        <option>Tuyển dụng</option>
-                        <option>Yêu cầu khác</option>
+                      <select id="inquiryType" name="inquiryType" required value={form.inquiryType} onChange={handleChange} className={fieldClass('inquiryType')}>
+                        {INQUIRY_OPTIONS.map(option => (
+                          <option key={option} value={INQUIRY_VALUES[option]}>{t(`contact.options.${option}`)}</option>
+                        ))}
                       </select>
                     </div>
 
-                    <div className="grid gap-6 sm:grid-cols-2">
-                      <FormField label="Họ và tên" name="fullName" error={errors.fullName}>
-                        <input
-                          id="fullName"
-                          name="fullName"
-                          type="text"
-                          autoComplete="name"
-                          value={form.fullName}
-                          onChange={handleChange}
-                          onBlur={handleBlur}
-                          placeholder="Nguyễn Văn A"
-                          className={fieldClass('fullName')}
-                          aria-invalid={Boolean(errors.fullName)}
-                          aria-describedby={errors.fullName ? 'fullName-error' : undefined}
-                        />
+                    <div className="grid gap-x-6 sm:grid-cols-2">
+                      <FormField label={t('contact.form.fullName')} name="fullName" error={errors.fullName ? t(errors.fullName) : ''}>
+                        <input id="fullName" name="fullName" type="text" autoComplete="name" value={form.fullName} onChange={handleChange} onBlur={handleBlur} placeholder={t('contact.form.fullNamePlaceholder')} className={fieldClass('fullName')} aria-invalid={Boolean(errors.fullName)} aria-describedby={errors.fullName ? 'fullName-error' : undefined} />
                       </FormField>
-
-                      <FormField label="Điện thoại" name="phone" error={errors.phone}>
-                        <input
-                          id="phone"
-                          name="phone"
-                          type="tel"
-                          autoComplete="tel"
-                          value={form.phone}
-                          onChange={handleChange}
-                          onBlur={handleBlur}
-                          placeholder="+84 000 000 000"
-                          className={fieldClass('phone')}
-                          aria-invalid={Boolean(errors.phone)}
-                          aria-describedby={errors.phone ? 'phone-error' : undefined}
-                        />
+                      <FormField label={t('contact.form.phone')} name="phone" error={errors.phone ? t(errors.phone) : ''}>
+                        <input id="phone" name="phone" type="tel" autoComplete="tel" value={form.phone} onChange={handleChange} onBlur={handleBlur} placeholder={t('contact.form.phonePlaceholder')} className={fieldClass('phone')} aria-invalid={Boolean(errors.phone)} aria-describedby={errors.phone ? 'phone-error' : undefined} />
                       </FormField>
-
-                      <FormField label="Email" name="email" error={errors.email}>
-                        <input
-                          id="email"
-                          name="email"
-                          type="email"
-                          autoComplete="email"
-                          value={form.email}
-                          onChange={handleChange}
-                          onBlur={handleBlur}
-                          placeholder="email@congty.com"
-                          className={fieldClass('email')}
-                          aria-invalid={Boolean(errors.email)}
-                          aria-describedby={errors.email ? 'email-error' : undefined}
-                        />
+                      <FormField label={t('contact.form.email')} name="email" error={errors.email ? t(errors.email) : ''}>
+                        <input id="email" name="email" type="email" autoComplete="email" value={form.email} onChange={handleChange} onBlur={handleBlur} placeholder={t('contact.form.emailPlaceholder')} className={fieldClass('email')} aria-invalid={Boolean(errors.email)} aria-describedby={errors.email ? 'email-error' : undefined} />
                       </FormField>
-
-                      <FormField label="Địa chỉ" name="address" error={errors.address}>
-                        <input
-                          id="address"
-                          name="address"
-                          type="text"
-                          autoComplete="street-address"
-                          value={form.address}
-                          onChange={handleChange}
-                          onBlur={handleBlur}
-                          placeholder="Thành phố, Quốc gia"
-                          className={fieldClass('address')}
-                          aria-invalid={Boolean(errors.address)}
-                          aria-describedby={errors.address ? 'address-error' : undefined}
-                        />
+                      <FormField label={t('contact.form.address')} name="address" error={errors.address ? t(errors.address) : ''}>
+                        <input id="address" name="address" type="text" autoComplete="street-address" value={form.address} onChange={handleChange} onBlur={handleBlur} placeholder={t('contact.form.addressPlaceholder')} className={fieldClass('address')} aria-invalid={Boolean(errors.address)} aria-describedby={errors.address ? 'address-error' : undefined} />
                       </FormField>
                     </div>
 
-                    <div className="mt-6">
-                      <FormField label="Tiêu đề" name="subject" error={errors.subject}>
-                        <input
-                          id="subject"
-                          name="subject"
-                          type="text"
-                          value={form.subject}
-                          onChange={handleChange}
-                          onBlur={handleBlur}
-                          placeholder="Nội dung bạn cần được hỗ trợ"
-                          className={fieldClass('subject')}
-                          aria-invalid={Boolean(errors.subject)}
-                          aria-describedby={errors.subject ? 'subject-error' : undefined}
-                        />
-                      </FormField>
-                    </div>
+                    <FormField label={t('contact.form.subject')} name="subject" error={errors.subject ? t(errors.subject) : ''}>
+                      <input id="subject" name="subject" type="text" value={form.subject} onChange={handleChange} onBlur={handleBlur} placeholder={t('contact.form.subjectPlaceholder')} className={fieldClass('subject')} aria-invalid={Boolean(errors.subject)} aria-describedby={errors.subject ? 'subject-error' : undefined} />
+                    </FormField>
 
-                    <div className="mt-6">
-                      <FormField label="Nội dung liên hệ" name="message" error={errors.message}>
-                        <textarea
-                          id="message"
-                          name="message"
-                          rows="7"
-                          maxLength="1000"
-                          value={form.message}
-                          onChange={handleChange}
-                          onBlur={handleBlur}
-                          placeholder="Hãy mô tả nhu cầu, sản phẩm quan tâm, thị trường và sản lượng dự kiến..."
-                          className={[
-                            'w-full resize-y rounded-xl border bg-white px-4 py-3 text-sm leading-relaxed text-ink outline-none transition',
-                            'placeholder:text-storm-grey/55 focus:ring-2',
-                            errors.message
-                              ? 'border-[#D46A5A] focus:border-[#D46A5A] focus:ring-[#D46A5A]/15'
-                              : 'border-light-mist focus:border-seafoam focus:ring-seafoam/15',
-                          ].join(' ')}
-                          aria-invalid={Boolean(errors.message)}
-                          aria-describedby={errors.message ? 'message-error message-count' : 'message-count'}
-                        />
+                    <div className="mt-1">
+                      <FormField label={t('contact.form.message')} name="message" error={errors.message ? t(errors.message) : ''}>
+                        <textarea id="message" name="message" rows="7" maxLength="1000" value={form.message} onChange={handleChange} onBlur={handleBlur} placeholder={t('contact.form.messagePlaceholder')} className={['w-full resize-y rounded-lg border bg-white px-4 py-3 text-sm leading-relaxed text-ink outline-none transition placeholder:text-storm-grey/55 focus:ring-2', errors.message ? 'border-[#D46A5A] focus:border-[#D46A5A] focus:ring-[#D46A5A]/15' : 'border-light-mist focus:border-seafoam focus:ring-seafoam/15'].join(' ')} aria-invalid={Boolean(errors.message)} aria-describedby="message-error message-count" />
                       </FormField>
-                      <span id="message-count" className="mt-1 block text-right text-xs text-storm-grey">
-                        {form.message.length}/1.000
+                      <span id="message-count" className="-mt-5 block text-right text-xs text-storm-grey">
+                        {t('contact.form.messageCount', { count: form.message.length, max: 1000 })}
                       </span>
                     </div>
 
-                    <input
-                      type="text"
-                      name="companyWebsite"
-                      value={form.companyWebsite}
-                      onChange={handleChange}
-                      tabIndex="-1"
-                      autoComplete="off"
-                      className="hidden"
-                      aria-hidden="true"
-                    />
+                    <input type="text" name="companyWebsite" value={form.companyWebsite} onChange={handleChange} tabIndex="-1" autoComplete="off" className="hidden" aria-hidden="true" />
 
-                    <div className="mt-6">
+                    <div className="mt-7">
                       <label className="flex cursor-pointer items-start gap-3">
-                        <input
-                          type="checkbox"
-                          name="consent"
-                          checked={form.consent}
-                          onChange={handleChange}
-                          onBlur={handleBlur}
-                          className="mt-1 h-4 w-4 rounded border-light-mist text-seafoam accent-seafoam"
-                          aria-invalid={Boolean(errors.consent)}
-                          aria-describedby={errors.consent ? 'consent-error' : undefined}
-                        />
-                        <span className="text-xs leading-relaxed text-storm-grey">
-                          Tôi đồng ý để IDI sử dụng thông tin trên nhằm phản hồi yêu cầu và
-                          cam kết tuân thủ <Link to="/privacy" className="font-semibold text-seafoam">chính sách bảo mật</Link>.
+                        <input type="checkbox" name="consent" checked={form.consent} onChange={handleChange} onBlur={handleBlur} className="mt-1 h-4 w-4 shrink-0 rounded border-light-mist text-seafoam accent-seafoam" aria-invalid={Boolean(errors.consent)} aria-describedby={errors.consent ? 'consent-error' : undefined} />
+                        <span className="text-xs leading-6 text-storm-grey">
+                          {t('contact.form.consentPrefix')} <Link to="/privacy" className="font-bold text-seafoam hover:underline">{t('contact.form.privacyLink')}</Link>.
                         </span>
                       </label>
-                      {errors.consent && (
-                        <span id="consent-error" className="mt-1.5 block text-xs font-medium text-[#B93B2B]">
-                          {errors.consent}
-                        </span>
-                      )}
+                      <span id="consent-error" className="mt-1.5 block min-h-4 text-xs font-medium text-[#B23A2B]">{errors.consent ? t(errors.consent) : ''}</span>
                     </div>
 
-                    <div className="mt-8 flex flex-col gap-4 border-t border-light-mist pt-7 sm:flex-row sm:items-center sm:justify-between">
-                      <p className="text-xs text-storm-grey">
-                        Thông tin của bạn được bảo mật và chỉ dùng để phản hồi liên hệ.
-                      </p>
-                      <button
-                        type="submit"
-                        disabled={isSubmitting}
-                        className="btn btn-primary min-w-40 disabled:cursor-wait disabled:opacity-65"
-                      >
+                    <div className="mt-5 flex flex-col gap-4 border-t border-light-mist pt-6 sm:flex-row sm:items-center sm:justify-between">
+                      <p className="max-w-md text-xs leading-5 text-storm-grey">{t('contact.form.privacyNote')}</p>
+                      <button type="submit" disabled={isSubmitting} className="btn btn-primary min-w-44 shrink-0 disabled:cursor-wait disabled:opacity-65" aria-busy={isSubmitting}>
                         {isSubmitting ? t('actions.sending') : t('actions.submitContact')}
                         {!isSubmitting && <span aria-hidden="true">→</span>}
                       </button>
@@ -424,9 +261,71 @@ export default function ContactPage() {
                   </form>
                 </>
               )}
-            </section>
+            </div>
           </div>
-        </div>
+        </section>
+
+        <section className="py-10 sm:py-12 lg:py-14" aria-label={t('contact.details.eyebrow')}>
+          <div className="container">
+            <div className="grid items-stretch gap-5 lg:grid-cols-2 lg:gap-6">
+              <OfficeSection
+                number="01"
+                title={t('contact.details.headOffice')}
+                address={t('contact.details.headOfficeAddress')}
+                phoneChildren={(
+                  <dl className="space-y-2">
+                    <div className="flex flex-wrap gap-x-2"><dt className="font-bold text-ocean-deep">{t('contact.details.phone')}:</dt><dd><a className="text-seafoam hover:underline" href="tel:+842773680383">+84 2773 680 383</a><span className="mx-2 text-storm-grey/40">·</span><a className="text-seafoam hover:underline" href="tel:+842777300468">+84 2777 300 468</a></dd></div>
+                    <div className="flex gap-2"><dt className="font-bold text-ocean-deep">{t('contact.details.fax')}:</dt><dd className="text-storm-grey">+84 2773 680 382</dd></div>
+                    <div className="flex gap-2"><dt className="font-bold text-ocean-deep">{t('contact.details.email')}:</dt><dd><a className="break-all text-seafoam hover:underline" href="mailto:info@idiseafood.com">info@idiseafood.com</a></dd></div>
+                  </dl>
+                )}
+              />
+
+              <OfficeSection
+                number="02"
+                title={t('contact.details.hcmOffice')}
+                address={t('contact.details.hcmOfficeAddress')}
+                accent
+                phoneChildren={(
+                  <dl><div className="flex flex-wrap gap-x-2"><dt className="font-bold text-ocean-deep">{t('contact.details.phone')}:</dt><dd><a className="text-seafoam hover:underline" href="tel:+84932824888">+84 932 824 888</a></dd></div></dl>
+                )}
+              />
+            </div>
+          </div>
+        </section>
+
+        <section className="bg-[#F3F6F6] py-12 sm:py-16 lg:py-20" aria-labelledby="map-title">
+          <div className="container">
+            <header className="mb-8 text-center">
+              <span className="section-eyebrow">{t('contact.map.eyebrow')}</span>
+              <h2 id="map-title" className="mt-2 text-2xl font-black text-ocean-deep sm:text-3xl">{t('contact.map.title')}</h2>
+            </header>
+            <div className="mb-4 flex flex-wrap justify-center gap-3" role="tablist" aria-label={t('contact.map.locationLabel')}>
+              {['headOffice', 'hcmOffice'].map(location => (
+                <button
+                  key={location}
+                  type="button"
+                  role="tab"
+                  aria-selected={activeMap === location}
+                  onClick={() => setActiveMap(location)}
+                  className={`rounded-lg border px-4 py-2.5 text-sm font-bold transition ${activeMap === location ? 'border-ocean-deep bg-ocean-deep text-white' : 'border-light-mist bg-white text-ocean-deep hover:border-seafoam hover:text-seafoam'}`}
+                >
+                  {t(`contact.details.${location}`)}
+                </button>
+              ))}
+            </div>
+            <div className="overflow-hidden rounded-xl border border-light-mist bg-white shadow-sm">
+              <iframe
+                key={activeMap}
+                src={MAPS[activeMap].embed}
+                title={`${t('contact.map.iframeTitle')} — ${t(`contact.details.${activeMap}`)}`}
+                className="h-[22rem] w-full border-0 sm:h-[28rem] lg:h-[32rem]"
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+              />
+            </div>
+          </div>
+        </section>
       </main>
     </>
   )

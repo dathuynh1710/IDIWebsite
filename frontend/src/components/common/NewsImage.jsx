@@ -1,6 +1,7 @@
 import { useState } from 'react'
+import { publicAsset } from '@utils/publicAsset'
 
-const COMPANY_LOGO = '/images/brand/idi-logo.png'
+const COMPANY_LOGO = publicAsset('images/brand/idi-logo.png')
 
 export default function NewsImage({
   article,

@@ -29,12 +29,12 @@ class ContentSeeder extends Seeder
         }
 
         $messageMediaId = $this->upsertId('media', [
-            'directory' => 'about',
+            'directory' => 'media/about',
             'file_name' => 'avatar.jpg',
         ], [
             'folder_id' => null,
-            'disk' => 'public',
-            'external_url' => 'https://idiseafood.com/vnt_upload/about/avatar.jpg',
+            'disk' => 'public_assets',
+            'external_url' => null,
             'original_name' => 'avatar.jpg',
             'mime_type' => 'image/jpeg',
             'extension' => 'jpg',
@@ -213,16 +213,16 @@ HTML]),
 <h2>Giá trị cốt lõi</h2>
 <h3>Niềm đam mê</h3>
 <p>Niềm đam mê và sự cống hiến là yếu tố chủ chốt tạo nên thành công. Chúng gắn liền với mọi khía cạnh trong suốt quá trình hoạt động và là trái tim của văn hóa doanh nghiệp tại IDI.</p>
-<p><img src="https://idiseafood.com/vnt_upload/about/gt1.jpg" alt="Passion"></p>
+<p><img src="/assets/media/about/values/gt1.jpg" alt="Passion"></p>
 <h3>Sự đổi mới</h3>
 <p>Tại I.D.I sự đổi mới là tiêu chuẩn cho mọi thứ chúng tôi thực hiện và tất cả những gì chúng tôi sản xuất. Yếu tố này sẽ dẫn dắt chúng tôi đến đỉnh cao phát triển trong ngành công nghiệp thủy sản.</p>
-<p><img src="https://idiseafood.com/vnt_upload/about/07_2024/congnhan.png" alt="Innovation"></p>
+<p><img src="/assets/media/about/values/congnhan.png" alt="Innovation"></p>
 <h3>Sự sẻ chia</h3>
 <p>I.D.I khuyến khích xây dựng một môi trường cởi mở và minh bạch. Trong công ty I.D.I cơ hội được chia sẻ giữa tất cả nhân viên, cho phép họ có những đóng góp quan trọng trong phạm vi kinh doanh của chúng tôi.</p>
-<p><img src="https://idiseafood.com/vnt_upload/about/gt3.jpg" alt="Share"></p>
+<p><img src="/assets/media/about/values/gt3.jpg" alt="Share"></p>
 <h3>Tinh thần trách nhiệm</h3>
 <p>Thừa hưởng nguồn lợi thiên nhiên đi kèm với trách nhiệm xã hội lớn lao. Sự tôn trọng và đóng góp liên tục của I.D.I cho xã hội và môi trường vẫn là yếu tố cần thiết để duy trì bản sắc và thành công của chúng tôi.</p>
-<p><img src="https://idiseafood.com/vnt_upload/about/gt4.jpg" alt="Responsibility"></p>
+<p><img src="/assets/media/about/values/gt4.jpg" alt="Responsibility"></p>
 <h2>Thế mạnh</h2>
 <h3>Chúng tôi đam mê</h3>
 <p>Chúng tôi yêu mến loài cá tra. Chúng tôi muốn hiểu tất cả mọi thứ về nó, làm thế nào để khách hàng thưởng thức được hương vị ngon nhất và làm thế nào chúng tôi có thể sản xuất nó một cách thuần túy và có trách nhiệm nhất.</p>
@@ -241,16 +241,16 @@ HTML, 'en' => <<<'HTML'
 <h2>I.D.I's Values</h2>
 <h3>Passion</h3>
 <p>Passion and dedication are the key ingredients to our success; they are embedded in every aspect of our operations and at the heart of our culture.</p>
-<p><img src="https://idiseafood.com/vnt_upload/about/gt1.jpg" alt="Passion"></p>
+<p><img src="/assets/media/about/values/gt1.jpg" alt="Passion"></p>
 <h3>Innovation</h3>
 <p>At I.D.I, innovation is the norm—for everything we do and all that we produce. It is what guides us to the top of an ever-evolving seafood industry.</p>
-<p><img src="https://idiseafood.com/vnt_upload/about/07_2024/congnhan.png" alt="Innovation"></p>
+<p><img src="/assets/media/about/values/congnhan.png" alt="Innovation"></p>
 <h3>Sharing</h3>
 <p>I.D.I encourages an open and transparent environment. Within I.D.I, opportunities are shared among all our employees, enabling them to make important contributions across the spectrum of our business.</p>
-<p><img src="https://idiseafood.com/vnt_upload/about/gt3.jpg" alt="Sharing"></p>
+<p><img src="/assets/media/about/values/gt3.jpg" alt="Sharing"></p>
 <h3>Responsibility</h3>
 <p>Enjoying nature's bounty comes with great responsibility. Our continued respect and contribution to society and the environment remain essential to our identity and our success.</p>
-<p><img src="https://idiseafood.com/vnt_upload/about/gt4.jpg" alt="Responsibility"></p>
+<p><img src="/assets/media/about/values/gt4.jpg" alt="Responsibility"></p>
 <h2>Strengths</h2>
 <h3>We are passionate</h3>
 <p>We simply love pangasius. We want to understand everything about it, how it tastes at its best, and how we can produce it as purely and responsibly as possible.</p>
@@ -269,16 +269,16 @@ HTML, 'zh' => <<<'HTML'
 <h2>核心价值观</h2>
 <h3>热情</h3>
 <p>热情与奉献是我们取得成功的关键，它们融入经营活动的每一个环节，也是企业文化的核心。</p>
-<p><img src="https://idiseafood.com/vnt_upload/about/gt1.jpg" alt="热情"></p>
+<p><img src="/assets/media/about/values/gt1.jpg" alt="热情"></p>
 <h3>创新</h3>
 <p>在I.D.I，创新是我们开展一切工作和生产所有产品的准则，引领我们在不断发展的水产行业中持续迈向更高水平。</p>
-<p><img src="https://idiseafood.com/vnt_upload/about/07_2024/congnhan.png" alt="创新"></p>
+<p><img src="/assets/media/about/values/congnhan.png" alt="创新"></p>
 <h3>分享</h3>
 <p>I.D.I倡导开放、透明的工作环境，与所有员工共享发展机会，使每个人都能在公司的各个业务领域作出重要贡献。</p>
-<p><img src="https://idiseafood.com/vnt_upload/about/gt3.jpg" alt="分享"></p>
+<p><img src="/assets/media/about/values/gt3.jpg" alt="分享"></p>
 <h3>责任</h3>
 <p>享受大自然的馈赠也意味着承担重大责任。我们始终尊重社会与环境并持续作出贡献，这是I.D.I保持自身特色并取得成功的重要基础。</p>
-<p><img src="https://idiseafood.com/vnt_upload/about/gt4.jpg" alt="责任"></p>
+<p><img src="/assets/media/about/values/gt4.jpg" alt="责任"></p>
 <h2>我们的优势</h2>
 <h3>我们充满热情</h3>
 <p>我们热爱巴沙鱼，希望深入了解它的一切：如何呈现最佳风味，以及如何以最纯净、最负责任的方式进行生产。</p>

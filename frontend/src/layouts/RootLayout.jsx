@@ -1,8 +1,9 @@
 import { Suspense } from 'react'
-import { Outlet, ScrollRestoration } from 'react-router'
+import { ScrollRestoration } from 'react-router'
 import Navbar from '@components/navigation/Navbar'
 import Footer from '@components/navigation/Footer'
 import PageLoader from '@components/common/PageLoader'
+import PageTransition from '@components/common/PageTransition'
 
 /**
  * RootLayout — Wraps all public-facing pages.
@@ -27,7 +28,7 @@ export default function RootLayout() {
       {/* Main content area — grows to fill remaining height */}
       <main className="flex-1">
         <Suspense fallback={<PageLoader />}>
-          <Outlet />
+          <PageTransition />
         </Suspense>
       </main>
 

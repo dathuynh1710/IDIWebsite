@@ -34,27 +34,27 @@ class CatalogSeeder extends Seeder
     private function products(): array
     {
         return [
-            'fillet_clean' => $this->product('IDI-PAN-001', 'fillet', 'Cá Fillet, Tạo Hình Sạch', 'Pangasius Fillet, Well Trimmed', 'ca-fillet-tao-hinh-sach', 'dm2.jpg', 'https://idiseafood.com/vnt_upload/product/10_2020/dm2.jpg', 15, 14, true),
-            'fillet_skin_on_deep_trimmed' => $this->product('IDI-FIL-002', 'fillet', 'Cá Fillet, Còn Da, Vanh Dè Sát', 'Pangasius Fillet, Skin-on, Deep Trimmed', 'ca-fillet-con-da-vanh-de-sat', 'VDS_con_da_min_1.jpg', 'https://idiseafood.com/vnt_upload/product/03_2021/VDS_con_da_min_1.jpg', 1, 13),
-            'fillet_skinless_belly_flap' => $this->product('IDI-FIL-003', 'fillet', 'Cá Fillet, Bỏ Da, Còn Dè', 'Pangasius Fillet, Skinless, Belly Flap-on', 'ca-fillet-bo-da-con-de', 'Bo_da_de_EU_min.jpg', 'https://idiseafood.com/vnt_upload/product/03_2021/Bo_da_de_EU_min.jpg', 10, 12),
-            'fillet_red_meat' => $this->product('IDI-FIL-004', 'fillet', 'Cá Fillet, Bỏ Da, Còn Thịt Đỏ, Vanh Dè Sát', 'Pangasius Fillet, Skinless, Red Meat-on, Deep Trimmed', 'ca-fillet-bo-da-con-thit-do-vanh-de-sat', 'VDS_con_thit_do_min.jpg', 'https://idiseafood.com/vnt_upload/product/03_2021/VDS_con_thit_do_min.jpg', 9, 11),
-            'fillet_co' => $this->product('IDI-FIL-005', 'fillet', 'Cá Fillet, Tạo Hình Sạch, Xông CO', 'Pangasius Fillet, Well Trimmed, CO Treated', 'ca-fillet-tao-hinh-sach-xong-co', 'Xong_CO_min.jpg', 'https://idiseafood.com/vnt_upload/product/03_2021/Xong_CO_min.jpg', 14, 10),
-            'fillet_skin_on_belly_flap' => $this->product('IDI-FIL-006', 'fillet', 'Cá Fillet, Còn Da, Còn Dè', 'Pangasius Fillet, Skin-on, Belly Flap-on', 'ca-fillet-con-da-con-de', 'Con_da_con_de_min.jpg', 'https://idiseafood.com/vnt_upload/product/03_2021/Con_da_con_de_min.jpg', 12, 8),
-            'portion_skin_on' => $this->product('IDI-POR-001', 'portions', 'Cá Cắt Khúc Từ Cá Fillet, Còn Da, Còn Dè', 'Portions from Pangasius Fillet, Skin-on, Belly Flap-on', 'ca-cat-khuc-tu-ca-fillet-con-da-con-de', 'dm3.jpg', 'https://idiseafood.com/vnt_upload/product/10_2020/dm3.jpg', 6, 9, true),
-            'portion_whole_fish' => $this->product('IDI-POR-002', 'portions', 'Cá Cắt Khúc Từ Cá Nguyên Con Cắt Đầu Bằng', 'Portions from Whole Pangasius, Straight Head Cut', 'ca-cat-khuc-tu-ca-nguyen-con-cat-dau-bang', 'Cat_khuc_min.jpg', 'https://idiseafood.com/vnt_upload/product/03_2021/Cat_khuc_min.jpg', 13, 6),
-            'portion_clean' => $this->product('IDI-POR-003', 'portions', 'Cá Cắt Khúc Từ Cá Fillet, Tạo Hình Sạch', 'Portions from Well-trimmed Pangasius Fillet', 'ca-cat-khuc-tu-ca-fillet-tao-hinh-sach', 'Cat_mieng_vuong_min.jpg', 'https://idiseafood.com/vnt_upload/product/03_2021/Cat_mieng_vuong_min.jpg', 7, 4),
-            'whole_straight_head' => $this->product('IDI-WHO-001', 'whole', 'Cá Nguyên Con Cắt Đầu Bằng', 'Whole Pangasius, Straight Head Cut', 'ca-nguyen-con-cat-dau-bang', 'dm4.jpg', 'https://idiseafood.com/vnt_upload/product/10_2020/dm4.jpg', 5, 7, true),
-            'whole_butterfly' => $this->product('IDI-WHO-002', 'whole', 'Cá Nguyên Con Xẻ Bướm Lưng', 'Whole Pangasius, Back Butterfly Cut', 'ca-nguyen-con-xe-buom-lung', 'Nguyen_con_xe_buom_min.jpg', 'https://idiseafood.com/vnt_upload/product/03_2021/Nguyen_con_xe_buom_min.jpg', 2, 3),
-            'rose_roll' => $this->product('IDI-VAP-001', 'value_added', 'Cá Fillet, Tạo Hình Sạch, Cuộn Hoa Hồng', 'Well-trimmed Pangasius Fillet, Rose Roll', 'ca-fillet-tao-hinh-sach-cuon-hoa-hong', 'Hoa_hong_min.jpg', 'https://idiseafood.com/vnt_upload/product/03_2021/Hoa_hong_min.jpg', 11, 5, true),
-            'skewered' => $this->product('IDI-VAP-002', 'value_added', 'Cá Cắt Khúc Từ Cá Fillet, Tạo Hình Sạch, Xiên Que', 'Well-trimmed Pangasius Fillet Portions, Skewered', 'ca-cat-khuc-tu-ca-fillet-tao-hinh-sach-xien-que', 'dm5.jpg', 'https://idiseafood.com/vnt_upload/product/10_2020/dm5.jpg', 4, 2),
-            'belly' => $this->product('IDI-VAP-003', 'value_added', 'Ức Cá Tra', 'Pangasius Belly', 'uc-ca-tra', 'dm6.jpg', 'https://idiseafood.com/vnt_upload/product/10_2020/dm6.jpg', 3, 1),
+            'fillet_clean' => $this->product('IDI-PAN-001', 'fillet', 'Cá Fillet, Tạo Hình Sạch', 'Pangasius Fillet, Well Trimmed', 'ca-fillet-tao-hinh-sach', 'dm2.jpg', 15, 14, true),
+            'fillet_skin_on_deep_trimmed' => $this->product('IDI-FIL-002', 'fillet', 'Cá Fillet, Còn Da, Vanh Dè Sát', 'Pangasius Fillet, Skin-on, Deep Trimmed', 'ca-fillet-con-da-vanh-de-sat', 'VDS_con_da_min_1.jpg', 1, 13),
+            'fillet_skinless_belly_flap' => $this->product('IDI-FIL-003', 'fillet', 'Cá Fillet, Bỏ Da, Còn Dè', 'Pangasius Fillet, Skinless, Belly Flap-on', 'ca-fillet-bo-da-con-de', 'Bo_da_de_EU_min.jpg', 10, 12),
+            'fillet_red_meat' => $this->product('IDI-FIL-004', 'fillet', 'Cá Fillet, Bỏ Da, Còn Thịt Đỏ, Vanh Dè Sát', 'Pangasius Fillet, Skinless, Red Meat-on, Deep Trimmed', 'ca-fillet-bo-da-con-thit-do-vanh-de-sat', 'VDS_con_thit_do_min.jpg', 9, 11),
+            'fillet_co' => $this->product('IDI-FIL-005', 'fillet', 'Cá Fillet, Tạo Hình Sạch, Xông CO', 'Pangasius Fillet, Well Trimmed, CO Treated', 'ca-fillet-tao-hinh-sach-xong-co', 'Xong_CO_min.jpg', 14, 10),
+            'fillet_skin_on_belly_flap' => $this->product('IDI-FIL-006', 'fillet', 'Cá Fillet, Còn Da, Còn Dè', 'Pangasius Fillet, Skin-on, Belly Flap-on', 'ca-fillet-con-da-con-de', 'Con_da_con_de_min.jpg', 12, 8),
+            'portion_skin_on' => $this->product('IDI-POR-001', 'portions', 'Cá Cắt Khúc Từ Cá Fillet, Còn Da, Còn Dè', 'Portions from Pangasius Fillet, Skin-on, Belly Flap-on', 'ca-cat-khuc-tu-ca-fillet-con-da-con-de', 'dm3.jpg', 6, 9, true),
+            'portion_whole_fish' => $this->product('IDI-POR-002', 'portions', 'Cá Cắt Khúc Từ Cá Nguyên Con Cắt Đầu Bằng', 'Portions from Whole Pangasius, Straight Head Cut', 'ca-cat-khuc-tu-ca-nguyen-con-cat-dau-bang', 'Cat_khuc_min.jpg', 13, 6),
+            'portion_clean' => $this->product('IDI-POR-003', 'portions', 'Cá Cắt Khúc Từ Cá Fillet, Tạo Hình Sạch', 'Portions from Well-trimmed Pangasius Fillet', 'ca-cat-khuc-tu-ca-fillet-tao-hinh-sach', 'Cat_mieng_vuong_min.jpg', 7, 4),
+            'whole_straight_head' => $this->product('IDI-WHO-001', 'whole', 'Cá Nguyên Con Cắt Đầu Bằng', 'Whole Pangasius, Straight Head Cut', 'ca-nguyen-con-cat-dau-bang', 'dm4.jpg', 5, 7, true),
+            'whole_butterfly' => $this->product('IDI-WHO-002', 'whole', 'Cá Nguyên Con Xẻ Bướm Lưng', 'Whole Pangasius, Back Butterfly Cut', 'ca-nguyen-con-xe-buom-lung', 'Nguyen_con_xe_buom_min.jpg', 2, 3),
+            'rose_roll' => $this->product('IDI-VAP-001', 'value_added', 'Cá Fillet, Tạo Hình Sạch, Cuộn Hoa Hồng', 'Well-trimmed Pangasius Fillet, Rose Roll', 'ca-fillet-tao-hinh-sach-cuon-hoa-hong', 'Hoa_hong_min.jpg', 11, 5, true),
+            'skewered' => $this->product('IDI-VAP-002', 'value_added', 'Cá Cắt Khúc Từ Cá Fillet, Tạo Hình Sạch, Xiên Que', 'Well-trimmed Pangasius Fillet Portions, Skewered', 'ca-cat-khuc-tu-ca-fillet-tao-hinh-sach-xien-que', 'dm5.jpg', 4, 2),
+            'belly' => $this->product('IDI-VAP-003', 'value_added', 'Ức Cá Tra', 'Pangasius Belly', 'uc-ca-tra', 'dm6.jpg', 3, 1),
         ];
     }
 
     /** @return array<string, mixed> */
-    private function product(string $sku, string $category, string $viName, string $enName, string $slug, string $fileName, string $imageUrl, int $sourceId, int $sortOrder, bool $featured = false): array
+    private function product(string $sku, string $category, string $viName, string $enName, string $slug, string $fileName, int $sourceId, int $sortOrder, bool $featured = false): array
     {
-        return compact('sku', 'category', 'viName', 'enName', 'slug', 'fileName', 'imageUrl', 'sourceId', 'sortOrder', 'featured');
+        return compact('sku', 'category', 'viName', 'enName', 'slug', 'fileName', 'sourceId', 'sortOrder', 'featured');
     }
 
     /** @return array<string, int> */
@@ -65,10 +65,10 @@ class CatalogSeeder extends Seeder
 
         foreach ($this->products() as $key => $product) {
             $ids[$key] = $this->upsertId('media', [
-                'disk' => 'public', 'directory' => 'products/reference', 'file_name' => $product['fileName'],
+                'disk' => 'public_assets', 'directory' => 'media/products', 'file_name' => $product['fileName'],
             ], [
                 'folder_id' => $folderId,
-                'external_url' => $product['imageUrl'],
+                'external_url' => null,
                 'original_name' => $product['fileName'],
                 'mime_type' => 'image/jpeg',
                 'extension' => 'jpg',

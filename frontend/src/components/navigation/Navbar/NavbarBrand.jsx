@@ -1,5 +1,6 @@
 import { Link } from 'react-router'
 import { useLanguage } from '@hooks/useLanguage'
+import { publicAsset } from '@utils/publicAsset'
 
 export default function NavbarBrand() {
   const { t } = useLanguage()
@@ -10,7 +11,7 @@ export default function NavbarBrand() {
       className="flex flex-shrink-0 items-center"
     >
       <img
-        src="/images/brand/idi-logo.png"
+        src={publicAsset('images/brand/idi-logo.png')}
         alt="IDI Seafood"
         className="h-14 w-auto rounded-md object-contain px-1.5 py-1 "
       />

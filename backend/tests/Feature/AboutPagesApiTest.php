@@ -48,6 +48,17 @@ class AboutPagesApiTest extends TestCase
         $this->assertSame('核心价值观', $values->getTranslation('title', 'zh'));
         $this->assertStringContainsString('We act with honesty and integrity', $values->getTranslation('content', 'en'));
         $this->assertStringContainsString('我们秉持诚实与诚信', $values->getTranslation('content', 'zh'));
+        $this->assertStringContainsString('/assets/media/about/values/gt1.jpg', $values->getTranslation('content', 'en'));
+
+        $this->getJson('/api/about/ABOUT_VALUES?locale=en')
+            ->assertOk()
+            ->assertJsonPath(
+                'data.content',
+                fn (string $content): bool => str_contains(
+                    $content,
+                    config('app.url').'/assets/media/about/values/gt1.jpg'
+                )
+            );
 
         $history = Page::where('code', 'ABOUT_HISTORY')->firstOrFail();
         $this->assertSame('A History of Innovation', $history->getTranslation('title', 'en'));

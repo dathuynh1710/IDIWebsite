@@ -1,12 +1,15 @@
 import InvestorDocumentsPage from '@components/investors/InvestorDocumentsPage'
+import { useLanguage } from '@hooks/useLanguage'
 
 export default function FinancialsPage() {
+  const { t } = useLanguage()
+
   return (
     <InvestorDocumentsPage
       category="bao-cao-tai-chinh"
-      title="Báo cáo tài chính"
-      description="Báo cáo riêng, hợp nhất và văn bản giải trình theo từng kỳ công bố của IDI."
-      libraryTitle="Thư viện báo cáo tài chính"
+      title={t('investorPages.financials.title')}
+      description={t('investorPages.financials.description')}
+      libraryTitle={t('investorPages.financials.libraryTitle')}
     />
   )
 }

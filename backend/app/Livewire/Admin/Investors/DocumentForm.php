@@ -21,16 +21,27 @@ class DocumentForm extends AdminComponent
     use WithFileUploads;
 
     public ?InvestorDocument $document = null;
+
     public ?int $document_category_id = null;
+
     public string $published_on = '';
+
     public bool $is_active = true;
+
     public string $slug = '';
+
     public string $seo_title = '';
+
     public string $meta_description = '';
+
     public array $enabled_locales = ['vi'];
+
     public array $title = ['vi' => '', 'en' => '', 'zh' => ''];
+
     public array $summary = ['vi' => '', 'en' => '', 'zh' => ''];
+
     public array $uploads = [];
+
     public array $removeFiles = ['vi' => false, 'en' => false, 'zh' => false];
 
     public function mount(?InvestorDocument $document = null): void
@@ -69,7 +80,7 @@ class DocumentForm extends AdminComponent
 
     public function removeFile(string $locale): void
     {
-        abort_unless($locale === 'vi', 404);
+        abort_unless(in_array($locale, ['vi', 'en', 'zh'], true), 404);
         $this->uploads[$locale] = null;
         $this->removeFiles[$locale] = true;
     }
@@ -84,8 +95,8 @@ class DocumentForm extends AdminComponent
         Gate::authorize($this->document ? 'investors.update' : 'investors.create');
         $this->updatedEnabledLocales();
         $this->slug = Str::slug($this->slug ?: ($this->title['vi'] ?? ''));
-        $hasUpload = filled($this->uploads['vi'] ?? null);
-        $hasRemoval = $this->removeFiles['vi'];
+        $hasUpload = collect($this->uploads)->contains(fn ($upload): bool => filled($upload));
+        $hasRemoval = collect($this->removeFiles)->contains(true);
         $maxKilobytes = $this->maxUploadMegabytes() * 1024;
 
         $rules = [
@@ -97,9 +108,11 @@ class DocumentForm extends AdminComponent
             'slug' => ['required', 'string', 'max:255', Rule::unique('investor_documents', 'slug')->ignore($this->document?->id)],
             'seo_title' => ['nullable', 'string', 'max:255'],
             'meta_description' => ['nullable', 'string', 'max:500'],
-            'uploads.vi' => ['nullable', 'file', 'mimes:pdf,doc,docx,xls,xlsx,ppt,pptx,zip', "max:{$maxKilobytes}"],
-            'removeFiles.vi' => ['boolean'],
         ];
+        foreach (['vi', 'en', 'zh'] as $locale) {
+            $rules["uploads.{$locale}"] = ['nullable', 'file', 'mimes:pdf,doc,docx,xls,xlsx,ppt,pptx,zip,rar', "max:{$maxKilobytes}"];
+            $rules["removeFiles.{$locale}"] = ['boolean'];
+        }
         foreach ($this->enabled_locales as $locale) {
             $rules["title.{$locale}"] = ['required', 'string', 'max:255'];
             $rules["summary.{$locale}"] = ['nullable', 'string', 'max:5000'];
@@ -108,26 +121,27 @@ class DocumentForm extends AdminComponent
         $localeLabels = ['vi' => 'Tiếng Việt', 'en' => 'English', 'zh' => '中文'];
         $attributes = [
             'document_category_id' => 'Danh mục',
-            'published_on'         => 'Ngày công bố',
-            'slug'                 => 'Đường dẫn',
-            'seo_title'            => 'Tiêu đề SEO',
-            'meta_description'     => 'Meta description',
-            'uploads.vi'           => 'Tệp tải lên',
+            'published_on' => 'Ngày công bố',
+            'slug' => 'Đường dẫn',
+            'seo_title' => 'Tiêu đề SEO',
+            'meta_description' => 'Meta description',
         ];
+        foreach ($localeLabels as $locale => $label) {
+            $attributes["uploads.{$locale}"] = "Tệp tải lên ({$label})";
+        }
         foreach ($this->enabled_locales as $locale) {
             $label = $localeLabels[$locale] ?? $locale;
-            $attributes["title.{$locale}"]   = "Tiêu đề ({$label})";
+            $attributes["title.{$locale}"] = "Tiêu đề ({$label})";
             $attributes["summary.{$locale}"] = "Tóm tắt ({$label})";
         }
 
         $data = $this->validate($rules, [], $attributes);
 
-        if (! $this->document && ! $hasUpload) {
+        if (! $this->document && ! filled($this->uploads['vi'] ?? null)) {
             $this->addError('uploads.vi', 'Vui lòng tải lên một tệp.');
 
             return null;
         }
-
 
         foreach (['title', 'summary'] as $field) {
             $submitted = collect($data[$field] ?? [])
@@ -146,24 +160,28 @@ class DocumentForm extends AdminComponent
 
         DB::transaction(function () use ($data): void {
             $this->document = InvestorDocument::updateOrCreate(['id' => $this->document?->id], $data);
-            $existing = $this->document->files()->where('locale', 'vi')->with('media')->first();
+            foreach (['vi', 'en', 'zh'] as $locale) {
+                $existing = $this->document->files()->where('locale', $locale)->with('media')->first();
 
-            if ($this->removeFiles['vi'] && ! isset($this->uploads['vi'])) {
-                $this->deleteStoredFile($existing);
-            } elseif (isset($this->uploads['vi'])) {
-                $upload = $this->uploads['vi'];
-                $path = $upload->store('investor-documents', 'public');
-                $media = Media::create([
-                    'disk' => 'public', 'directory' => dirname($path), 'file_name' => basename($path),
-                    'original_name' => $upload->getClientOriginalName(), 'mime_type' => $upload->getMimeType(),
-                    'extension' => $upload->getClientOriginalExtension(), 'file_size' => $upload->getSize(),
-                    'title' => $this->title, 'alt_text' => $this->title, 'created_by' => auth()->id(),
-                ]);
-                $this->deleteStoredFile($existing);
-                InvestorDocumentFile::create([
-                    'investor_document_id' => $this->document->id, 'media_id' => $media->id, 'locale' => 'vi',
-                    'display_name' => ['vi' => $upload->getClientOriginalName()], 'sort_order' => 0,
-                ]);
+                if (($this->removeFiles[$locale] ?? false) && ! isset($this->uploads[$locale])) {
+                    $this->deleteStoredFile($existing);
+                } elseif (isset($this->uploads[$locale])) {
+                    $upload = $this->uploads[$locale];
+                    $path = $upload->store("investor-documents/{$locale}", 'public');
+                    $media = Media::create([
+                        'disk' => 'public', 'directory' => dirname($path), 'file_name' => basename($path),
+                        'original_name' => $upload->getClientOriginalName(), 'mime_type' => $upload->getMimeType(),
+                        'extension' => $upload->getClientOriginalExtension(), 'file_size' => $upload->getSize(),
+                        'title' => [$locale => $this->title[$locale] ?? $this->title['vi']],
+                        'alt_text' => [$locale => $this->title[$locale] ?? $this->title['vi']],
+                        'created_by' => auth()->id(),
+                    ]);
+                    $this->deleteStoredFile($existing);
+                    InvestorDocumentFile::create([
+                        'investor_document_id' => $this->document->id, 'media_id' => $media->id, 'locale' => $locale,
+                        'display_name' => [$locale => $upload->getClientOriginalName()], 'sort_order' => 0,
+                    ]);
+                }
             }
         });
 
@@ -184,7 +202,7 @@ class DocumentForm extends AdminComponent
         }
         $media = $file->media;
         $file->delete();
-        if ($media) {
+        if ($media && ! InvestorDocumentFile::where('media_id', $media->id)->exists()) {
             Storage::disk($media->disk)->delete(trim($media->directory.'/'.$media->file_name, '/'));
             $media->delete();
         }
@@ -218,7 +236,8 @@ class DocumentForm extends AdminComponent
     private function hasLocalizedContent(string $locale): bool
     {
         return filled($this->document?->getTranslation('title', $locale, false))
-            || filled($this->document?->getTranslation('summary', $locale, false));
+            || filled($this->document?->getTranslation('summary', $locale, false))
+            || $this->document?->files?->contains('locale', $locale);
     }
 
     private function categoryOptions(): array
@@ -252,7 +271,7 @@ class DocumentForm extends AdminComponent
         return view('livewire.admin.investors.document-form', [
             'categoryOptions' => $this->categoryOptions(),
             'maxUploadMegabytes' => $this->maxUploadMegabytes(),
-            'currentFile' => $this->document?->files?->firstWhere('locale', 'vi'),
+            'currentFiles' => $this->document?->files?->keyBy('locale') ?? collect(),
             'locales' => ['vi' => 'Tiếng Việt', 'en' => 'English', 'zh' => '中文'],
             'breadcrumbs' => [['label' => 'Bảng điều khiển', 'route' => 'admin.dashboard'], ['label' => 'Quan hệ cổ đông', 'route' => 'admin.investors.documents.index'], ['label' => $this->document ? 'Cập nhật' : 'Thêm mới']],
         ]);

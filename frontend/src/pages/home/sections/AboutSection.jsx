@@ -2,6 +2,7 @@ import { Link } from 'react-router'
 import RevealOnScroll from '@components/common/RevealOnScroll'
 import { useLanguage } from '@hooks/useLanguage'
 import { getHomeTranslations } from '@/i18n/home'
+import { publicAsset } from '@utils/publicAsset'
 
 export default function AboutSection() {
   const { language, t } = useLanguage()
@@ -40,7 +41,7 @@ export default function AboutSection() {
 
           <RevealOnScroll direction="right" delay={100}>
             <img
-              src="https://idiseafood.com/vnt_upload/weblink/MAP_vn_1.jpg"
+              src={publicAsset('assets/images/home/company-map.jpg')}
               alt={copy.imageAlt}
               className="h-auto w-full object-contain"
               loading="lazy"

@@ -16,15 +16,17 @@ class InvestorDocumentDownloadController extends Controller
         abort_unless($file->document && $file->media && ($publicDocument || auth()->check()), 404);
 
         $media = $file->media;
+        $path = trim($media->directory.'/'.$media->file_name, '/');
+        if (Storage::disk($media->disk)->exists($path)) {
+            return Storage::disk($media->disk)->download($path, $media->original_name, [
+                'Content-Type' => $media->mime_type ?: 'application/octet-stream',
+            ]);
+        }
+
         if ($media->external_url) {
             return redirect()->away($media->external_url);
         }
 
-        $path = trim($media->directory.'/'.$media->file_name, '/');
-        abort_unless(Storage::disk($media->disk)->exists($path), 404);
-
-        return Storage::disk($media->disk)->download($path, $media->original_name, [
-            'Content-Type' => $media->mime_type ?: 'application/octet-stream',
-        ]);
+        abort(404);
     }
 }

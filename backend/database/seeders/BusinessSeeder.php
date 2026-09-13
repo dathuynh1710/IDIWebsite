@@ -33,7 +33,7 @@ class BusinessSeeder extends Seeder
         $recipes = [
             [
                 'code' => 'RECIPE_PANGASIUS_CURRY_COCONUT', 'featured' => true, 'sort' => 80,
-                'image' => ['mon_an.png', 'https://www.idiseafood.com/vnt_upload/recipes/08_2026/mon_an.png'],
+                'image' => 'mon_an.png',
                 'title' => ['Cà ri cá tra với dừa và sả', 'Pangasius fish curry with coconut and lemongrass', '椰香茅巴沙鱼咖喱'],
                 'slug' => ['ca-ri-ca-tra-voi-dua-va-sa', 'pangasius-fish-curry-coconut-lemongrass', 'yezi-xiangmao-basha-yu-gali'],
                 'summary' => [
@@ -56,49 +56,49 @@ class BusinessSeeder extends Seeder
             ],
             [
                 'code' => 'RECIPE_PASSION_FRUIT_FILLET', 'featured' => false, 'sort' => 70,
-                'image' => ['CATALOGUE_2020.png', 'https://www.idiseafood.com/vnt_upload/recipes/10_2024/CATALOGUE_2020.png'],
+                'image' => 'CATALOGUE_2020.png',
                 'title' => ['Phi lê áp chảo với chanh dây', 'Pan Seared Fillet with Passion Fruit', '百香果煎鱼片'],
                 'slug' => ['phi-le-ap-chao-voi-chanh-day', 'pan-seared-fillet-passion-fruit', 'baixiangguo-jian-yupian'],
                 'summary' => ['Đun nóng 1 thìa cà phê dầu và xào hành tím cho đến khi vàng. Thêm rượu vang trắng và giảm còn một nửa. Thêm nước dùng cá và chanh dây, nêm muối. Giảm còn một nửa nữa, sau đó thêm mật ong và bơ.', 'Heat 1 tsp oil and sauté the shallots till golden. Add the white wine and reduce to half. Add fish stock and passion fruit, season with salt, reduce again, then add honey and butter.', '加热1茶匙油，将青葱炒至金黄色。加入白葡萄酒并收至一半，再加入鱼汤和百香果，以盐调味，最后加入蜂蜜和黄油。'],
             ],
             [
                 'code' => 'RECIPE_CHINESE_SPICY_FISH', 'featured' => false, 'sort' => 60,
-                'image' => ['z5820210877220_2b747df29a0a8e335636b84c68da6333.jpg', 'https://www.idiseafood.com/vnt_upload/recipes/10_2024/z5820210877220_2b747df29a0a8e335636b84c68da6333.jpg'],
+                'image' => 'z5820210877220_2b747df29a0a8e335636b84c68da6333.jpg',
                 'title' => ['Cá cay kiểu Trung Hoa', 'Chinese-styled spicy fish', '中式麻辣鱼'],
                 'slug' => ['ca-cay-kieu-trung-hoa', 'chinese-styled-spicy-fish', 'zhongshi-mala-yu'],
                 'summary' => ['Đun nóng dầu trong chảo, xào tỏi, ớt, tỏi tây và gừng cho đến khi thơm.', 'Heat oil in the pan, stir fry garlic, chilli, leek and ginger till fragrant. Deep fry the fish portion and then put it into the pan.', '在煎锅中加热油，将大蒜、辣椒、韭菜和生姜炒香，再将鱼块炸好后放入锅中。'],
             ],
             [
                 'code' => 'RECIPE_TEMPURA_PASSION_FRUIT', 'featured' => false, 'sort' => 50,
-                'image' => ['z5820210889242_94f642a81fede0ba23b8007c1d111eb8.jpg', 'https://www.idiseafood.com/vnt_upload/recipes/10_2024/z5820210889242_94f642a81fede0ba23b8007c1d111eb8.jpg'],
+                'image' => 'z5820210889242_94f642a81fede0ba23b8007c1d111eb8.jpg',
                 'title' => ['Cá Tempura sốt cam chanh dây', 'Tempura fish with orange and passion fruit sauce', '橙香百香果酱天妇罗鱼'],
                 'slug' => ['ca-tempura-sot-cam-chanh-day', 'tempura-fish-orange-passion-fruit-sauce', 'chengxiang-baixiangguo-tianfuluo-yu'],
                 'summary' => ['Nêm gia vị cho cá theo khẩu vị. Đảm bảo từng miếng phi lê được phủ hoàn toàn bằng bột tempura trước khi chiên giòn.', 'Add your preferred seasonings to the fish. Make sure each piece of fillet is fully covered by tempura flour before frying until crisp.', '按喜好给鱼调味，确保鱼片完全裹上天妇罗面糊后炸至酥脆。'],
             ],
             [
                 'code' => 'RECIPE_FISH_SANDWICH', 'featured' => false, 'sort' => 40,
-                'image' => ['z5820210882109_c463c04d65301d28e7518e5e51761803.jpg', 'https://www.idiseafood.com/vnt_upload/recipes/10_2024/z5820210882109_c463c04d65301d28e7518e5e51761803.jpg'],
+                'image' => 'z5820210882109_c463c04d65301d28e7518e5e51761803.jpg',
                 'title' => ['Sandwich cá', 'Fish sandwich', '鱼三明治'],
                 'slug' => ['sandwich-ca', 'fish-sandwich', 'yu-sanmingzhi'],
                 'summary' => ['Cắt phi lê tẩm bột chiên thành từng miếng, nướng hai lát bánh sandwich và thái các loại rau.', 'Cut fried breaded fillet into pieces, toast 2 slices of sandwich bread and slice all the vegetables.', '将炸好的面包屑鱼片切块，烤两片吐司并把蔬菜切片。'],
             ],
             [
                 'code' => 'RECIPE_PANGASIUS_FILLET_STEAK', 'featured' => false, 'sort' => 30,
-                'image' => ['z5820211493047_a352e685c6713e8f10815070b8bdfabe.jpg', 'https://www.idiseafood.com/vnt_upload/recipes/10_2024/z5820211493047_a352e685c6713e8f10815070b8bdfabe.jpg'],
+                'image' => 'z5820211493047_a352e685c6713e8f10815070b8bdfabe.jpg',
                 'title' => ['Bít tết phi lê cá tra', 'Pangasius fillet steak', '巴沙鱼柳排'],
                 'slug' => ['bit-tet-phi-le-ca-tra', 'pangasius-fillet-steak', 'basha-yu-liupai'],
                 'summary' => ['Rắc một nhúm muối, hương thảo khô và hạt tiêu lên phi lê cá sống.', 'Sprinkle a pinch of salt, dried rosemary and pepper onto the raw fish fillet.', '在生鱼片上撒少许盐、干迷迭香和胡椒粉。'],
             ],
             [
                 'code' => 'RECIPE_FRIED_BREADED_FILLET', 'featured' => false, 'sort' => 20,
-                'image' => ['z5820210887364_5091a4dd979800ffa9bf36571b71889b.jpg', 'https://www.idiseafood.com/vnt_upload/recipes/10_2024/z5820210887364_5091a4dd979800ffa9bf36571b71889b.jpg'],
+                'image' => 'z5820210887364_5091a4dd979800ffa9bf36571b71889b.jpg',
                 'title' => ['Phi lê tẩm bột chiên', 'Fried breaded fillet', '油炸面包屑鱼片'],
                 'slug' => ['phi-le-tam-bot-chien', 'fried-breaded-fillet', 'youzha-mianbaoxie-yupian'],
                 'summary' => ['Phi lê cá sau khi rửa sạch sẽ để ráo nước trước khi chế biến. Cho muối và tiêu vào phi lê và để một lúc.', 'Drain and dry the thoroughly washed fish fillet before cooking. Add salt and pepper and leave it for a while.', '鱼片洗净后沥干，烹饪前加入盐和胡椒粉腌制片刻。'],
             ],
             [
                 'code' => 'RECIPE_FISH_CURRY', 'featured' => false, 'sort' => 10,
-                'image' => ['CATALOGUE_2020_1.png', 'https://www.idiseafood.com/vnt_upload/recipes/10_2024/CATALOGUE_2020_1.png'],
+                'image' => 'CATALOGUE_2020_1.png',
                 'title' => ['Cà ri cá', 'Fish Curry', '咖喱鱼'],
                 'slug' => ['ca-ri-ca', 'fish-curry', 'gali-yu'],
                 'summary' => ['Ướp cá với gừng tỏi băm, nghệ, bột ớt đỏ và muối; sau đó áp chảo cho đến khi vàng và để riêng.', 'Marinate fish with minced ginger and garlic, turmeric, red chilli powder and salt; then sear till golden and set aside.', '用姜蒜末、姜黄、红辣椒粉和盐腌鱼，然后煎至金黄备用。'],
@@ -113,11 +113,11 @@ class BusinessSeeder extends Seeder
         $firstRecipeId = 0;
         foreach ($recipes as $definition) {
             $mediaId = $this->upsertId('media', [
-                'disk' => 'public', 'directory' => 'recipes/images', 'file_name' => $definition['image'][0],
+                'disk' => 'public_assets', 'directory' => 'media/recipes', 'file_name' => $definition['image'],
             ], [
-                'folder_id' => $folderId, 'original_name' => $definition['image'][0],
-                'external_url' => $definition['image'][1], 'mime_type' => str_ends_with($definition['image'][0], '.png') ? 'image/png' : 'image/jpeg',
-                'extension' => pathinfo($definition['image'][0], PATHINFO_EXTENSION), 'title' => $this->translations(...$definition['title']),
+                'folder_id' => $folderId, 'original_name' => $definition['image'],
+                'external_url' => null, 'mime_type' => str_ends_with($definition['image'], '.png') ? 'image/png' : 'image/jpeg',
+                'extension' => pathinfo($definition['image'], PATHINFO_EXTENSION), 'title' => $this->translations(...$definition['title']),
                 'alt_text' => $this->translations(...$definition['title']), 'created_by' => $adminId, 'deleted_at' => null,
             ]);
             $summary = $definition['summary'];

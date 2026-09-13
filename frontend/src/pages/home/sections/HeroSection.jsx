@@ -1,12 +1,13 @@
 import { Link } from "react-router";
 import { useLanguage } from "@hooks/useLanguage";
 import { getHomeTranslations } from "@/i18n/home";
+import { publicAsset } from "@utils/publicAsset";
 
 const STAT_VALUES = ["50+", "200+", "80+", "2003"];
 const VIDEO_BY_LANGUAGE = {
-  vi: "/videos/idi-food-30s-vi.mp4",
-  en: "/videos/idi-food-30s-en.mp4",
-  "zh-CN": "/videos/idi-food-30s-zh-cn.mp4",
+  vi: publicAsset("videos/idi-food-30s-vi.mp4"),
+  en: publicAsset("videos/idi-food-30s-en.mp4"),
+  "zh-CN": publicAsset("videos/idi-food-30s-zh-cn.mp4"),
 };
 
 export default function HeroSection() {
@@ -25,7 +26,7 @@ export default function HeroSection() {
           muted
           loop
           playsInline
-          poster="https://idiseafood.com/vnt_upload/weblink/MAP_vn_1.jpg"
+          poster={publicAsset("assets/images/home/company-map.jpg")}
         >
           <source src={videoSrc} type="video/mp4" />
         </video>

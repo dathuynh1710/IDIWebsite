@@ -20,7 +20,7 @@ class RecipesApiTest extends TestCase
             ->assertJsonPath('total', 8)
             ->assertJsonPath('items.0.title', 'Cà ri cá tra với dừa và sả')
             ->assertJsonPath('items.0.isFeatured', true)
-            ->assertJsonPath('items.0.image.url', 'https://www.idiseafood.com/vnt_upload/recipes/08_2026/mon_an.png')
+            ->assertJsonPath('items.0.image.url', config('app.url').'/assets/media/recipes/mon_an.png')
             ->assertJsonPath('pageConfig.title', 'Công thức bạn có thể thử');
     }
 

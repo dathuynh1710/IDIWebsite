@@ -4,11 +4,10 @@ import PageHead from '@components/common/PageHead'
 import { careersService } from '@services/careers.service'
 import toast from '@/utils/toast'
 import { useLanguage } from '@hooks/useLanguage'
+import { publicAsset } from '@utils/publicAsset'
 
-const DEFAULT_HERO_IMAGE =
-  'https://www.idiseafood.com/vnt_upload/recruitment/gt2.jpg'
-const DEFAULT_TEAM_IMAGE =
-  'https://www.idiseafood.com/vnt_upload/recruitment/gt3.jpg'
+const DEFAULT_HERO_IMAGE = publicAsset('assets/images/careers/gallery-1.jpg')
+const DEFAULT_TEAM_IMAGE = publicAsset('assets/images/careers/gallery-2.jpg')
 
 const BENEFITS = [
   { number: '01', key: 'health' },

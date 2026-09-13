@@ -114,6 +114,12 @@
   animation: shimmer 1.5s linear infinite;
 }
 
+/* Routed content wrapper. The transition itself is restarted by PageTransition. */
+.page-route-transition {
+  min-height: 100%;
+  transform-origin: top center;
+}
+
 /* ── Staggered children delays (for section reveals) */
 .stagger-1  { animation-delay: 0ms;   }
 .stagger-2  { animation-delay: 100ms; }

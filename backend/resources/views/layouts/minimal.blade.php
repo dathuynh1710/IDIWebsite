@@ -11,9 +11,9 @@
     <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('favicon/apple-touch-icon.png') }}">
     <meta name="apple-mobile-web-app-title" content="IDISeafood">
     <link rel="manifest" href="{{ asset('favicon/site.webmanifest') }}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js"></script>
+    <link rel="stylesheet" href="{{ asset('assets/vendor/toastr/toastr-2.1.4.min.css') }}">
+    <script src="{{ asset('assets/vendor/jquery/jquery-3.7.1.min.js') }}"></script>
+    <script src="{{ asset('assets/vendor/toastr/toastr-2.1.4.min.js') }}"></script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="minimal-body">

@@ -1,12 +1,15 @@
 import InvestorDocumentsPage from '@components/investors/InvestorDocumentsPage'
+import { useLanguage } from '@hooks/useLanguage'
 
 export default function GreenBondPage() {
+  const { t } = useLanguage()
+
   return (
     <InvestorDocumentsPage
       category="trai-phieu"
-      title="Trái phiếu"
-      description="Thông tin phát hành, sử dụng vốn, tình hình tài chính, cam kết và thanh toán trái phiếu của IDI."
-      libraryTitle="Công bố thông tin trái phiếu"
+      title={t('investorPages.greenBond.title')}
+      description={t('investorPages.greenBond.description')}
+      libraryTitle={t('investorPages.greenBond.libraryTitle')}
     />
   )
 }

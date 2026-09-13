@@ -25,21 +25,6 @@
                         <x-form.input name="published_on" label="Ngày đăng" type="date" wire:model="published_on" />
                         <x-form.switch name="is_active" label="Hiện" helper="Bật để hiển thị tài liệu trên website." wire:model="is_active" />
 
-                        <div class="form-field">
-                            <label>File download @if(! $document)<span>*</span>@endif</label>
-                            @if($uploads['vi'] ?? false)
-                                <div class="file-selection"><x-ui.icon name="file" size="20" /> {{ $uploads['vi']->getClientOriginalName() }}</div>
-                            @elseif($currentFile && !($removeFiles['vi'] ?? false))
-                                <div class="file-selection"><a href="{{ route('investors.documents.download', $currentFile) }}"><x-ui.icon name="file" size="20" /> {{ $currentFile->media->original_name }}</a></div>
-                            @endif
-                            <input class="input" type="file" wire:model="uploads.vi" accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.zip">
-                            <p class="field-help">Chọn một tệp để người dùng tải xuống. Dung lượng tối đa {{ $maxUploadMegabytes }} MB.</p>
-                            @if(($uploads['vi'] ?? false) || ($currentFile && !($removeFiles['vi'] ?? false)))
-                                <button class="button button-ghost" type="button" wire:click="removeFile('vi')">Xóa tệp</button>
-                            @endif
-                            <x-form.field-error name="uploads.vi" />
-                        </div>
-
                         <details class="settings-advanced" @if(count($enabled_locales) > 1) open @endif>
                             <summary>Bản dịch ngôn ngữ</summary>
                             <fieldset class="product-locale-selector news-locale-selector">
@@ -67,6 +52,21 @@
                                 <fieldset class="localized-fields" @disabled(!in_array($locale, $enabled_locales, true))>
                                     <x-form.input name="title[{{ $locale }}]" label="Tiêu đề" wire:model.blur="title.{{ $locale }}" :required="in_array($locale, $enabled_locales, true)" />
                                     <x-form.ckeditor5-editor name="summary[{{ $locale }}]" label="Nội dung tin" :model="'summary.'.$locale" :value="$summary[$locale] ?? ''" rows="16" placeholder="Nhập nội dung tin..." />
+                                    @php($currentFile = $currentFiles->get($locale))
+                                    <div class="form-field">
+                                        <label>File download {{ $label }} @if(! $document && $locale === 'vi')<span>*</span>@endif</label>
+                                        @if($uploads[$locale] ?? false)
+                                            <div class="file-selection"><x-ui.icon name="file" size="20" /> {{ $uploads[$locale]->getClientOriginalName() }}</div>
+                                        @elseif($currentFile && !($removeFiles[$locale] ?? false))
+                                            <div class="file-selection"><a href="{{ route('investors.documents.download', $currentFile) }}"><x-ui.icon name="file" size="20" /> {{ $currentFile->media->original_name }}</a></div>
+                                        @endif
+                                        <input class="input" type="file" wire:model="uploads.{{ $locale }}" accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.zip,.rar">
+                                        <p class="field-help">Chỉ tải file đúng ngôn ngữ này. Nếu để trống, website sẽ fallback về file tiếng Việt. Dung lượng tối đa {{ $maxUploadMegabytes }} MB.</p>
+                                        @if(($uploads[$locale] ?? false) || ($currentFile && !($removeFiles[$locale] ?? false)))
+                                            <button class="button button-ghost" type="button" wire:click="removeFile('{{ $locale }}')">Xóa tệp</button>
+                                        @endif
+                                        <x-form.field-error name="uploads.{{ $locale }}" />
+                                    </div>
                                 </fieldset>
                             </x-form.section>
                         </section>

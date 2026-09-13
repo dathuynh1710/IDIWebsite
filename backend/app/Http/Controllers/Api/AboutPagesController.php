@@ -90,7 +90,9 @@ class AboutPagesController extends Controller
             'slug' => $page->getTranslation('slug', $locale, false),
             'title' => $page->getTranslation('title', $locale, false),
             'summary' => $page->getTranslation('summary', $locale, false),
-            'content' => $page->getTranslation('content', $locale, false),
+            'content' => $this->absolutePublicAssetUrls(
+                $page->getTranslation('content', $locale, false)
+            ),
             'image' => $media ? [
                 'url' => $media->url,
                 'alt' => $mediaAlt ?: $page->getTranslation('title', $locale, false),
@@ -127,6 +129,19 @@ class AboutPagesController extends Controller
                 'description' => $localized($module->meta_description),
             ],
         ];
+    }
+
+    private function absolutePublicAssetUrls(?string $html): ?string
+    {
+        if (! $html) {
+            return $html;
+        }
+
+        return preg_replace_callback(
+            '~(?<prefix>\b(?:href|poster|src)=["\'])(?<path>/assets/[^"\']+)(?<suffix>["\'])~i',
+            fn (array $match): string => $match['prefix'].asset(ltrim($match['path'], '/')).$match['suffix'],
+            $html
+        ) ?: $html;
     }
 
     private function locale(Request $request): string

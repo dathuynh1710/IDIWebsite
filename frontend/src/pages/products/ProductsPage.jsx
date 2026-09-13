@@ -3,6 +3,7 @@ import { Link, useSearchParams } from 'react-router'
 import PageHead from '@components/common/PageHead'
 import { productsService } from '@services/products.service'
 import { useLanguage } from '@hooks/useLanguage'
+import { publicAsset } from '@utils/publicAsset'
 
 const PRODUCT_DETAIL_LABELS = {
   vi: {
@@ -60,8 +61,8 @@ function ProductCard({ product, category, onOpen }) {
         <div className="dstitle">
           <h3><button type="button" onClick={onOpen} aria-haspopup="dialog">{product.name}</button></h3>
         </div>
-        <div className="dsconts" aria-label="Quy cách sản phẩm">
-          <span className="size-label">Size</span>
+        <div className="dsconts" aria-label={t('products.specificationLabel')}>
+          <span className="size-label">{t('products.sizeLabel')}</span>
           {product.sizes.map(size => <span key={size} className="size-chip">{size}</span>)}
         </div>
         <div className="dsviews">
@@ -99,7 +100,7 @@ function ProductModal({ product, isClosing, onClose, closeButtonRef, dialogRef }
         </button>
         <div className="product-modal__media">
           <img src={product.image} alt={product.name} />
-          <div className="product-modal__media-label"><span>IDI Seafood</span><strong>Chất lượng xuất khẩu</strong></div>
+          <div className="product-modal__media-label"><span>IDI Seafood</span><strong>{t('products.exportQuality')}</strong></div>
         </div>
         <div className="product-modal__content">
           {product.category && <div className="product-modal__eyebrow"><span>{product.category}</span></div>}
@@ -232,42 +233,33 @@ export default function ProductsPage() {
 
   return (
     <>
-      <PageHead title="Sản phẩm | IDI Seafood" description="Danh mục sản phẩm cá tra IDI với quy trình khép kín, công nghệ hiện đại và tiêu chuẩn chất lượng quốc tế." />
+      <PageHead title={t('products.seoTitle')} description={t('products.seoDescription')} />
       <main className="products-page">
         <section className="products-catalog" id="products-catalog">
           <div className="container">
             <header className="products-page__header">
-              <h1>Sản phẩm</h1>
+              <h1>{t('products.title')}</h1>
             </header>
 
             <section className="products-introduction" aria-labelledby="products-introduction-title">
-              <p className="products-introduction__lead">
-                Cá tra bắt nguồn từ các ao và sông nước ngọt ở Đồng bằng sông Cửu Long và đã trở thành
-                thực phẩm chính trong bữa ăn hàng ngày của người dân Việt Nam. Các sản phẩm cá tra cũng
-                trở nên phổ biến với người tiêu dùng trên toàn thế giới, xuất khẩu đến hơn 130 quốc gia
-                và vùng lãnh thổ do hương vị phù hợp với nhiều nền ẩm thực khác nhau.
-              </p>
+              <p className="products-introduction__lead">{t('products.lead')}</p>
 
               <div className="products-introduction__feature">
                 <figure className="products-introduction__media">
                   <img
-                    src="https://idiseafood.com/vnt_upload/product/10_2020/dm1.jpg"
-                    alt="Các món ăn chế biến từ cá tra IDI"
+                    src={publicAsset('assets/images/products/category-fillets.jpg')}
+                    alt={t('products.imageAlt')}
                     loading="eager"
                   />
                 </figure>
                 <div className="products-introduction__content">
-                  <h2 id="products-introduction-title">Giới thiệu sản phẩm</h2>
-                  <p>
-                    Tại I.D.I chúng tôi quan niệm rằng thực phẩm không những cần có giá trị dinh dưỡng
-                    cao, mà còn phải khiến khách hàng cảm thấy ngon miệng. Vì thế, nhiệm vụ của chúng tôi
-                    là mang đến các sản phẩm đa dạng, ngon và bổ dưỡng cho các thế hệ hôm nay và mai sau.
-                  </p>
+                  <h2 id="products-introduction-title">{t('products.introductionTitle')}</h2>
+                  <p>{t('products.introductionDescription')}</p>
                 </div>
               </div>
             </section>
 
-            <nav className="tpproductha" aria-label="Danh mục sản phẩm">
+            <nav className="tpproductha" aria-label={t('products.catalogLabel')}>
               <ul>
                 <li className={activeCategory === null ? 'active' : ''}>
                   <button type="button" onClick={() => setSearchParams({}, { preventScrollReset: true })} aria-pressed={activeCategory === null}><span>{t('actions.all')}</span></button>

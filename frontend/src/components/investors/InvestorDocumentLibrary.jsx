@@ -3,12 +3,13 @@ import { useDebounce } from '@hooks/useDebounce'
 import { useLanguage } from '@hooks/useLanguage'
 import { investorsService } from '@services/investors.service'
 
-const DATE_LOCALES = { vi: 'vi-VN', en: 'en-US', 'zh-CN': 'zh-CN' }
+const DATE_LOCALES = { vi: 'vi-VN', en: 'en-US', 'zh-CN': 'en-US' }
+const LONG_DATE_OPTIONS = { year: 'numeric', month: 'long', day: 'numeric' }
 const EMPTY_RESULT = { items: [], categories: [], years: [], total: 0, page: 1, limit: 20, lastPage: 1, pageConfig: null }
 const COPY = {
-  vi: { library: 'Tài liệu công bố', unavailableDate: 'Chưa cập nhật', loading: 'Đang tải tài liệu', search: 'Tìm tài liệu', searchPlaceholder: 'Tìm tài liệu, báo cáo...', year: 'Năm', allYears: 'Tất cả năm', category: 'Danh mục', allCategories: 'Tất cả danh mục', loadError: 'Không thể tải tài liệu', connection: 'Vui lòng kiểm tra kết nối và thử lại.', retry: 'Thử tải lại', quarter: 'Quý', view: 'Xem', viewLabel: 'Xem tài liệu', download: 'Tải tài liệu', noFile: 'Chưa có tệp', empty: 'Không tìm thấy tài liệu phù hợp.', noDocuments: 'Chưa có tài liệu được công bố.', clear: 'Xóa bộ lọc', results: '{{count}} tài liệu', dateColumn: 'Ngày', documentColumn: 'Nội dung tài liệu', metaColumn: 'Kỳ / Loại', actionColumn: 'Thao tác', pagination: 'Phân trang tài liệu', previous: 'Trước', next: 'Sau', page: 'Trang' },
-  en: { library: 'Published documents', unavailableDate: 'Not updated', loading: 'Loading documents', search: 'Search documents', searchPlaceholder: 'Search documents, reports...', year: 'Year', allYears: 'All years', category: 'Category', allCategories: 'All categories', loadError: 'Unable to load documents', connection: 'Please check your connection and try again.', retry: 'Try again', quarter: 'Quarter', view: 'View', viewLabel: 'View document', download: 'Download document', noFile: 'No file', empty: 'No matching documents found.', noDocuments: 'No documents have been published yet.', clear: 'Clear filters', results: '{{count}} documents', dateColumn: 'Date', documentColumn: 'Document', metaColumn: 'Period / Type', actionColumn: 'Actions', pagination: 'Document pagination', previous: 'Previous', next: 'Next', page: 'Page' },
-  'zh-CN': { library: '披露文件', unavailableDate: '尚未更新', loading: '正在加载文件', search: '搜索文件', searchPlaceholder: '搜索文件、报告...', year: '年份', allYears: '所有年份', category: '类别', allCategories: '所有类别', loadError: '无法加载文件', connection: '请检查网络连接并重试。', retry: '重试', quarter: '季度', view: '查看', viewLabel: '查看文件', download: '下载文件', noFile: '暂无文件', empty: '未找到匹配的文件。', noDocuments: '尚未发布文件。', clear: '清除筛选', results: '{{count}} 份文件', dateColumn: '日期', documentColumn: '文件内容', metaColumn: '期间 / 类型', actionColumn: '操作', pagination: '文件分页', previous: '上一页', next: '下一页', page: '第' },
+  vi: { library: 'Tài liệu công bố', unavailableDate: 'Chưa cập nhật', loading: 'Đang tải tài liệu', search: 'Tìm tài liệu', searchPlaceholder: 'Tìm tài liệu, báo cáo...', year: 'Năm', allYears: 'Tất cả năm', category: 'Danh mục', allCategories: 'Tất cả danh mục', loadError: 'Không thể tải tài liệu', connection: 'Vui lòng kiểm tra kết nối và thử lại.', retry: 'Thử tải lại', quarter: 'Quý', view: 'Xem', viewLabel: 'Xem tài liệu', download: 'Tải tài liệu', noFile: 'Chưa có tệp', fallbackFile: 'Đang dùng tệp tiếng Việt', empty: 'Không tìm thấy tài liệu phù hợp.', noDocuments: 'Chưa có tài liệu được công bố.', clear: 'Xóa bộ lọc', results: '{{count}} tài liệu', dateColumn: 'Ngày', documentColumn: 'Nội dung tài liệu', metaColumn: 'Kỳ / Loại', actionColumn: 'Thao tác', pagination: 'Phân trang tài liệu', previous: 'Trước', next: 'Sau', page: 'Trang' },
+  en: { library: 'Published documents', unavailableDate: 'Not updated', loading: 'Loading documents', search: 'Search documents', searchPlaceholder: 'Search documents, reports...', year: 'Year', allYears: 'All years', category: 'Category', allCategories: 'All categories', loadError: 'Unable to load documents', connection: 'Please check your connection and try again.', retry: 'Try again', quarter: 'Quarter', view: 'View', viewLabel: 'View document', download: 'Download document', noFile: 'No file', fallbackFile: 'Vietnamese file', empty: 'No matching documents found.', noDocuments: 'No documents have been published yet.', clear: 'Clear filters', results: '{{count}} documents', dateColumn: 'Date', documentColumn: 'Document', metaColumn: 'Period / Type', actionColumn: 'Actions', pagination: 'Document pagination', previous: 'Previous', next: 'Next', page: 'Page' },
+  'zh-CN': { library: '披露文件', unavailableDate: '尚未更新', loading: '正在加载文件', search: '搜索文件', searchPlaceholder: '搜索文件、报告...', year: '年份', allYears: '所有年份', category: '类别', allCategories: '所有类别', loadError: '无法加载文件', connection: '请检查网络连接并重试。', retry: '重试', quarter: '季度', view: '查看', viewLabel: '查看文件', download: '下载文件', noFile: '暂无文件', fallbackFile: '使用越南语文件', empty: '未找到匹配的文件。', noDocuments: '尚未发布文件。', clear: '清除筛选', results: '{{count}} 份文件', dateColumn: '日期', documentColumn: '文件内容', metaColumn: '期间 / 类型', actionColumn: '操作', pagination: '文件分页', previous: '上一页', next: '下一页', page: '第' },
 }
 
 function SearchIcon() {
@@ -23,7 +24,8 @@ function formatDate(value, language, unavailableDate) {
   if (!value) return unavailableDate
   const date = new Date(`${value}T00:00:00`)
   if (Number.isNaN(date.getTime())) return value
-  return date.toLocaleDateString(DATE_LOCALES[language] ?? 'vi-VN')
+  const options = language === 'vi' ? undefined : LONG_DATE_OPTIONS
+  return date.toLocaleDateString(DATE_LOCALES[language] ?? 'vi-VN', options)
 }
 
 function formatSize(bytes) {
@@ -83,11 +85,13 @@ function LoadingRows({ label }) {
   )
 }
 
-function DocumentMeta({ document, labels }) {
+function DocumentMeta({ document, language, labels }) {
   const items = []
   if (document.quarter) items.push(`${labels.quarter} ${document.quarter}`)
   if (document.file?.extension) items.push(document.file.extension)
   if (document.file?.size) items.push(formatSize(document.file.size))
+  const requestedFileLocale = language === 'zh-CN' ? 'zh' : language
+  if (document.file?.locale && document.file.locale !== requestedFileLocale) items.push(labels.fallbackFile)
 
   return (
     <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs font-semibold text-storm-grey md:block md:space-y-1">
@@ -117,9 +121,9 @@ function DocumentRow({ document, language, labels }) {
         <h3 className={titleClass}>
           {document.file ? <a href={document.file.url} target="_blank" rel="noreferrer" className="hover:text-seafoam">{document.title}</a> : document.title}
         </h3>
-        <div className="mt-2 md:hidden"><DocumentMeta document={document} labels={labels} /></div>
+        <div className="mt-2 md:hidden"><DocumentMeta document={document} language={language} labels={labels} /></div>
       </div>
-      <div className="hidden md:block"><DocumentMeta document={document} labels={labels} /></div>
+      <div className="hidden md:block"><DocumentMeta document={document} language={language} labels={labels} /></div>
       <div className="flex items-center gap-1.5 md:justify-end">
         {document.file ? (
           <>

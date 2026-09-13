@@ -1,5 +1,6 @@
 import PageHead from '@components/common/PageHead'
 import { useLanguage } from '@hooks/useLanguage'
+import { publicAsset } from '@utils/publicAsset'
 
 const APPROACHES = [
   { number: '01', key: 'listen' },
@@ -8,10 +9,9 @@ const APPROACHES = [
 ]
 
 const SOURCE_IMAGES = {
-  aquaculture: 'https://idiseafood.com/vnt_upload/File/10_2020/about1.png',
-  commitment: 'https://idiseafood.com/vnt_upload/File/10_2020/banner.png',
-  greenFinance:
-    'https://idiseafood.com/vnt_upload/File/12_2024/z6157041673068_a3e1b616e3505bb73eaa3d41c9de8d09.jpg',
+  aquaculture: publicAsset('assets/images/sustainability/aquaculture.png'),
+  commitment: publicAsset('assets/images/sustainability/commitment.png'),
+  greenFinance: publicAsset('assets/images/sustainability/traceability.jpg'),
 }
 
 export default function SustainabilityPage() {

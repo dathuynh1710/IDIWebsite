@@ -24,7 +24,7 @@ class ProductsApiTest extends TestCase
             ->assertJsonCount(4, 'categories')
             ->assertJsonPath('categories.0.slug', 'pangasius-fillet')
             ->assertJsonPath('categories.0.name', 'Cá Fillet')
-            ->assertJsonPath('categories.0.image', 'https://idiseafood.com/vnt_upload/product/10_2020/dm2.jpg')
+            ->assertJsonPath('categories.0.image', config('app.url').'/assets/media/products/dm2.jpg')
             ->assertJsonCount(6, 'categories.0.products')
             ->assertJsonPath('categories.0.products.0.name', 'Cá Fillet, Tạo Hình Sạch')
             ->assertJsonPath('categories.0.products.0.sortOrder', 14)
@@ -37,7 +37,7 @@ class ProductsApiTest extends TestCase
             ->assertJsonPath('categories.0.products.0.nutrition.protein', '15.50g')
             ->assertJsonPath('categories.0.products.0.nutrition.fat', '1.86g')
             ->assertJsonPath('categories.0.products.0.nutrition.saturated_fat', '0.66g')
-            ->assertJsonPath('categories.0.products.0.image', 'https://idiseafood.com/vnt_upload/product/10_2020/dm2.jpg')
+            ->assertJsonPath('categories.0.products.0.image', config('app.url').'/assets/media/products/dm2.jpg')
             ->assertJsonPath('categories.3.name', 'Các sản phẩm khác')
             ->assertJsonCount(3, 'categories.3.products');
 

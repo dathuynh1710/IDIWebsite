@@ -1,4 +1,5 @@
 import { useMemo } from 'react'
+import { publicAsset } from '@utils/publicAsset'
 
 function parseHistory(html) {
   if (!html || typeof DOMParser === 'undefined') return null
@@ -73,7 +74,7 @@ function Responsibility({ section }) {
         </div>
         <figure className="history-responsibility__visual">
           <img
-            src="https://idiseafood.com/vnt_upload/about/map.jpg"
+            src={publicAsset('assets/images/about/history-map.jpg')}
             alt={section.title}
             loading="lazy"
           />

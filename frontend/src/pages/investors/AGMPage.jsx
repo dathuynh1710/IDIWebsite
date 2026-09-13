@@ -1,12 +1,15 @@
 import InvestorDocumentsPage from '@components/investors/InvestorDocumentsPage'
+import { useLanguage } from '@hooks/useLanguage'
 
 export default function AGMPage() {
+  const { t } = useLanguage()
+
   return (
     <InvestorDocumentsPage
       category="dai-hoi-co-dong"
-      title="Đại hội đồng cổ đông"
-      description="Thư mời, tài liệu họp, biểu mẫu, biên bản và nghị quyết Đại hội đồng cổ đông của IDI."
-      libraryTitle="Hồ sơ Đại hội đồng cổ đông"
+      title={t('investorPages.agm.title')}
+      description={t('investorPages.agm.description')}
+      libraryTitle={t('investorPages.agm.libraryTitle')}
     />
   )
 }

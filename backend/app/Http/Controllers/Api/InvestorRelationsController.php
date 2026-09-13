@@ -157,15 +157,13 @@ class InvestorRelationsController extends Controller
     private function file(InvestorDocumentFile $file, string $locale): array
     {
         $media = $file->media;
-        $downloadUrl = $media?->external_url
-            ?: route('investors.documents.download', $file, absolute: false);
 
         return [
             'id' => $file->id,
-            'name' => $this->translation($file, 'display_name', $locale)
+            'name' => $this->translation($file, 'display_name', $file->locale ?: $locale)
                 ?: $media?->original_name,
             'locale' => $file->locale,
-            'url' => $downloadUrl,
+            'url' => route('investors.documents.download', $file, absolute: false),
             'mimeType' => $media?->mime_type,
             'extension' => strtolower((string) $media?->extension),
             'size' => $media?->file_size,

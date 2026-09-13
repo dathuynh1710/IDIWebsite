@@ -21,7 +21,7 @@ class InvestorRelationsApiTest extends TestCase
     {
         parent::setUp();
 
-        foreach ([['vi', 'Vietnamese', 'Tiếng Việt'], ['en', 'English', 'English']] as $index => [$code, $name, $nativeName]) {
+        foreach ([['vi', 'Vietnamese', 'Tiếng Việt'], ['en', 'English', 'English'], ['zh', 'Chinese', '中文']] as $index => [$code, $name, $nativeName]) {
             DB::table('locales')->insert([
                 'code' => $code,
                 'name' => $name,
@@ -114,7 +114,7 @@ class InvestorRelationsApiTest extends TestCase
             ->assertDownload('BCTC-Q2-2026.pdf');
     }
 
-    public function test_external_document_file_uses_its_public_url(): void
+    public function test_external_document_file_uses_the_internal_download_route(): void
     {
         $document = $this->document($this->financials);
         $media = Media::create([
@@ -134,10 +134,99 @@ class InvestorRelationsApiTest extends TestCase
 
         $this->getJson('/api/investors/documents')
             ->assertOk()
-            ->assertJsonPath('items.0.file.url', $media->external_url);
+            ->assertJsonPath('items.0.file.url', "/investor-documents/{$file->id}/download");
 
         $this->get(route('investors.documents.download', $file))
             ->assertRedirect($media->external_url);
+    }
+
+    public function test_locale_selects_its_file_and_zh_cn_falls_back_to_vietnamese_file(): void
+    {
+        $document = $this->document($this->financials, [
+            'title' => [
+                'vi' => 'Báo cáo tài chính riêng giữa niên độ 2026',
+                'en' => 'Interim Separate Financial Statements for 2026',
+                'zh' => '2026 年中期单独财务报表',
+            ],
+        ]);
+        $viMedia = Media::create([
+            'disk' => 'public',
+            'directory' => 'investor-documents',
+            'file_name' => 'interim-vi.pdf',
+            'original_name' => 'interim-vi.pdf',
+            'mime_type' => 'application/pdf',
+            'extension' => 'pdf',
+        ]);
+        $enMedia = Media::create([
+            'disk' => 'public',
+            'directory' => 'investor-documents',
+            'file_name' => 'interim-en.pdf',
+            'original_name' => 'interim-en.pdf',
+            'mime_type' => 'application/pdf',
+            'extension' => 'pdf',
+        ]);
+        $viFile = InvestorDocumentFile::create([
+            'investor_document_id' => $document->id,
+            'media_id' => $viMedia->id,
+            'locale' => 'vi',
+            'display_name' => ['vi' => 'Báo cáo tài chính riêng giữa niên độ 2026.pdf'],
+        ]);
+        $enFile = InvestorDocumentFile::create([
+            'investor_document_id' => $document->id,
+            'media_id' => $enMedia->id,
+            'locale' => 'en',
+            'display_name' => ['en' => 'Interim Separate Financial Statements for 2026.pdf'],
+        ]);
+
+        $this->getJson('/api/investors/documents?locale=en')
+            ->assertOk()
+            ->assertJsonPath('items.0.locale', 'en')
+            ->assertJsonPath('items.0.title', 'Interim Separate Financial Statements for 2026')
+            ->assertJsonPath('items.0.file.id', $enFile->id)
+            ->assertJsonPath('items.0.file.name', 'Interim Separate Financial Statements for 2026.pdf')
+            ->assertJsonPath('items.0.file.locale', 'en')
+            ->assertJsonPath('items.0.file.url', "/investor-documents/{$enFile->id}/download");
+
+        $this->getJson('/api/investors/documents?locale=zh-CN')
+            ->assertOk()
+            ->assertJsonPath('items.0.locale', 'zh')
+            ->assertJsonPath('items.0.title', '2026 年中期单独财务报表')
+            ->assertJsonPath('items.0.file.id', $viFile->id)
+            ->assertJsonPath('items.0.file.name', 'Báo cáo tài chính riêng giữa niên độ 2026.pdf')
+            ->assertJsonPath('items.0.file.locale', 'vi');
+    }
+
+    public function test_local_annual_report_wins_over_its_external_url(): void
+    {
+        Storage::fake('public_assets');
+        Storage::disk('public_assets')->put('documents/annual-report-2025.pdf', 'local-annual-report');
+
+        $document = $this->document($this->financials, [
+            'title' => ['vi' => 'Báo cáo thường niên 2025', 'en' => 'Annual report 2025'],
+        ]);
+        $media = Media::create([
+            'disk' => 'public_assets',
+            'directory' => 'documents',
+            'file_name' => 'annual-report-2025.pdf',
+            'external_url' => 'https://www.idiseafood.com/reports/annual-report-2025.pdf',
+            'original_name' => 'annual-report-2025.pdf',
+            'mime_type' => 'application/pdf',
+            'extension' => 'pdf',
+        ]);
+        $file = InvestorDocumentFile::create([
+            'investor_document_id' => $document->id,
+            'media_id' => $media->id,
+            'locale' => 'vi',
+        ]);
+
+        $this->getJson('/api/investors/documents?locale=en')
+            ->assertOk()
+            ->assertJsonPath('items.0.file.url', "/investor-documents/{$file->id}/download")
+            ->assertJsonMissing(['url' => $media->external_url]);
+
+        $this->get(route('investors.documents.download', $file))
+            ->assertOk()
+            ->assertDownload('annual-report-2025.pdf');
     }
 
     public function test_index_supports_locale_fallback_pagination_and_oldest_sort(): void

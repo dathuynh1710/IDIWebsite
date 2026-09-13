@@ -2,6 +2,7 @@ import { Link } from 'react-router'
 import RevealOnScroll from '@components/common/RevealOnScroll'
 import { useLanguage } from '@hooks/useLanguage'
 import { getHomeTranslations } from '@/i18n/home'
+import { publicAsset } from '@utils/publicAsset'
 
 export default function ManufacturingSection() {
   const { language, t } = useLanguage()
@@ -12,7 +13,7 @@ export default function ManufacturingSection() {
       <div className="container">
         <div className="relative min-h-[36rem] overflow-hidden sm:min-h-[40rem] lg:aspect-[15/8] lg:min-h-0">
           <img
-            src="https://idiseafood.com/vnt_upload/weblink/dichvu.jpg"
+            src={publicAsset('assets/images/home/manufacturing.jpg')}
             alt={copy.imageAlt}
             className="absolute inset-0 h-full w-full object-cover object-center"
             loading="lazy"

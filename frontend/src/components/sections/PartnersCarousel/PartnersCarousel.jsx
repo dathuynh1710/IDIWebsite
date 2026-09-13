@@ -1,50 +1,51 @@
 import { useEffect, useRef, useState } from 'react'
 import { useLanguage } from '@hooks/useLanguage'
 import { getHomeTranslations } from '@/i18n/home'
+import { publicAsset } from '@utils/publicAsset'
 
 const PARTNERS = [
   {
     name: 'Công ty CP Đầu tư và Phát triển Thủy sản Trisedco',
-    logo: '/images/partners/trisedco.png',
+    logo: publicAsset('images/partners/trisedco.png'),
     href: 'https://trisedco.com/',
   },
   {
     name: 'Công ty CP Tư vấn và Đầu tư Tài chính ASTAR',
-    logo: '/images/partners/astar.png',
+    logo: publicAsset('images/partners/astar.png'),
     href: 'https://www.saomainews.com.vn/',
   },
   {
     name: 'Công ty CP Tài chính và Truyền thông Quốc tế MIF',
-    logo: '/images/partners/mif.png',
+    logo: publicAsset('images/partners/mif.png'),
     href: 'https://mifvn.com/',
   },
   {
     name: 'Công ty CP Tư vấn Xây dựng và Đầu tư Tài chính AFC',
-    logo: '/images/partners/afc.jpg',
+    logo: publicAsset('images/partners/afc.jpg'),
   },
   {
     name: 'Công ty CP Du lịch An Giang',
-    logo: '/images/partners/du-lich-an-giang.jpg',
+    logo: publicAsset('images/partners/du-lich-an-giang.jpg'),
     href: 'https://www.angiangtourimex.vn/',
   },
   {
     name: 'Công ty CP Du lịch Đồng Tháp',
-    logo: '/images/partners/du-lich-dong-thap.png',
+    logo: publicAsset('images/partners/du-lich-dong-thap.png'),
     href: 'https://dongthaptourist.com/',
   },
   {
     name: 'Tập đoàn Sao Mai',
-    logo: '/images/partners/sao-mai-group.jpg',
+    logo: publicAsset('images/partners/sao-mai-group.jpg'),
     href: 'https://www.saomainews.com.vn/',
   },
   {
     name: 'Sao Mai Super Feed',
-    logo: '/images/partners/sao-mai-superfeed.png',
+    logo: publicAsset('images/partners/sao-mai-superfeed.png'),
     href: 'https://www.saomaisuperfeed.com/',
   },
   {
     name: 'Sao Mai Solar',
-    logo: '/images/partners/sao-mai-solar.png',
+    logo: publicAsset('images/partners/sao-mai-solar.png'),
     href: 'https://saomaisolar.vn/',
   },
 ]

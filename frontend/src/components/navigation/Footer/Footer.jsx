@@ -1,6 +1,7 @@
 import { Link } from 'react-router'
 import { FOOTER_LINKS } from '@data/navigation'
 import { useLanguage } from '@hooks/useLanguage'
+import { publicAsset } from '@utils/publicAsset'
 
 const CONTACT_INFO = [
   {
@@ -83,7 +84,7 @@ export default function Footer() {
             {/* Logo area */}
             <Link to="/" className="group mb-6 inline-flex flex-col items-center gap-4">
               <img
-                src="/images/brand/idi-logo.png"
+                src={publicAsset('images/brand/idi-logo.png')}
                 alt="IDI Seafood"
                 className="h-14 w-24 flex-shrink-0 rounded-md bg-white object-contain p-1"
               />

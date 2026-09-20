@@ -160,6 +160,9 @@ class Index extends AdminComponent
     public function requestBulkDelete(): void
     {
         Gate::authorize('products.delete');
+        if (! $this->requireBulkSelection('Vui lòng chọn ít nhất một sản phẩm.')) {
+            return;
+        }
         $this->validate(['selected' => ['required', 'array', 'min:1'], 'selected.*' => ['integer', 'distinct', 'exists:products,id']]);
         $this->pendingDeleteId = null;
         $this->pendingDeleteName = '';

@@ -93,6 +93,8 @@ class ProductsController extends Controller
             'sortOrder' => $product->sort_order,
             'slug' => $product->getTranslation('slug', $locale, false),
             'name' => $product->getTranslation('title', $locale, false),
+            'shortDescription' => $product->getTranslation('short_description', $locale, false),
+            'content' => $product->getTranslation('content', $locale, false),
             'image' => $product->featuredMedia?->url,
             'sizes' => $attributes->get('SIZE')?->value ?? [],
             'productSpecification' => $this->localizedDetail($specs['product_specification'] ?? null, $locale),

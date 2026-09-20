@@ -3,6 +3,7 @@
 namespace App\Livewire\Admin\Products;
 
 use App\Livewire\AdminComponent;
+use App\Models\CatalogAttribute;
 use App\Models\Media;
 use App\Models\Product;
 use App\Models\ProductCategory;
@@ -46,6 +47,21 @@ class Form extends AdminComponent
 
     public array $content = ['vi' => '', 'en' => '', 'zh' => ''];
 
+    public array $product_specification = ['vi' => '', 'en' => '', 'zh' => ''];
+
+    public array $presentation = ['vi' => '', 'en' => '', 'zh' => ''];
+
+    public array $packaging = ['vi' => '', 'en' => '', 'zh' => ''];
+
+    public string $sizes = '';
+
+    public array $nutrition = [
+        'calories' => '',
+        'protein' => '',
+        'fat' => '',
+        'saturated_fat' => '',
+    ];
+
     public array $seo_title = ['vi' => '', 'en' => '', 'zh' => ''];
 
     public array $meta_description = ['vi' => '', 'en' => '', 'zh' => ''];
@@ -57,7 +73,7 @@ class Form extends AdminComponent
         $product = $product?->exists ? $product : null;
         $this->modal = $modal;
         Gate::authorize($product ? 'products.update' : 'products.create');
-        $this->product = $product?->load('featuredMedia');
+        $this->product = $product?->load('featuredMedia', 'productAttributes.attribute');
         if (! $product) {
             $this->sort_order = ((int) Product::max('sort_order')) + 1;
 
@@ -71,6 +87,26 @@ class Form extends AdminComponent
             foreach (['vi', 'en', 'zh'] as $locale) {
                 $this->{$field}[$locale] = $product->getTranslation($field, $locale, false) ?? $this->{$field}[$locale];
             }
+        }
+
+        $details = $product->schema_extra ?? [];
+        foreach (['vi', 'en', 'zh'] as $locale) {
+            $this->product_specification[$locale] = $this->localizedDetail($details['product_specification'] ?? null, $locale);
+            $this->packaging[$locale] = $this->localizedDetail($details['packaging'] ?? null, $locale);
+        }
+
+        $sizeAttribute = $product->productAttributes->first(fn ($item) => $item->attribute?->code === 'SIZE');
+        $this->sizes = implode(PHP_EOL, $this->detailList($sizeAttribute?->value));
+
+        $presentationAttribute = $product->productAttributes->first(fn ($item) => $item->attribute?->code === 'PACKING');
+        foreach (['vi', 'en', 'zh'] as $locale) {
+            $this->presentation[$locale] = implode(PHP_EOL, $this->detailList(
+                $this->localizedDetailValue($presentationAttribute?->value, $locale)
+            ));
+        }
+
+        foreach (array_keys($this->nutrition) as $field) {
+            $this->nutrition[$field] = (string) ($details['nutrition'][$field] ?? '');
         }
 
         $this->enabled_locales = collect(['vi', 'en', 'zh'])
@@ -114,6 +150,12 @@ class Form extends AdminComponent
             'sort_order' => ['required', 'integer', 'min:0', 'max:999999'],
             'is_featured' => ['required', 'boolean'],
             'is_active' => ['required', 'boolean'],
+            'sizes' => ['nullable', 'string', 'max:5000'],
+            'nutrition' => ['array'],
+            'nutrition.calories' => ['nullable', 'string', 'max:100'],
+            'nutrition.protein' => ['nullable', 'string', 'max:100'],
+            'nutrition.fat' => ['nullable', 'string', 'max:100'],
+            'nutrition.saturated_fat' => ['nullable', 'string', 'max:100'],
             'enabled_locales' => ['required', 'array', 'min:1'],
             'enabled_locales.*' => ['required', Rule::in(['vi', 'en', 'zh'])],
         ];
@@ -123,6 +165,9 @@ class Form extends AdminComponent
             $rules["slug.{$locale}"] = ['required', 'string', 'max:255', 'regex:/^[a-z0-9]+(?:-[a-z0-9]+)*$/'];
             $rules["short_description.{$locale}"] = ['nullable', 'string', 'max:5000'];
             $rules["content.{$locale}"] = ['nullable', 'string', 'max:100000'];
+            $rules["product_specification.{$locale}"] = ['nullable', 'string', 'max:5000'];
+            $rules["presentation.{$locale}"] = ['nullable', 'string', 'max:5000'];
+            $rules["packaging.{$locale}"] = ['nullable', 'string', 'max:5000'];
             $rules["seo_title.{$locale}"] = ['nullable', 'string', 'max:255'];
             $rules["meta_description.{$locale}"] = ['nullable', 'string', 'max:500'];
             $rules["locale_published_at.{$locale}"] = ['nullable', 'date'];
@@ -130,22 +175,22 @@ class Form extends AdminComponent
 
         $localeLabels = ['vi' => 'Tiếng Việt', 'en' => 'English', 'zh' => '中文'];
         $attributes = [
-            'sku'                  => 'Mã sản phẩm (SKU)',
-            'product_category_id'  => 'Danh mục sản phẩm',
-            'featured_image'       => 'Ảnh đại diện',
-            'sort_order'           => 'Thứ tự hiển thị',
-            'is_featured'          => 'Nổi bật',
-            'is_active'            => 'Trạng thái',
+            'sku' => 'Mã sản phẩm (SKU)',
+            'product_category_id' => 'Danh mục sản phẩm',
+            'featured_image' => 'Ảnh đại diện',
+            'sort_order' => 'Thứ tự hiển thị',
+            'is_featured' => 'Nổi bật',
+            'is_active' => 'Trạng thái',
         ];
         foreach ($this->enabled_locales as $locale) {
             $label = $localeLabels[$locale] ?? $locale;
-            $attributes["title.{$locale}"]                 = "Tên sản phẩm ({$label})";
-            $attributes["slug.{$locale}"]                  = "Đường dẫn ({$label})";
-            $attributes["short_description.{$locale}"]     = "Mô tả ngắn ({$label})";
-            $attributes["content.{$locale}"]               = "Nội dung ({$label})";
-            $attributes["seo_title.{$locale}"]             = "Tiêu đề SEO ({$label})";
-            $attributes["meta_description.{$locale}"]      = "Meta description ({$label})";
-            $attributes["locale_published_at.{$locale}"]   = "Ngày đăng ({$label})";
+            $attributes["title.{$locale}"] = "Tên sản phẩm ({$label})";
+            $attributes["slug.{$locale}"] = "Đường dẫn ({$label})";
+            $attributes["short_description.{$locale}"] = "Mô tả ngắn ({$label})";
+            $attributes["content.{$locale}"] = "Nội dung ({$label})";
+            $attributes["seo_title.{$locale}"] = "Tiêu đề SEO ({$label})";
+            $attributes["meta_description.{$locale}"] = "Meta description ({$label})";
+            $attributes["locale_published_at.{$locale}"] = "Ngày đăng ({$label})";
         }
 
         $validated = $this->validate($rules, [], $attributes);
@@ -165,7 +210,26 @@ class Form extends AdminComponent
             ->mapWithKeys(fn (string $locale): array => [$locale => 'published'])
             ->all();
 
-        DB::transaction(function () use ($validated, $localized): void {
+        $detailTranslations = [];
+        foreach (['product_specification', 'packaging'] as $field) {
+            $detailTranslations[$field] = collect($validated[$field] ?? [])
+                ->intersectByKeys($enabledLocales)
+                ->map(fn ($value) => trim((string) $value))
+                ->filter()
+                ->all();
+        }
+        $presentation = collect($validated['presentation'] ?? [])
+            ->intersectByKeys($enabledLocales)
+            ->map(fn ($value) => $this->parseDetailList((string) $value))
+            ->filter()
+            ->all();
+        $sizes = $this->parseDetailList($validated['sizes'] ?? '');
+        $nutrition = collect($validated['nutrition'] ?? [])
+            ->map(fn ($value) => trim((string) $value))
+            ->filter()
+            ->all();
+
+        DB::transaction(function () use ($validated, $localized, $detailTranslations, $presentation, $sizes, $nutrition): void {
             $mediaId = $this->remove_image ? null : $this->product?->featured_media_id;
             if ($this->featured_image) {
                 $fileName = Str::uuid().'.'.$this->featured_image->extension();
@@ -192,6 +256,12 @@ class Form extends AdminComponent
                 'updated_by' => auth()->id(),
             ];
 
+            $schemaExtra = $this->product?->schema_extra ?? [];
+            $schemaExtra['product_specification'] = $detailTranslations['product_specification'];
+            $schemaExtra['packaging'] = $detailTranslations['packaging'];
+            $schemaExtra['nutrition'] = $nutrition;
+            $data['schema_extra'] = $schemaExtra;
+
             if ($this->product?->exists) {
                 foreach ($localized as $field => $translations) {
                     $this->product->replaceTranslations($field, $translations);
@@ -202,6 +272,9 @@ class Form extends AdminComponent
                 $data['created_by'] = auth()->id();
                 $this->product = Product::create(array_merge($data, $localized))->load('featuredMedia');
             }
+
+            $this->syncProductAttribute('SIZE', $sizes, 0);
+            $this->syncProductAttribute('PACKING', $presentation, 1);
         });
 
         $this->featured_image = null;
@@ -220,6 +293,56 @@ class Form extends AdminComponent
         $html = preg_replace('/(href|src)\s*=\s*(["\'])\s*javascript:.*?\2/is', '$1="#"', $html) ?? '';
 
         return trim(strip_tags($html, '<p><br><h2><h3><h4><strong><b><em><i><u><ul><ol><li><a><blockquote><pre><code><table><thead><tbody><tr><th><td><img>'));
+    }
+
+    private function syncProductAttribute(string $code, array $value, int $sortOrder): void
+    {
+        $attribute = CatalogAttribute::where('code', $code)->first();
+        if (! $attribute || ! $this->product) {
+            return;
+        }
+
+        if ($value === []) {
+            $this->product->productAttributes()->where('attribute_id', $attribute->id)->delete();
+
+            return;
+        }
+
+        $this->product->productAttributes()->updateOrCreate(
+            ['attribute_id' => $attribute->id],
+            ['value' => $value, 'numeric_value' => null, 'boolean_value' => null, 'sort_order' => $sortOrder],
+        );
+    }
+
+    private function parseDetailList(string $value): array
+    {
+        return collect(preg_split('/[\r\n,]+/', $value) ?: [])
+            ->map(fn (string $item): string => trim($item))
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
+    }
+
+    private function detailList(mixed $value): array
+    {
+        return is_array($value) && array_is_list($value) ? array_values(array_filter($value, 'filled')) : [];
+    }
+
+    private function localizedDetailValue(mixed $value, string $locale): mixed
+    {
+        if (! is_array($value) || array_is_list($value)) {
+            return $value;
+        }
+
+        return $value[$locale] ?? null;
+    }
+
+    private function localizedDetail(mixed $value, string $locale): string
+    {
+        $localized = $this->localizedDetailValue($value, $locale);
+
+        return is_string($localized) ? $localized : '';
     }
 
     private function hasLocalizedContent(Product $product, string $locale): bool

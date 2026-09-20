@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Livewire\Admin\Products\Form as ProductForm;
 use App\Livewire\Admin\Products\Index as ProductIndex;
+use App\Models\CatalogAttribute;
 use App\Models\ContactMessage;
 use App\Models\JobApplication;
 use App\Models\Product;
@@ -352,6 +353,56 @@ class AdminDashboardTest extends TestCase
         $this->assertSame(['vi' => 'published', 'en' => 'published', 'zh' => 'published'], $product->getTranslations('translation_status'));
         $this->assertStringNotContainsString('<script', $product->getTranslation('short_description', 'vi'));
         $this->assertStringNotContainsString('<script', $product->getTranslation('content', 'vi'));
+    }
+
+    public function test_product_details_can_be_managed_from_the_content_form(): void
+    {
+        $product = $this->product($this->category());
+        $product->update(['schema_extra' => ['source_url' => 'https://example.com/product']]);
+        CatalogAttribute::create([
+            'code' => 'SIZE',
+            'name' => ['vi' => 'Kích cỡ'],
+            'type' => 'multiselect',
+            'sort_order' => 0,
+            'is_active' => true,
+        ]);
+        CatalogAttribute::create([
+            'code' => 'PACKING',
+            'name' => ['vi' => 'Hình thức cấp đông'],
+            'type' => 'multiselect',
+            'sort_order' => 1,
+            'is_active' => true,
+        ]);
+
+        Livewire::actingAs($this->productEditor())
+            ->test(ProductForm::class, ['product' => $product])
+            ->set('enabled_locales', ['vi'])
+            ->set('short_description.vi', '<p>Mô tả hiển thị dưới tên sản phẩm</p>')
+            ->set('product_specification.vi', 'Phi lê tạo hình sạch')
+            ->set('presentation.vi', "Đông lạnh nhanh riêng lẻ\nĐông lạnh khối")
+            ->set('packaging.vi', 'Túi PE hoặc hút chân không')
+            ->set('sizes', "60g-120g\n120g-170g\n60g-120g")
+            ->set('nutrition.calories', '82.7 Kcal')
+            ->set('nutrition.protein', '15.50g')
+            ->set('nutrition.fat', '1.86g')
+            ->set('nutrition.saturated_fat', '0.66g')
+            ->call('save')
+            ->assertHasNoErrors();
+
+        $product->refresh()->load('productAttributes.attribute');
+        $this->assertSame('<p>Mô tả hiển thị dưới tên sản phẩm</p>', $product->getTranslation('short_description', 'vi'));
+        $this->assertSame('Phi lê tạo hình sạch', $product->schema_extra['product_specification']['vi']);
+        $this->assertSame('Túi PE hoặc hút chân không', $product->schema_extra['packaging']['vi']);
+        $this->assertSame('82.7 Kcal', $product->schema_extra['nutrition']['calories']);
+        $this->assertSame('https://example.com/product', $product->schema_extra['source_url']);
+        $this->assertSame(
+            ['60g-120g', '120g-170g'],
+            $product->productAttributes->firstWhere('attribute.code', 'SIZE')->value,
+        );
+        $this->assertSame(
+            ['vi' => ['Đông lạnh nhanh riêng lẻ', 'Đông lạnh khối']],
+            $product->productAttributes->firstWhere('attribute.code', 'PACKING')->value,
+        );
     }
 
     public function test_product_can_be_saved_in_vietnamese_only(): void

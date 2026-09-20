@@ -11,7 +11,7 @@
         <x-form.select name="locale" label="Ngôn ngữ" :options="['vi' => 'VI', 'en' => 'EN', 'zh' => '中文']" wire:model.live="locale" />
     </div></section>
     <section class="card category-list-card">
-        <div class="category-toolbar"><div class="category-toolbar-actions"><button class="button button-success" wire:click="bulk('show')" @disabled(!$selected)>Hiện</button><button class="button button-secondary" wire:click="bulk('hide')" @disabled(!$selected)>Ẩn</button><button class="button button-secondary" wire:click="bulk('reorder')" @disabled(!$selected)>Cập nhật thứ tự</button><button class="button button-danger" type="button" wire:click="requestBulkDelete" @disabled(!$selected)>Xóa</button></div><span>{{ $posts->total() }} tin</span></div>
+        <div class="category-toolbar"><div class="category-toolbar-actions"><button class="button button-success" wire:click="bulk('show')" @disabled(!$selected)>Hiện</button><button class="button button-secondary" wire:click="bulk('hide')" @disabled(!$selected)>Ẩn</button><button class="button button-secondary" wire:click="bulk('reorder')" @disabled(!$selected)>Cập nhật thứ tự</button><button class="button button-danger" type="button" wire:click="requestBulkDelete">Xóa</button></div><span>{{ $posts->total() }} tin</span></div>
         @if($posts->isEmpty())<x-ui.empty-state title="Chưa có tin tức" description="Tạo bài viết đầu tiên hoặc thay đổi bộ lọc." icon="newspaper" />
         @else<div class="table-responsive news-desktop-list"><table class="data-table category-table"><thead><tr><th></th><th>Thứ tự</th><th>Tiêu đề ({{ strtoupper($locale) }})</th><th>Chuyên mục</th><th>Bản dịch</th><th>Trạng thái</th><th></th></tr></thead><tbody>
             @foreach($posts as $item)

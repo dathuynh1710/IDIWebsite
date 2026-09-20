@@ -125,6 +125,9 @@ class Index extends AdminComponent
     public function requestBulkDelete(): void
     {
         Gate::authorize('pages.delete');
+        if (! $this->requireBulkSelection('Vui lòng chọn ít nhất một nội dung.')) {
+            return;
+        }
         $this->validate([
             'selected' => ['required', 'array', 'min:1'],
             'selected.*' => ['integer', 'distinct', 'exists:pages,id'],

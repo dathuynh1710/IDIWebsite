@@ -61,6 +61,9 @@ function ProductCard({ product, category, onOpen }) {
         <div className="dstitle">
           <h3><button type="button" onClick={onOpen} aria-haspopup="dialog">{product.name}</button></h3>
         </div>
+        {product.shortDescription && (
+          <div className="product-short-description" dangerouslySetInnerHTML={{ __html: product.shortDescription }} />
+        )}
         <div className="dsconts" aria-label={t('products.specificationLabel')}>
           <span className="size-label">{t('products.sizeLabel')}</span>
           {product.sizes.map(size => <span key={size} className="size-chip">{size}</span>)}
@@ -105,6 +108,9 @@ function ProductModal({ product, isClosing, onClose, closeButtonRef, dialogRef }
         <div className="product-modal__content">
           {product.category && <div className="product-modal__eyebrow"><span>{product.category}</span></div>}
           <h2 id="product-modal-title">{product.name}</h2>
+          {product.shortDescription && (
+            <div className="product-modal__short-description" dangerouslySetInnerHTML={{ __html: product.shortDescription }} />
+          )}
           <div id="product-modal-description" className="product-modal__details">
             {product.productSpecification && (
               <section className="product-modal__detail-block">

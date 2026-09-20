@@ -31,7 +31,7 @@
                     <button class="button button-success" type="button" wire:click="bulk('show')" @disabled($selected === [])>Hiện</button>
                     <button class="button button-secondary" type="button" wire:click="bulk('hide')" @disabled($selected === [])>Ẩn</button>
                     <button class="button button-secondary" type="button" wire:click="bulk('reorder')" @disabled($selected === [])>Cập nhật thứ tự</button>
-                    <button class="button button-danger" type="button" wire:click="requestBulkDelete" @disabled($selected === [])>Xóa</button>
+                    <button class="button button-danger" type="button" wire:click="requestBulkDelete">Xóa</button>
                 </div>
                 <span class="category-selection-count">Đã chọn {{ count($selected) }} / {{ $recipes->total() }} công thức</span>
             </div>

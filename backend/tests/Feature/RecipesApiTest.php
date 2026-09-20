@@ -21,7 +21,8 @@ class RecipesApiTest extends TestCase
             ->assertJsonPath('items.0.title', 'Cà ri cá tra với dừa và sả')
             ->assertJsonPath('items.0.isFeatured', true)
             ->assertJsonPath('items.0.image.url', config('app.url').'/assets/media/recipes/mon_an.png')
-            ->assertJsonPath('pageConfig.title', 'Công thức bạn có thể thử');
+            ->assertJsonPath('pageConfig.title', 'Công thức bạn có thể thử')
+            ->assertJsonPath('pageConfig.description', 'Khám phá những công thức món ăn để làm mới thực đơn của bạn.');
     }
 
     public function test_recipe_detail_is_localized_and_contains_two_column_content(): void

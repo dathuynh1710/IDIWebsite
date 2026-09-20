@@ -172,6 +172,9 @@ class ApplicationIndex extends AdminComponent
     public function requestBulkDelete(): void
     {
         Gate::authorize('recruitment.delete');
+        if (! $this->requireBulkSelection('Vui lòng chọn ít nhất một hồ sơ ứng tuyển.')) {
+            return;
+        }
         $this->validate(['selected' => ['required', 'array', 'min:1'], 'selected.*' => ['integer', 'distinct', 'exists:job_applications,id']]);
         $this->pendingDeleteId = null;
         $this->pendingDeleteName = '';

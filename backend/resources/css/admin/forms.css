@@ -25,7 +25,7 @@
 .news-locale-selector input:checked ~ .switch-track > span { transform: translateX(18px); }
 .news-locale-selector input:focus-visible ~ .switch-track { outline: 3px solid rgba(36,104,179,.25); outline-offset: 2px; }
 .news-locale-selector label.is-required .switch-track { opacity: .7; }
-.settings-tab-list { position: sticky; z-index: 20; top: calc(var(--admin-header-height) + 12px); display: flex; gap: 4px; overflow-x: auto; padding: 6px; border: 1px solid var(--admin-border); border-radius: 12px; background: rgba(255,255,255,.96); box-shadow: var(--admin-shadow); scrollbar-width: thin; backdrop-filter: blur(10px); }
+.settings-tab-list { position: static; z-index: auto; top: auto; display: flex; gap: 4px; overflow-x: auto; padding: 6px; border: 1px solid var(--admin-border); border-radius: 12px; background: rgba(255,255,255,.96); box-shadow: var(--admin-shadow); scrollbar-width: thin; backdrop-filter: blur(10px); }
 .settings-tab-list button { min-width: 128px; height: 44px; display: inline-flex; align-items: center; justify-content: center; gap: 7px; border: 0; border-radius: 8px; padding: 0 14px; color: var(--admin-muted); background: transparent; font-size: 13px; font-weight: 700; white-space: nowrap; transition: color var(--admin-transition), background var(--admin-transition), box-shadow var(--admin-transition); }
 .settings-tab-list button:hover { color: var(--admin-primary); background: var(--admin-primary-soft); }
 .settings-tab-list button.is-active { color: #fff; background: var(--admin-primary); box-shadow: 0 4px 12px rgba(36,104,179,.24); }
@@ -94,7 +94,7 @@
 .audit-info { display: grid; gap: 7px; padding: 12px; border-radius: 7px; background: var(--admin-background); }
 .audit-info div { display: flex; justify-content: space-between; gap: 8px; font-size: 12px; }.audit-info span { color: var(--admin-muted); }
 .language-tabs { min-width: 0; }
-.tab-list { position: sticky; z-index: 20; top: calc(var(--admin-header-height) + 12px); display: flex; align-items: stretch; gap: 2px; overflow-x: auto; margin-bottom: 12px; padding: 5px; border: 1px solid var(--admin-border); border-radius: 10px; background: #fff; box-shadow: var(--admin-shadow); scrollbar-width: thin; }
+.tab-list { position: static; z-index: auto; top: auto; display: flex; align-items: stretch; gap: 2px; overflow-x: auto; margin-bottom: 12px; padding: 5px; border: 1px solid var(--admin-border); border-radius: 10px; background: #fff; box-shadow: var(--admin-shadow); scrollbar-width: thin; }
 .product-form-content .tab-list { position: static; }
 .tab-list button { position: relative; min-width: 148px; height: 46px; display: flex; align-items: center; justify-content: center; gap: 8px; border: 0; border-radius: 7px; color: var(--admin-muted); background: transparent; font-weight: 600; white-space: nowrap; }
 .tab-list button:hover { color: var(--admin-primary); background: var(--admin-primary-soft); }.tab-list button.is-active { color: #fff; background: var(--admin-primary); }
@@ -208,7 +208,7 @@
 .recruitment-settings-content-card { overflow: hidden; margin-bottom: 18px; }
 .recruitment-settings-section-heading { min-height: 76px; display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 15px 18px; border-bottom: 1px solid var(--admin-border); background: #fbfcfd; }.recruitment-settings-section-heading > div { display: flex; align-items: center; gap: 12px; }.recruitment-settings-section-heading h2, .recruitment-settings-section-heading p { margin: 0; }.recruitment-settings-section-heading h2 { font-size: 17px; }.recruitment-settings-section-heading p { margin-top: 3px; color: var(--admin-muted); font-size: 11px; }
 .recruitment-settings-section-icon { width: 40px; height: 40px; flex: 0 0 40px; display: grid; place-items: center; border-radius: 10px; color: var(--admin-primary); background: var(--admin-primary-soft); }
-.recruitment-settings-content-card > .language-tabs > .tab-list { position: static; top: auto; margin: 0; border-width: 0 0 1px; border-radius: 0; box-shadow: none; }
+.recruitment-settings-content-card > .language-tabs > .tab-list { margin: 16px 18px 12px; }
 .recruitment-settings-locale-panel { display: grid; gap: 16px; padding: 20px; }
 .recruitment-settings-editor-tabs { margin-top: 0; }.recruitment-settings-editor-tabs .ckeditor5-field .ck.ck-editor__main > .ck-editor__editable { min-height: 360px; }.recruitment-settings-editor-tab-list { overflow-x: auto; scrollbar-width: thin; }.recruitment-settings-editor-tab-list button { flex: 0 0 auto; white-space: nowrap; }
 .recruitment-settings-seo-panel { background: #fff; }.recruitment-settings-seo-panel .seo-grid { padding-top: 4px; }

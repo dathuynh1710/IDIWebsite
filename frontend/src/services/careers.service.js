@@ -1,8 +1,8 @@
 import api from './api'
 
 export const careersService = {
-  getOpenings: ({ department, locale = 'vi' } = {}) => api
-    .get('/careers', { params: { department, locale } })
+  getOpenings: ({ department, locale = 'vi', limit } = {}) => api
+    .get('/careers', { params: { department, locale, limit } })
     .then(response => response.data),
 
   getById: (slug, locale = 'vi') => api

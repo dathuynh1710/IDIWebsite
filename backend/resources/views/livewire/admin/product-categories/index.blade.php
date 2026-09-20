@@ -48,7 +48,6 @@
                     </div>
                     <span class="category-selection-count">{{ count($selected) ? 'Đã chọn '.count($selected).' danh mục' : 'Chưa chọn danh mục' }}</span>
                 </div>
-                @error('selected')<div class="validation-summary" role="alert">{{ $message }}</div>@enderror
                 <div class="table-responsive">
                     <table class="data-table category-table">
                         <thead><tr><th class="selection-column"></th><th class="order-column">Thứ tự</th><th>Tên danh mục</th><th>Sản phẩm</th><th class="table-actions-heading">Thao tác</th></tr></thead>

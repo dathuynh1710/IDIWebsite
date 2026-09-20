@@ -1,7 +1,6 @@
 <div>
     <x-admin.page-header title="Cấu hình Recipes" description="Thiết lập nội dung, SEO và cách hiển thị trang công thức với 3 ngôn ngữ" :breadcrumbs="$breadcrumbs">
         <x-slot:actions>
-            <a class="button button-secondary" href="{{ route('admin.recipes.index') }}" wire:navigate><x-ui.icon name="arrow-left" size="18" /> Danh sách</a>
             <x-ui.button type="submit" form="recipe-settings-form" icon="save">Lưu cấu hình</x-ui.button>
         </x-slot:actions>
     </x-admin.page-header>

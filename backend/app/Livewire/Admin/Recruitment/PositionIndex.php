@@ -147,6 +147,9 @@ class PositionIndex extends AdminComponent
     public function requestBulkDelete(): void
     {
         Gate::authorize('recruitment.delete');
+        if (! $this->requireBulkSelection('Vui lòng chọn ít nhất một vị trí tuyển dụng.')) {
+            return;
+        }
         $this->validate(['selected' => ['required', 'array', 'min:1'], 'selected.*' => ['integer', 'distinct', 'exists:job_positions,id']]);
         $this->pendingDeleteId = null;
         $this->pendingDeleteName = '';

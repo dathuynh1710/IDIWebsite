@@ -30,4 +30,5 @@ Route::get('/careers', [CareersController::class, 'index']);
 Route::get('/careers/{slug}', [CareersController::class, 'show']);
 Route::post('/careers/applications', [CareersController::class, 'store']);
 Route::get('/investors/documents', [InvestorRelationsController::class, 'index']);
+Route::get('/contacts', [ContactsController::class, 'index']);
 Route::post('/contacts', [ContactsController::class, 'store'])->middleware('throttle:10,1');

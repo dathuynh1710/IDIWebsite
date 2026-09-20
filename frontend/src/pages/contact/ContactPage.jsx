@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router'
 import PageHead from '@components/common/PageHead'
 import { inquiryService } from '@services/inquiry.service'
@@ -27,14 +27,18 @@ const INQUIRY_VALUES = {
   other: 'other',
 }
 
-const MAPS = {
-  headOffice: {
-    embed: 'https://www.google.com/maps?q=IDI+Seafood+Vam+Cong+Dong+Thap&output=embed',
+const FALLBACK_OFFICES = [
+  {
+    id: 'head-office', code: 'HEAD_OFFICE', nameKey: 'headOffice',
+    phone: '+84 2773 680 383 · +84 2777 300 468', fax: '+84 2773 680 382', email: 'info@idiseafood.com',
+    map: { type: 'embed', embedUrl: 'https://www.google.com/maps?q=IDI+Seafood+Vam+Cong+Dong+Thap&output=embed' },
   },
-  hcmOffice: {
-    embed: 'https://www.google.com/maps?q=9+Nguyen+Kim+Ward+12+District+5+Ho+Chi+Minh+City&output=embed',
+  {
+    id: 'hcm-office', code: 'HCMC_OFFICE', nameKey: 'hcmOffice',
+    phone: '+84 932 824 888',
+    map: { type: 'embed', embedUrl: 'https://www.google.com/maps?q=9+Nguyen+Kim+Ward+12+District+5+Ho+Chi+Minh+City&output=embed' },
   },
-}
+]
 
 const REQUIRED_FIELDS = ['fullName', 'phone', 'email', 'address', 'subject', 'message', 'consent']
 
@@ -65,7 +69,13 @@ function FormField({ label, name, error, children }) {
   )
 }
 
-function OfficeSection({ number, title, address, phoneChildren, accent = false }) {
+function phoneHref(phone) {
+  return `tel:${phone.replace(/[^+\d]/g, '')}`
+}
+
+function OfficeSection({ number, office, title, address, labels, accent = false }) {
+  const phones = office.phone?.split(/\s*[·;|]\s*/).filter(Boolean) ?? []
+
   return (
     <article className="h-full rounded-xl bg-[#F4F7F7] p-6 sm:p-8">
       <div className="flex h-full items-start gap-4 sm:gap-5">
@@ -75,7 +85,16 @@ function OfficeSection({ number, title, address, phoneChildren, accent = false }
         <div className="min-w-0 flex-1">
           <h3 className="text-xl font-black leading-tight text-ocean-deep sm:text-[1.4rem]">{title}</h3>
           <p className="mt-2.5 max-w-2xl text-sm leading-6 text-storm-grey">{address}</p>
-          <div className="mt-5 text-sm leading-6">{phoneChildren}</div>
+          <dl className="mt-5 space-y-2 text-sm leading-6">
+            {phones.length > 0 && (
+              <div className="flex flex-wrap gap-x-2">
+                <dt className="font-bold text-ocean-deep">{labels.phone}:</dt>
+                <dd>{phones.map((phone, index) => <span key={phone}><a className="text-seafoam hover:underline" href={phoneHref(phone)}>{phone}</a>{index < phones.length - 1 && <span className="mx-2 text-storm-grey/40">·</span>}</span>)}</dd>
+              </div>
+            )}
+            {office.fax && <div className="flex gap-2"><dt className="font-bold text-ocean-deep">{labels.fax}:</dt><dd className="text-storm-grey">{office.fax}</dd></div>}
+            {office.email && <div className="flex gap-2"><dt className="font-bold text-ocean-deep">{labels.email}:</dt><dd><a className="break-all text-seafoam hover:underline" href={`mailto:${office.email}`}>{office.email}</a></dd></div>}
+          </dl>
         </div>
       </div>
     </article>
@@ -89,7 +108,25 @@ export default function ContactPage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [referenceId, setReferenceId] = useState('')
   const [submitError, setSubmitError] = useState(false)
-  const [activeMap, setActiveMap] = useState('headOffice')
+  const [pageData, setPageData] = useState(null)
+  const [activeMap, setActiveMap] = useState('HEAD_OFFICE')
+
+  useEffect(() => {
+    let active = true
+    setPageData(null)
+    inquiryService.getPage(language)
+      .then(result => { if (active) setPageData(result) })
+      .catch(() => { if (active) setPageData(false) })
+
+    return () => { active = false }
+  }, [language])
+
+  const pageConfig = pageData?.pageConfig ?? null
+  const offices = pageData && pageData !== false ? (pageData.locations ?? []) : FALLBACK_OFFICES
+  const mapOffices = offices.filter(office => office.map?.type !== 'none' && (office.map?.embedUrl || office.map?.imageUrl || office.map?.url))
+  const activeOffice = mapOffices.find(office => (office.code || String(office.id)) === activeMap) ?? mapOffices[0]
+  const officeTitle = office => office.name ?? t(`contact.details.${office.nameKey}`)
+  const officeAddress = office => office.address ?? t(`contact.details.${office.nameKey}Address`)
 
   const fieldClass = (name) => [
     'h-12 w-full rounded-lg border bg-white px-4 text-sm text-ink outline-none transition',
@@ -154,18 +191,20 @@ export default function ContactPage() {
 
   return (
     <>
-      <PageHead title={t('contact.seoTitle')} description={t('contact.seoDescription')} />
+      <PageHead title={pageConfig?.seo?.title || t('contact.seoTitle')} description={pageConfig?.seo?.description || t('contact.seoDescription')} />
 
       <main className="bg-white pt-20 sm:pt-24">
         <section className="border-b border-light-mist py-12 text-center sm:py-16 lg:py-20">
           <div className="container">
             <span className="section-eyebrow">{t('contact.hero.eyebrow')}</span>
             <h1 className="mx-auto mt-3 max-w-4xl text-3xl font-black tracking-tight text-ocean-deep sm:text-4xl lg:text-5xl">
-              {t('contact.hero.title')}
+              {pageConfig?.title || t('contact.hero.title')}
             </h1>
-            <p className="mx-auto mt-5 max-w-2xl text-sm leading-7 text-storm-grey sm:text-base">
-              {t('contact.hero.description')}
-            </p>
+            {pageConfig?.description ? (
+              <div className="mx-auto mt-5 max-w-2xl text-sm leading-7 text-storm-grey sm:text-base" dangerouslySetInnerHTML={{ __html: pageConfig.description }} />
+            ) : (
+              <p className="mx-auto mt-5 max-w-2xl text-sm leading-7 text-storm-grey sm:text-base">{t('contact.hero.description')}</p>
+            )}
           </div>
         </section>
 
@@ -177,7 +216,7 @@ export default function ContactPage() {
                   <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-seafoam-pale text-2xl font-black text-seafoam" aria-hidden="true">✓</div>
                   <span className="section-eyebrow">{t('contact.success.eyebrow')}</span>
                   <h2 id="contact-form-title" className="mt-2 text-3xl font-black text-ocean-deep">{t('contact.success.title')}</h2>
-                  <p className="mt-4 max-w-lg text-sm leading-7 text-storm-grey">{t('contact.success.description')}</p>
+                  <p className="mt-4 max-w-lg text-sm leading-7 text-storm-grey">{pageConfig?.successMessage || t('contact.success.description')}</p>
                   <p className="mt-4 rounded-lg bg-white px-4 py-3 text-sm text-storm-grey">
                     {t('contact.success.referenceLabel')}: <strong className="text-ocean-deep">{referenceId}</strong>
                   </p>
@@ -199,7 +238,11 @@ export default function ContactPage() {
                     </div>
                   )}
 
-                  <form onSubmit={handleSubmit} noValidate>
+                  {pageConfig?.formEnabled === false ? (
+                    <div className="rounded-lg border border-light-mist bg-white px-5 py-8 text-center text-sm text-storm-grey" role="status">
+                      {t('contact.form.unavailable')}
+                    </div>
+                  ) : <form onSubmit={handleSubmit} noValidate>
                     <div className="mb-2">
                       <label htmlFor="inquiryType" className="mb-2 block text-sm font-bold text-ocean-deep">
                         {t('contact.form.inquiryType')}<span className="ml-1 text-[#B54735]" aria-hidden="true">*</span>
@@ -258,7 +301,7 @@ export default function ContactPage() {
                         {!isSubmitting && <span aria-hidden="true">→</span>}
                       </button>
                     </div>
-                  </form>
+                  </form>}
                 </>
               )}
             </div>
@@ -268,64 +311,51 @@ export default function ContactPage() {
         <section className="py-10 sm:py-12 lg:py-14" aria-label={t('contact.details.eyebrow')}>
           <div className="container">
             <div className="grid items-stretch gap-5 lg:grid-cols-2 lg:gap-6">
-              <OfficeSection
-                number="01"
-                title={t('contact.details.headOffice')}
-                address={t('contact.details.headOfficeAddress')}
-                phoneChildren={(
-                  <dl className="space-y-2">
-                    <div className="flex flex-wrap gap-x-2"><dt className="font-bold text-ocean-deep">{t('contact.details.phone')}:</dt><dd><a className="text-seafoam hover:underline" href="tel:+842773680383">+84 2773 680 383</a><span className="mx-2 text-storm-grey/40">·</span><a className="text-seafoam hover:underline" href="tel:+842777300468">+84 2777 300 468</a></dd></div>
-                    <div className="flex gap-2"><dt className="font-bold text-ocean-deep">{t('contact.details.fax')}:</dt><dd className="text-storm-grey">+84 2773 680 382</dd></div>
-                    <div className="flex gap-2"><dt className="font-bold text-ocean-deep">{t('contact.details.email')}:</dt><dd><a className="break-all text-seafoam hover:underline" href="mailto:info@idiseafood.com">info@idiseafood.com</a></dd></div>
-                  </dl>
-                )}
-              />
-
-              <OfficeSection
-                number="02"
-                title={t('contact.details.hcmOffice')}
-                address={t('contact.details.hcmOfficeAddress')}
-                accent
-                phoneChildren={(
-                  <dl><div className="flex flex-wrap gap-x-2"><dt className="font-bold text-ocean-deep">{t('contact.details.phone')}:</dt><dd><a className="text-seafoam hover:underline" href="tel:+84932824888">+84 932 824 888</a></dd></div></dl>
-                )}
-              />
+              {offices.map((office, index) => (
+                <OfficeSection
+                  key={office.id || office.code}
+                  number={String(index + 1).padStart(2, '0')}
+                  office={office}
+                  title={officeTitle(office)}
+                  address={officeAddress(office)}
+                  labels={{ phone: t('contact.details.phone'), fax: t('contact.details.fax'), email: t('contact.details.email') }}
+                  accent={index % 2 === 1}
+                />
+              ))}
             </div>
           </div>
         </section>
 
-        <section className="bg-[#F3F6F6] py-12 sm:py-16 lg:py-20" aria-labelledby="map-title">
+        {activeOffice && <section className="bg-[#F3F6F6] py-12 sm:py-16 lg:py-20" aria-labelledby="map-title">
           <div className="container">
             <header className="mb-8 text-center">
               <span className="section-eyebrow">{t('contact.map.eyebrow')}</span>
               <h2 id="map-title" className="mt-2 text-2xl font-black text-ocean-deep sm:text-3xl">{t('contact.map.title')}</h2>
             </header>
             <div className="mb-4 flex flex-wrap justify-center gap-3" role="tablist" aria-label={t('contact.map.locationLabel')}>
-              {['headOffice', 'hcmOffice'].map(location => (
+              {mapOffices.map(office => {
+                const key = office.code || String(office.id)
+                return (
                 <button
-                  key={location}
+                  key={key}
                   type="button"
                   role="tab"
-                  aria-selected={activeMap === location}
-                  onClick={() => setActiveMap(location)}
-                  className={`rounded-lg border px-4 py-2.5 text-sm font-bold transition ${activeMap === location ? 'border-ocean-deep bg-ocean-deep text-white' : 'border-light-mist bg-white text-ocean-deep hover:border-seafoam hover:text-seafoam'}`}
+                  aria-selected={activeOffice === office}
+                  onClick={() => setActiveMap(key)}
+                  className={`rounded-lg border px-4 py-2.5 text-sm font-bold transition ${activeOffice === office ? 'border-ocean-deep bg-ocean-deep text-white' : 'border-light-mist bg-white text-ocean-deep hover:border-seafoam hover:text-seafoam'}`}
                 >
-                  {t(`contact.details.${location}`)}
+                  {officeTitle(office)}
                 </button>
-              ))}
+                )
+              })}
             </div>
             <div className="overflow-hidden rounded-xl border border-light-mist bg-white shadow-sm">
-              <iframe
-                key={activeMap}
-                src={MAPS[activeMap].embed}
-                title={`${t('contact.map.iframeTitle')} — ${t(`contact.details.${activeMap}`)}`}
-                className="h-[22rem] w-full border-0 sm:h-[28rem] lg:h-[32rem]"
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-              />
+              {activeOffice.map.embedUrl && <iframe key={activeOffice.map.embedUrl} src={activeOffice.map.embedUrl} title={`${t('contact.map.iframeTitle')} — ${officeTitle(activeOffice)}`} className="h-[22rem] w-full border-0 sm:h-[28rem] lg:h-[32rem]" loading="lazy" referrerPolicy="no-referrer-when-downgrade" />}
+              {activeOffice.map.imageUrl && <img src={activeOffice.map.imageUrl} alt={`${t('contact.map.iframeTitle')} — ${officeTitle(activeOffice)}`} className="h-auto min-h-[22rem] w-full object-cover sm:min-h-[28rem] lg:min-h-[32rem]" />}
+              {!activeOffice.map.embedUrl && !activeOffice.map.imageUrl && activeOffice.map.url && <div className="flex min-h-[22rem] items-center justify-center"><a className="btn btn-primary" href={activeOffice.map.url} target="_blank" rel="noreferrer">{t('contact.details.viewMap')} <span aria-hidden="true">→</span></a></div>}
             </div>
           </div>
-        </section>
+        </section>}
       </main>
     </>
   )

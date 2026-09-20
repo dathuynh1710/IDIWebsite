@@ -504,6 +504,10 @@
         padding: 14px;
     }
 
+    .recruitment-settings-content-card > .language-tabs > .tab-list {
+        margin: 12px 14px;
+    }
+
     .recruitment-settings-editor-tabs .ckeditor5-field .ck.ck-editor__main>.ck-editor__editable {
         min-height: 300px;
     }
@@ -834,6 +838,10 @@
         gap: 8px;
     }
 
+
+}
+
+@media (max-width: 1023px) {
     .login-shell {
         grid-template-columns: 1fr;
     }
@@ -844,11 +852,28 @@
 
     .login-panel {
         min-height: 100vh;
-        padding: 28px 20px;
+        padding: 32px 24px;
     }
 
-    .login-form header .brand-mark {
-        display: inline-grid;
+    .login-form-logo-wrap {
+        width: 264px;
+        min-height: 82px;
+        margin: 0 auto 26px;
+        padding: 13px 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        border-radius: 12px;
+        background: #0b2742;
+    }
+
+    .login-form-logo {
+        width: 88px;
+    }
+
+    .login-form h2 {
+        font-size: 28px;
     }
 }
 

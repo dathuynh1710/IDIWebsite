@@ -1,12 +1,10 @@
 import { Link, useLocation } from 'react-router'
-import { NAV_ITEMS, localizedNavItems } from '@data/navigation'
 import { cn } from '@utils/cn'
 import { useLanguage } from '@hooks/useLanguage'
 
-export default function NavbarDesktop({ scrolled }) {
+export default function NavbarDesktop({ scrolled, items }) {
   const location = useLocation()
   const { t } = useLanguage()
-  const items = localizedNavItems(NAV_ITEMS, t)
 
   const isActive = (href) =>
     href === '/'
@@ -31,7 +29,7 @@ export default function NavbarDesktop({ scrolled }) {
             )}
           >
             {item.label}
-            {item.children && (
+            {item.children?.length > 0 && (
               <svg className="w-3 h-3 opacity-60 transition-transform duration-200 group-hover:rotate-180" viewBox="0 0 12 12" fill="none">
                 <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
@@ -39,7 +37,7 @@ export default function NavbarDesktop({ scrolled }) {
           </Link>
 
           {/* Dropdown */}
-          {item.children && (
+          {item.children?.length > 0 && (
             <div className={cn(
               'absolute top-full left-1/2 -translate-x-1/2 pt-2',
               'invisible opacity-0 group-hover:visible group-hover:opacity-100',

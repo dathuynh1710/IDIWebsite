@@ -19,39 +19,21 @@ const JOBS_COPY = {
   vi: {
     eyebrow: 'Cơ hội tại IDI', title: 'Vị trí đang tuyển dụng',
     role: 'Vị trí tuyển dụng', quantity: 'Số lượng', location: 'Nơi làm việc', apply: 'Ứng tuyển',
-    openings: 'vị trí', fullTime: 'Toàn thời gian',
+    openings: 'vị trí', loading: 'Đang tải các vị trí tuyển dụng...',
+    empty: 'Hiện chưa có vị trí tuyển dụng phù hợp.', error: 'Không thể tải danh sách tuyển dụng.', retry: 'Thử lại',
   },
   en: {
     eyebrow: 'Opportunities at IDI', title: 'Current openings',
     role: 'Position', quantity: 'Openings', location: 'Location', apply: 'Apply now',
-    openings: 'positions', fullTime: 'Full-time',
+    openings: 'positions', loading: 'Loading current openings...',
+    empty: 'There are no current openings.', error: 'Unable to load current openings.', retry: 'Try again',
   },
   'zh-CN': {
     eyebrow: 'IDI 职业机会', title: '正在招聘的职位',
     role: '招聘职位', quantity: '人数', location: '工作地点', apply: '立即申请',
-    openings: '个职位', fullTime: '全职',
+    openings: '个职位', loading: '正在加载招聘职位……',
+    empty: '目前暂无招聘职位。', error: '无法加载招聘职位。', retry: '重试',
   },
-}
-
-const MOCK_JOB_OPENINGS = {
-  vi: [
-    { id: 'mock-sales', code: 'SALES_EXPORT_01', title: 'Chuyên viên kinh doanh xuất khẩu', department: 'Kinh doanh quốc tế', quantity: 2, location: 'Thành phố Hồ Chí Minh' },
-    { id: 'mock-qa', code: 'QA_SUPERVISOR_01', title: 'Giám sát đảm bảo chất lượng', department: 'Đảm bảo chất lượng', quantity: 1, location: 'Nhà máy Vàm Cống, Đồng Tháp' },
-    { id: 'mock-it', code: 'IT_SYSTEM_01', title: 'Nhân viên hệ thống công nghệ thông tin', department: 'Công nghệ thông tin', quantity: 2, location: 'Lấp Vò, Đồng Tháp' },
-    { id: 'mock-hr', code: 'HR_RECRUITMENT_01', title: 'Chuyên viên tuyển dụng và đào tạo', department: 'Nhân sự', quantity: 1, location: 'Lấp Vò, Đồng Tháp' },
-  ],
-  en: [
-    { id: 'mock-sales', code: 'SALES_EXPORT_01', title: 'Export sales executive', department: 'International Sales', quantity: 2, location: 'Ho Chi Minh City' },
-    { id: 'mock-qa', code: 'QA_SUPERVISOR_01', title: 'Quality assurance supervisor', department: 'Quality Assurance', quantity: 1, location: 'Vam Cong Factory, Dong Thap' },
-    { id: 'mock-it', code: 'IT_SYSTEM_01', title: 'IT systems specialist', department: 'Information Technology', quantity: 2, location: 'Lap Vo, Dong Thap' },
-    { id: 'mock-hr', code: 'HR_RECRUITMENT_01', title: 'Recruitment and training specialist', department: 'Human Resources', quantity: 1, location: 'Lap Vo, Dong Thap' },
-  ],
-  'zh-CN': [
-    { id: 'mock-sales', code: 'SALES_EXPORT_01', title: '出口销售专员', department: '国际销售部', quantity: 2, location: '胡志明市' },
-    { id: 'mock-qa', code: 'QA_SUPERVISOR_01', title: '质量保证主管', department: '质量保证部', quantity: 1, location: '同塔省 Vam Cong 工厂' },
-    { id: 'mock-it', code: 'IT_SYSTEM_01', title: '信息技术系统专员', department: '信息技术部', quantity: 2, location: '同塔省立武县' },
-    { id: 'mock-hr', code: 'HR_RECRUITMENT_01', title: '招聘与培训专员', department: '人力资源部', quantity: 1, location: '同塔省立武县' },
-  ],
 }
 
 function LocationIcon() {
@@ -124,46 +106,42 @@ function FormField({ label, name, error, children }) {
 export default function CareersPage() {
   const { language, t } = useLanguage()
   const jobsCopy = JOBS_COPY[language] ?? JOBS_COPY.vi
-  const mockJobs = MOCK_JOB_OPENINGS[language] ?? MOCK_JOB_OPENINGS.vi
   const [form, setForm] = useState(INITIAL_FORM)
   const [openings, setOpenings] = useState([])
+  const [openingsTotal, setOpeningsTotal] = useState(0)
   const [pageConfig, setPageConfig] = useState(null)
   const [isLoadingOpenings, setIsLoadingOpenings] = useState(true)
+  const [openingsError, setOpeningsError] = useState(false)
+  const [openingsReloadKey, setOpeningsReloadKey] = useState(0)
   const [errors, setErrors] = useState({})
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [referenceId, setReferenceId] = useState('')
-  const [pendingJobCode, setPendingJobCode] = useState('')
   const fileInputRef = useRef(null)
 
   useEffect(() => {
     let active = true
     setIsLoadingOpenings(true)
-    careersService.getOpenings({ locale: language })
+    setOpeningsError(false)
+    careersService.getOpenings({ locale: language, limit: 100 })
       .then(result => {
         if (active) {
           setOpenings(result.items ?? [])
+          setOpeningsTotal(result.total ?? result.items?.length ?? 0)
           setPageConfig(result.pageConfig ?? null)
         }
       })
       .catch(() => {
-        if (active) setOpenings([])
+        if (active) {
+          setOpenings([])
+          setOpeningsTotal(0)
+          setOpeningsError(true)
+        }
       })
       .finally(() => {
         if (active) setIsLoadingOpenings(false)
       })
     return () => { active = false }
-  }, [language])
-
-  useEffect(() => {
-    if (!pendingJobCode) return
-
-    const selectedOpening = openings.find(opening => opening.code === pendingJobCode)
-    if (!selectedOpening) return
-
-    setForm(current => ({ ...current, jobPositionId: String(selectedOpening.id) }))
-    setErrors(current => ({ ...current, jobPositionId: '' }))
-    setPendingJobCode('')
-  }, [openings, pendingJobCode])
+  }, [language, openingsReloadKey])
 
   const inputClass = (name) => [
     'h-12 w-full rounded-lg border bg-white px-4 text-sm text-ink outline-none transition',
@@ -226,14 +204,9 @@ export default function CareersPage() {
   }
 
   const selectJobForApplication = (job) => {
-    const selectedOpening = openings.find(opening => opening.code === job.code)
-
     setReferenceId('')
-    setPendingJobCode(selectedOpening ? '' : job.code)
-    if (selectedOpening) {
-      setForm(current => ({ ...current, jobPositionId: String(selectedOpening.id) }))
-      setErrors(current => ({ ...current, jobPositionId: '' }))
-    }
+    setForm(current => ({ ...current, jobPositionId: String(job.id) }))
+    setErrors(current => ({ ...current, jobPositionId: '' }))
 
     document.getElementById('ung-tuyen')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }
@@ -381,7 +354,9 @@ export default function CareersPage() {
                 </h2>
               </div>
               <div className="flex shrink-0 items-baseline gap-2 border-l-2 border-seafoam py-1 pl-4">
-                <strong className="text-3xl font-bold leading-none tabular-nums text-ocean-deep">{mockJobs.length}</strong>
+                <strong className="text-3xl font-bold leading-none tabular-nums text-ocean-deep">
+                  {isLoadingOpenings ? '…' : openingsTotal}
+                </strong>
                 <span className="text-xs font-bold uppercase tracking-[0.13em] text-seafoam">{jobsCopy.openings}</span>
               </div>
             </div>
@@ -395,7 +370,28 @@ export default function CareersPage() {
               </div>
 
               <div className="grid gap-4 lg:gap-0">
-                {mockJobs.map((job, index) => (
+                {isLoadingOpenings && (
+                  <div className="border border-light-mist bg-white px-5 py-10 text-center text-sm text-storm-grey lg:border-x-0 lg:border-t-0" role="status">
+                    {jobsCopy.loading}
+                  </div>
+                )}
+
+                {!isLoadingOpenings && openingsError && (
+                  <div className="border border-light-mist bg-white px-5 py-10 text-center lg:border-x-0 lg:border-t-0" role="alert">
+                    <p className="text-sm text-storm-grey">{jobsCopy.error}</p>
+                    <button type="button" onClick={() => setOpeningsReloadKey(current => current + 1)} className="btn btn-secondary mt-4">
+                      {jobsCopy.retry}
+                    </button>
+                  </div>
+                )}
+
+                {!isLoadingOpenings && !openingsError && openings.length === 0 && (
+                  <div className="border border-light-mist bg-white px-5 py-10 text-center text-sm text-storm-grey lg:border-x-0 lg:border-t-0">
+                    {jobsCopy.empty}
+                  </div>
+                )}
+
+                {!isLoadingOpenings && !openingsError && openings.map((job, index) => (
                   <article
                     key={job.id}
                     className="group grid gap-6 border border-light-mist bg-white p-5 transition-colors hover:border-seafoam/45 sm:p-6 lg:grid-cols-[minmax(0,1.45fr)_minmax(7rem,0.35fr)_minmax(14rem,0.65fr)_8.5rem] lg:items-center lg:border-x-0 lg:border-t-0 lg:px-5 lg:py-7 lg:hover:bg-seafoam-pale/35"
@@ -409,11 +405,9 @@ export default function CareersPage() {
                           <h3 className="text-lg font-bold leading-snug text-ocean-deep transition-colors group-hover:text-seafoam">
                             {job.title}
                           </h3>
-                          <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
+                          {job.department && <div className="mt-2 text-xs">
                             <span className="font-semibold text-storm-grey">{job.department}</span>
-                            <span className="h-1 w-1 rounded-full bg-mist-mid" aria-hidden="true" />
-                            <span className="text-storm-grey">{jobsCopy.fullTime}</span>
-                          </div>
+                          </div>}
                         </div>
                       </div>
                     </div>

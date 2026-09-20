@@ -3,12 +3,7 @@ export const NAV_ITEMS = [
     { id: 'story', labelKey: 'nav.story', href: '/about/story' },
     { id: 'values', labelKey: 'nav.values', href: '/about/values' },
   ] },
-  { id: 'products', labelKey: 'nav.products', href: '/products', isMega: true, children: [
-    { id: 'pangasius-fillet', labelKey: 'productNav.fillet', href: '/products?category=pangasius-fillet', descriptionKey: 'productNav.filletDescription', icon: 'fillet' },
-    { id: 'pangasius-portions', labelKey: 'productNav.portions', href: '/products?category=pangasius-portions', descriptionKey: 'productNav.portionsDescription', icon: 'portions' },
-    { id: 'whole-fish', labelKey: 'productNav.whole', href: '/products?category=whole-fish', descriptionKey: 'productNav.wholeDescription', icon: 'whole' },
-    { id: 'value-added', labelKey: 'productNav.valueAdded', href: '/products?category=value-added', descriptionKey: 'productNav.valueAddedDescription', icon: 'value-added' },
-  ], featured: { labelKey: 'productNav.catalog', href: '/products#catalog', ctaKey: 'productNav.catalogCta' } },
+  { id: 'products', labelKey: 'nav.products', href: '/products', isMega: true, children: [], featured: { labelKey: 'productNav.catalog', href: '/products#catalog', ctaKey: 'productNav.catalogCta' } },
   { id: 'sustainability', labelKey: 'nav.sustainability', href: '/sustainability', children: null },
   { id: 'investors', labelKey: 'nav.investors', href: '/investors', children: [
     { id: 'investor-overview', labelKey: 'nav.overview', href: '/investors' },
@@ -37,9 +32,25 @@ export const FOOTER_LINKS = {
 export function localizedNavItems(items, t) {
   return items.map(item => ({
     ...item,
-    label: t(item.labelKey),
-    description: item.descriptionKey ? t(item.descriptionKey) : undefined,
+    label: item.label ?? t(item.labelKey),
+    description: item.description ?? (item.descriptionKey ? t(item.descriptionKey) : undefined),
     children: item.children ? localizedNavItems(item.children, t) : item.children,
     featured: item.featured ? { ...item.featured, label: t(item.featured.labelKey), cta: t(item.featured.ctaKey) } : undefined,
   }))
+}
+
+export function withProductCategories(items, categories) {
+  if (!categories.length) return items
+
+  return items.map(item => item.id === 'products'
+    ? {
+        ...item,
+        children: categories.map(category => ({
+          id: `product-category-${category.id}`,
+          label: category.name,
+          description: category.description,
+          href: `/products?category=${encodeURIComponent(category.slug)}`,
+        })),
+      }
+    : item)
 }

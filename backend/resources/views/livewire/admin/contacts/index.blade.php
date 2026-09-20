@@ -20,6 +20,15 @@
                 </select>
             </div>
             <div>
+                <label for="contact-locale">Ngôn ngữ</label>
+                <select id="contact-locale" class="select" wire:model.live="locale">
+                    <option value="">Tất cả ngôn ngữ</option>
+                    <option value="vi">Tiếng Việt</option>
+                    <option value="en">English</option>
+                    <option value="zh">中文</option>
+                </select>
+            </div>
+            <div>
                 <label for="contact-date-from">Từ ngày</label>
                 <input id="contact-date-from" class="input" type="date" wire:model.live="dateFrom">
             </div>
@@ -41,8 +50,6 @@
             </div>
             <span class="category-selection-count">{{ count($selected) ? 'Đã chọn '.count($selected).' thư' : 'Chọn thư để thao tác hàng loạt' }}</span>
         </div>
-        @error('selected')<div class="validation-summary" role="alert">{{ $message }}</div>@enderror
-
         @if($messages->isEmpty())
             <x-ui.empty-state title="Không có thư liên hệ phù hợp" description="Hãy thử thay đổi từ khóa, thời gian hoặc trạng thái lọc." />
         @else
@@ -112,8 +119,11 @@
                         <div><h2 id="contact-detail-title">{{ $viewingMessage->full_name }}</h2><a href="mailto:{{ $viewingMessage->email }}">{{ $viewingMessage->email }}</a></div>
                     </div>
                     <dl class="contact-meta">
+                        <div><dt>Loại yêu cầu</dt><dd>{{ $viewingMessage->inquiryTypeLabel() }}</dd></div>
                         <div><dt>Điện thoại</dt><dd>{{ $viewingMessage->phone ?: 'Không cung cấp' }}</dd></div>
                         <div><dt>Địa chỉ</dt><dd>{{ $viewingMessage->address ?: 'Không cung cấp' }}</dd></div>
+                        <div><dt>Ngôn ngữ</dt><dd>{{ ['vi' => 'Tiếng Việt', 'en' => 'English', 'zh' => '中文'][$viewingMessage->locale] ?? 'Không xác định' }}</dd></div>
+                        <div><dt>Đồng ý bảo mật</dt><dd>{{ $viewingMessage->consented_at ? 'Đã đồng ý' : 'Chưa ghi nhận' }}</dd></div>
                         <div><dt>Ngày gửi</dt><dd>{{ $viewingMessage->created_at->format('H:i, d/m/Y') }}</dd></div>
                     </dl>
                     <section class="contact-message-box">

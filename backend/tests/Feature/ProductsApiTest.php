@@ -27,6 +27,7 @@ class ProductsApiTest extends TestCase
             ->assertJsonPath('categories.0.image', config('app.url').'/assets/media/products/dm2.jpg')
             ->assertJsonCount(6, 'categories.0.products')
             ->assertJsonPath('categories.0.products.0.name', 'Cá Fillet, Tạo Hình Sạch')
+            ->assertJsonPath('categories.0.products.0.shortDescription', 'Phi lê có da, không xương, tách da, tách mỡ')
             ->assertJsonPath('categories.0.products.0.sortOrder', 14)
             ->assertJsonPath('categories.0.products.0.sizes.0', '60g-120g')
             ->assertJsonPath('categories.0.products.0.productSpecification', 'Phi lê có da, không xương, tách da, tách mỡ')

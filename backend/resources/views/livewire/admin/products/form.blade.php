@@ -73,7 +73,24 @@
                                             <x-form.ckeditor5-editor name="short_description[{{ $locale }}]" label="Mô tả ngắn" :model="'short_description.'.$locale" :value="$short_description[$locale] ?? ''" rows="8" placeholder="Nhập mô tả ngắn..." />
                                         </div>
                                         <div id="product-content-panel-{{ $locale }}" role="tabpanel" aria-labelledby="product-content-tab-{{ $locale }}" x-show="editorTab === 'content'" x-cloak>
-                                            <x-form.ckeditor5-editor name="content[{{ $locale }}]" label="Nội dung" :model="'content.'.$locale" :value="$content[$locale] ?? ''" rows="12" />
+                                            <div class="form-stack">
+                                                <div class="form-field">
+                                                    <div class="field-label">Chi tiết sản phẩm</div>
+                                                </div>
+                                                <x-form.textarea name="product_specification[{{ $locale }}]" label="Quy cách sản phẩm" wire:model.blur="product_specification.{{ $locale }}" rows="3" placeholder="Ví dụ: Phi lê có da, không xương, tách da, tách mỡ" />
+                                                <x-form.textarea name="presentation[{{ $locale }}]" label="Hình thức cấp đông" wire:model.blur="presentation.{{ $locale }}" rows="3" placeholder="Mỗi lựa chọn trên một dòng" />
+                                                <x-form.textarea name="packaging[{{ $locale }}]" label="Đóng gói" wire:model.blur="packaging.{{ $locale }}" rows="3" placeholder="Thông tin quy cách đóng gói" />
+                                                @if($locale === 'vi')
+                                                    <x-form.textarea name="sizes" label="Kích cỡ (dùng chung cho mọi ngôn ngữ)" wire:model.blur="sizes" rows="4" placeholder="Mỗi kích cỡ trên một dòng, ví dụ:&#10;60g-120g&#10;120g-170g" />
+                                                    <div class="seo-grid">
+                                                        <x-form.input name="nutrition[calories]" label="Năng lượng" wire:model.blur="nutrition.calories" placeholder="82.7 Kcal" />
+                                                        <x-form.input name="nutrition[protein]" label="Chất đạm" wire:model.blur="nutrition.protein" placeholder="15.50g" />
+                                                        <x-form.input name="nutrition[fat]" label="Chất béo" wire:model.blur="nutrition.fat" placeholder="1.86g" />
+                                                        <x-form.input name="nutrition[saturated_fat]" label="Chất béo bão hòa" wire:model.blur="nutrition.saturated_fat" placeholder="0.66g" />
+                                                    </div>
+                                                @endif
+                                                <x-form.ckeditor5-editor name="content[{{ $locale }}]" label="Nội dung bổ sung" :model="'content.'.$locale" :value="$content[$locale] ?? ''" rows="8" />
+                                            </div>
                                         </div>
                                     </div>
                                     <details class="seo-panel" open><summary>Thiết lập SEO</summary><div class="seo-grid">
@@ -86,6 +103,7 @@
                         </section>
                     @endforeach
                 </x-form.language-tabs>
+
             </div>
         </div>
         <div class="mobile-form-actions">

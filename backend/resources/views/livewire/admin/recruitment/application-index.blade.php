@@ -18,7 +18,7 @@
         <div class="application-reference-toolbar">
             <div class="category-toolbar-actions">
                 <button class="button button-success" wire:click="updateSelected" @disabled(!$selected)><x-ui.icon name="save" size="15" /> Cập nhật</button>
-                <button class="button button-danger" type="button" wire:click="requestBulkDelete" @disabled(!$selected)><x-ui.icon name="trash" size="15" /> Xóa</button>
+                <button class="button button-danger" type="button" wire:click="requestBulkDelete"><x-ui.icon name="trash" size="15" /> Xóa</button>
             </div>
             @if($selected)<span>Đã chọn <strong>{{ count($selected) }}</strong> hồ sơ</span>@endif
         </div>

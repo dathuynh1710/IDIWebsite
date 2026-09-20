@@ -121,6 +121,9 @@ class PostIndex extends AdminComponent
     public function requestBulkDelete(): void
     {
         Gate::authorize('posts.delete');
+        if (! $this->requireBulkSelection('Vui lòng chọn ít nhất một tin tức.')) {
+            return;
+        }
         $this->validate([
             'selected' => ['required', 'array', 'min:1'],
             'selected.*' => ['integer', 'distinct', 'exists:posts,id'],

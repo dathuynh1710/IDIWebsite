@@ -129,6 +129,10 @@ class Index extends AdminComponent
 
     public function requestBulkDelete(): void
     {
+        if (! $this->requireBulkSelection('Vui lòng chọn ít nhất một thư liên hệ.')) {
+            return;
+        }
+
         $this->validate([
             'selected' => ['required', 'array', 'min:1'],
             'selected.*' => ['integer', 'distinct', 'exists:contact_messages,id'],

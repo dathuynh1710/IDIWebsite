@@ -12,7 +12,7 @@
             <button class="button button-success" wire:click="bulk('show')" @disabled(!$selected)>Hiện</button>
             <button class="button button-secondary" wire:click="bulk('hide')" @disabled(!$selected)>Ẩn</button>
             <button class="button button-secondary" wire:click="bulk('reorder')" @disabled(!$selected)>Cập nhật thứ tự</button>
-            <button class="button button-danger" type="button" wire:click="requestBulkDelete" @disabled(!$selected)>Xóa</button>
+            <button class="button button-danger" type="button" wire:click="requestBulkDelete">Xóa</button>
         </div><span class="category-selection-count">{{ $categories->total() }} danh mục</span></div>
         @if($categories->isEmpty())<x-ui.empty-state title="Chưa có danh mục" description="Hãy tạo danh mục đầu tiên cho tin tức." icon="folder" />
         @else<div class="table-responsive"><table class="data-table category-table"><thead><tr><th></th><th>Thứ tự</th><th>Tiêu đề ({{ strtoupper($locale) }})</th><th>Danh mục cha</th><th>Số tin</th><th>Bản dịch</th><th>Trạng thái</th><th></th></tr></thead><tbody>

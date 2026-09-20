@@ -31,7 +31,7 @@
                 <button class="button button-success" wire:click="bulk('show')" @disabled(!$selected)>Hiện</button>
                 <button class="button button-secondary" wire:click="bulk('hide')" @disabled(!$selected)>Ẩn</button>
                 <button class="button button-secondary" wire:click="bulk('reorder')" @disabled(!$selected)>Cập nhật thứ tự</button>
-                <button class="button button-danger" type="button" wire:click="requestBulkDelete" @disabled(!$selected)>Xóa</button>
+                <button class="button button-danger" type="button" wire:click="requestBulkDelete">Xóa</button>
             </div>
             <span>{{ $documents->total() }} tài liệu</span>
         </div>

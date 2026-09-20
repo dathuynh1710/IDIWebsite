@@ -44,7 +44,7 @@ class ContactManagementTest extends TestCase
             ->assertJsonStructure(['message', 'referenceId']);
 
         $this->assertDatabaseHas('contact_messages', [
-            'inquiry_type' => 'Báo giá xuất khẩu',
+            'inquiry_type' => 'export_quote',
             'full_name' => 'Nguyễn Minh Anh',
             'email' => 'minhanh@example.com',
             'address' => 'Đồng Tháp, Việt Nam',
@@ -52,6 +52,24 @@ class ContactManagementTest extends TestCase
             'status' => ContactStatus::Unread->value,
         ]);
         $this->assertNotNull(ContactMessage::firstOrFail()->consented_at);
+    }
+
+    public function test_public_contact_page_returns_admin_managed_content_and_locations(): void
+    {
+        $response = $this->getJson('/api/contacts?locale=vi');
+
+        $response->assertOk()
+            ->assertJsonPath('pageConfig.formEnabled', true)
+            ->assertJsonPath('locations.0.code', 'HEAD_OFFICE')
+            ->assertJsonPath('locations.0.name', 'Trụ sở chính')
+            ->assertJsonPath('locations.0.phone', '+84 2773 680 383 · +84 2777 300 468')
+            ->assertJsonPath('locations.0.fax', '+84 2773 680 382')
+            ->assertJsonPath('locations.1.code', 'HCMC_OFFICE')
+            ->assertJsonPath('locations.1.name', 'Văn phòng đại diện Hồ Chí Minh')
+            ->assertJsonStructure([
+                'pageConfig' => ['title', 'description', 'seo', 'formEnabled', 'successMessage'],
+                'locations' => ['*' => ['id', 'code', 'name', 'address', 'phone', 'fax', 'email', 'map']],
+            ]);
     }
 
     public function test_public_contact_form_validates_fields_and_discards_honeypot_submissions(): void
@@ -174,6 +192,19 @@ class ContactManagementTest extends TestCase
         $this->assertDatabaseMissing('contact_messages', ['id' => $second->id]);
     }
 
+    public function test_bulk_delete_without_selection_uses_an_error_toast(): void
+    {
+        Livewire::actingAs($this->contactManager())->test(Index::class)
+            ->call('requestBulkDelete')
+            ->assertSet('pendingBulkDelete', false)
+            ->assertHasNoErrors('selected')
+            ->assertDispatched('toast',
+                type: 'error',
+                message: 'Vui lòng chọn ít nhất một thư liên hệ.',
+            )
+            ->assertDontSee('validation-summary');
+    }
+
     public function test_single_delete_requires_custom_modal_confirmation(): void
     {
         $user = $this->contactManager();
@@ -222,7 +253,7 @@ class ContactManagementTest extends TestCase
             ->set('items_per_page', 20)
             ->call('saveSettings')
             ->assertHasNoErrors()
-            ->set('location_code', 'HCMC_OFFICE')
+            ->set('location_code', 'ADMIN_HCMC_OFFICE')
             ->set('location_name', ['vi' => 'Văn phòng Hồ Chí Minh', 'en' => 'Ho Chi Minh City office', 'zh' => '胡志明市办事处'])
             ->set('location_company', ['vi' => 'Công ty Cổ phần Đầu tư và Phát triển Đa Quốc Gia I.D.I', 'en' => 'I.D.I International Development and Investment Corporation', 'zh' => 'I.D.I 国际发展投资股份公司'])
             ->set('location_address', ['vi' => 'Quận 1, TP.HCM', 'en' => 'District 1, HCMC', 'zh' => '胡志明市第一郡'])
@@ -239,7 +270,7 @@ class ContactManagementTest extends TestCase
         $this->assertStringNotContainsString('<script', json_decode($module->description, true)['vi']);
         $this->assertStringContainsString('<span style="color:#0f6ab4">', json_decode($module->description, true)['vi']);
         $this->assertStringContainsString('<table>', json_decode($module->description, true)['vi']);
-        $office = OfficeLocation::where('code', 'HCMC_OFFICE')->firstOrFail();
+        $office = OfficeLocation::where('code', 'ADMIN_HCMC_OFFICE')->firstOrFail();
         $this->assertSame('胡志明市办事处', $office->getTranslation('name', 'zh'));
         $this->assertSame('I.D.I International Development and Investment Corporation', $office->getTranslation('company', 'en'));
         $this->assertSame('+84 277 368 0382', $office->fax);

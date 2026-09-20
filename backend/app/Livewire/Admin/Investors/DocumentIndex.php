@@ -109,6 +109,9 @@ class DocumentIndex extends AdminComponent
     public function requestBulkDelete(): void
     {
         Gate::authorize('investors.delete');
+        if (! $this->requireBulkSelection('Vui lòng chọn ít nhất một tài liệu.')) {
+            return;
+        }
         $this->validate([
             'selected' => ['required', 'array', 'min:1'],
             'selected.*' => ['integer', 'distinct', 'exists:investor_documents,id'],

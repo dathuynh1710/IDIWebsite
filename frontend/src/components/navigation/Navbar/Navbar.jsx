@@ -4,16 +4,19 @@ import { cn } from '@utils/cn'
 import NavbarBrand from './NavbarBrand'
 import NavbarDesktop from './NavbarDesktop'
 import LanguageSwitcher from '@components/navigation/LanguageSwitcher'
-import { NAV_ITEMS, localizedNavItems } from '@data/navigation'
+import { NAV_ITEMS, localizedNavItems, withProductCategories } from '@data/navigation'
 import { useLanguage } from '@hooks/useLanguage'
+import { useProductCategories } from '@hooks/useProductCategories'
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
   const location = useLocation()
-  const { t } = useLanguage()
+  const { language, t } = useLanguage()
+  const productCategories = useProductCategories(language)
+  const navigationItems = localizedNavItems(withProductCategories(NAV_ITEMS, productCategories), t)
   const mobileMenuLinks = [
-    ...localizedNavItems(NAV_ITEMS, t),
+    ...navigationItems,
     { id: 'contact', label: t('nav.contact'), href: '/contact' },
   ]
 
@@ -54,7 +57,7 @@ export default function Navbar() {
             <NavbarBrand />
 
             {/* Desktop Nav */}
-            <NavbarDesktop scrolled={scrolled || !isHeroPage} />
+            <NavbarDesktop scrolled={scrolled || !isHeroPage} items={navigationItems} />
 
             {/* Right: Language + CTA + Hamburger */}
             <div className="flex items-center gap-3">
@@ -117,7 +120,7 @@ export default function Navbar() {
                   >
                     {link.label}
                   </Link>
-                  {link.children && (
+                  {link.children?.length > 0 && (
                     <div className="grid grid-cols-1 gap-1 pb-3 pl-4">
                       {link.children.map((child) => (
                         <Link

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\ContactInquiryType;
 use App\Enums\ContactStatus;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -36,6 +37,12 @@ class ContactMessage extends Model
     public function assignee(): BelongsTo
     {
         return $this->belongsTo(User::class, 'assigned_to');
+    }
+
+    public function inquiryTypeLabel(): string
+    {
+        return ContactInquiryType::tryFrom((string) $this->inquiry_type)?->label()
+            ?? ($this->inquiry_type ?: 'Không xác định');
     }
 
     public function scopeFiltered(Builder $query, array $filters): Builder

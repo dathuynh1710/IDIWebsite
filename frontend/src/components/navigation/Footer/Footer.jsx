@@ -1,6 +1,7 @@
 import { Link } from 'react-router'
 import { FOOTER_LINKS } from '@data/navigation'
 import { useLanguage } from '@hooks/useLanguage'
+import { useProductCategories } from '@hooks/useProductCategories'
 import { publicAsset } from '@utils/publicAsset'
 
 const CONTACT_INFO = [
@@ -71,7 +72,20 @@ const CERTIFICATIONS = [
 const currentYear = new Date().getFullYear()
 
 export default function Footer() {
-  const { t } = useLanguage()
+  const { language, t } = useLanguage()
+  const productCategories = useProductCategories(language)
+  const footerLinks = {
+    ...FOOTER_LINKS,
+    products: productCategories.length
+      ? {
+          ...FOOTER_LINKS.products,
+          links: productCategories.map(category => ({
+            label: category.name,
+            href: `/products?category=${encodeURIComponent(category.slug)}`,
+          })),
+        }
+      : FOOTER_LINKS.products,
+  }
   return (
     <footer style={{ background: '#081C38' }} className="text-white/80">
 
@@ -111,7 +125,7 @@ export default function Footer() {
             aria-label={t('nav.footer')}
             className="md:col-span-8 lg:col-span-6 xl:col-span-5 grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-10"
           >
-            {Object.values(FOOTER_LINKS).map((col) => (
+            {Object.values(footerLinks).map((col) => (
               <div key={col.titleKey} className="min-w-0">
                 <h4 className="text-white text-sm font-bold mb-5 tracking-wide">
                   {t(col.titleKey)}
@@ -123,7 +137,7 @@ export default function Footer() {
                         to={link.href}
                         className="text-white/50 hover:text-white text-sm leading-snug transition-colors duration-200"
                       >
-                        {t(link.labelKey)}
+                        {link.label ?? t(link.labelKey)}
                       </Link>
                     </li>
                   ))}

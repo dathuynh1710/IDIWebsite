@@ -195,7 +195,17 @@ class CoreSeeder extends Seeder
     {
         foreach ([
             ['code' => 'products', 'name' => 'Products', 'type' => 'catalog', 'title' => ['Sản phẩm', 'Products', '产品']],
-            ['code' => 'recipes', 'name' => 'Recipes', 'type' => 'content', 'title' => ['Công thức bạn có thể thử', 'Recipes you can try', '值得尝试的食谱']],
+            [
+                'code' => 'recipes',
+                'name' => 'Recipes',
+                'type' => 'content',
+                'title' => ['Công thức bạn có thể thử', 'Recipes you can try', '值得尝试的食谱'],
+                'description' => [
+                    'Khám phá những công thức món ăn để làm mới thực đơn của bạn.',
+                    'Discover delicious pangasius recipes to refresh your menu.',
+                    '探索美味的巴沙鱼食谱，丰富您的菜单。',
+                ],
+            ],
             ['code' => 'about', 'name' => 'About', 'type' => 'content', 'title' => ['Giới thiệu', 'About us', '关于我们']],
             ['code' => 'news', 'name' => 'News', 'type' => 'content', 'title' => ['Tin tức', 'News', '新闻']],
             ['code' => 'investors', 'name' => 'Investor Relations', 'type' => 'documents', 'title' => ['Quan hệ cổ đông', 'Investor Relations', '投资者关系']],
@@ -205,7 +215,9 @@ class CoreSeeder extends Seeder
                 'name' => $module['name'],
                 'module_type' => $module['type'],
                 'page_title' => $this->translations(...$module['title']),
-                'description' => null,
+                'description' => isset($module['description'])
+                    ? $this->translations(...$module['description'])
+                    : null,
                 'seo_title' => $this->translations(...$module['title']),
                 'meta_description' => null,
                 'og_title' => null,

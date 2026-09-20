@@ -35,6 +35,7 @@ class RecipeManagementTest extends TestCase
             ->assertSee('Cấu hình Recipes')
             ->assertSee('English')
             ->assertSee('中文')
+            ->assertDontSee('Danh sách')
             ->assertDontSee('Áp dụng cho toàn bộ module Recipes')
             ->assertDontSee('Số công thức mỗi trang');
         $this->actingAs($user)->get('/admin/recipes/create')

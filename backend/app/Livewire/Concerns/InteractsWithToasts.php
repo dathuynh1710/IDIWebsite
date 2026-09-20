@@ -11,6 +11,18 @@ trait InteractsWithToasts
         $this->dispatch('toast', ...Toast::payload($message, $type));
     }
 
+    protected function requireBulkSelection(string $message): bool
+    {
+        if ($this->selected !== []) {
+            return true;
+        }
+
+        $this->resetValidation('selected');
+        $this->toast($message, 'error');
+
+        return false;
+    }
+
     protected function flashToast(string $message, string $type = 'success'): void
     {
         Toast::flash($message, $type);

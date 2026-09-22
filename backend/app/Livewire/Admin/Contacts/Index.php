@@ -5,6 +5,7 @@ namespace App\Livewire\Admin\Contacts;
 use App\Enums\ContactStatus;
 use App\Livewire\AdminComponent;
 use App\Models\ContactMessage;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Gate;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
@@ -96,6 +97,28 @@ class Index extends AdminComponent
         $this->reset('search', 'status', 'locale', 'dateFrom', 'dateTo');
         $this->selected = [];
         $this->resetPage();
+    }
+
+    public function togglePageSelection(): void
+    {
+        $pageIds = $this->filteredMessagesQuery()
+            ->latest()
+            ->forPage($this->getPage(), $this->perPage)
+            ->pluck('id')
+            ->map(fn ($id): int => (int) $id)
+            ->values();
+        $selected = collect($this->selected)
+            ->map(fn ($id): int => (int) $id)
+            ->unique()
+            ->values();
+        $allPageSelected = $pageIds->isNotEmpty()
+            && $pageIds->every(fn (int $id): bool => $selected->contains($id));
+
+        $this->selected = ($allPageSelected
+            ? $selected->reject(fn (int $id): bool => $pageIds->contains($id))
+            : $selected->merge($pageIds)->unique())
+            ->values()
+            ->all();
     }
 
     public function viewMessage(int $messageId): void
@@ -192,20 +215,18 @@ class Index extends AdminComponent
 
     public function render()
     {
-        $filters = [
-            'search' => trim($this->search),
-            'status' => $this->status,
-            'locale' => $this->locale,
-            'dateFrom' => $this->dateFrom,
-            'dateTo' => $this->dateTo,
-        ];
+        $messages = $this->filteredMessagesQuery()
+            ->with('assignee')
+            ->latest()
+            ->paginate($this->perPage);
+        $pageMessageIds = $messages->getCollection()->pluck('id')->map(fn ($id): int => (int) $id);
+        $selectedIds = collect($this->selected)->map(fn ($id): int => (int) $id);
+        $selectedPageCount = $pageMessageIds->intersect($selectedIds)->count();
 
         return view('livewire.admin.contacts.index', [
-            'messages' => ContactMessage::query()
-                ->with('assignee')
-                ->filtered($filters)
-                ->latest()
-                ->paginate($this->perPage),
+            'messages' => $messages,
+            'allPageSelected' => $pageMessageIds->isNotEmpty() && $selectedPageCount === $pageMessageIds->count(),
+            'somePageSelected' => $selectedPageCount > 0 && $selectedPageCount < $pageMessageIds->count(),
             'viewingMessage' => $this->viewingMessageId
                 ? ContactMessage::with('assignee')->find($this->viewingMessageId)
                 : null,
@@ -213,6 +234,17 @@ class Index extends AdminComponent
                 ['label' => 'Bảng điều khiển', 'route' => 'admin.dashboard'],
                 ['label' => 'Quản lý liên lạc'],
             ],
+        ]);
+    }
+
+    private function filteredMessagesQuery(): Builder
+    {
+        return ContactMessage::query()->filtered([
+            'search' => trim($this->search),
+            'status' => $this->status,
+            'locale' => $this->locale,
+            'dateFrom' => $this->dateFrom,
+            'dateTo' => $this->dateTo,
         ]);
     }
 }

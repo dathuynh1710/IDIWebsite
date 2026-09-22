@@ -28,7 +28,7 @@
         @if($permissions->isEmpty())
             <x-ui.empty-state title="Không tìm thấy quyền hạn" description="Hãy thay đổi bộ lọc để tìm quyền phù hợp." />
         @else
-            <div class="table-responsive">
+            <x-ui.data-table label="Danh sách quyền truy cập">
                 <table class="data-table permission-table">
                     <thead><tr><th>Quyền hạn</th><th>Module</th><th>Loại</th><th>Vai trò sử dụng</th></tr></thead>
                     <tbody>
@@ -42,7 +42,7 @@
                         @endforeach
                     </tbody>
                 </table>
-            </div>
+            </x-ui.data-table>
             <x-ui.pagination :paginator="$permissions" />
         @endif
     </section>

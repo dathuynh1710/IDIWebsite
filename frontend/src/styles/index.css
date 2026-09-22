@@ -481,6 +481,10 @@
     backdrop-filter: blur(18px);
   }
 
+  .products-catalog__results {
+    scroll-margin-top: 96px;
+  }
+
   .products-page .tpproductha ul {
     display: grid;
     grid-template-columns: repeat(5, minmax(0, 1fr));
@@ -702,22 +706,6 @@
     color: var(--color-seafoam);
   }
 
-  .products-page .product-short-description {
-    display: -webkit-box;
-    margin-top: 0.55rem;
-    overflow: hidden;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
-    color: var(--color-storm-grey);
-    font-size: 0.84rem;
-    line-height: 1.55;
-  }
-
-  .products-page .product-short-description > * {
-    display: inline;
-    margin: 0;
-  }
-
   .products-page .itproducthb .dsconts {
     display: flex;
     flex-wrap: wrap;
@@ -927,17 +915,6 @@
     font-size: clamp(1.65rem, 2.5vw, 2.15rem);
     line-height: 1.15;
     letter-spacing: -0.035em;
-  }
-
-  .product-modal__short-description {
-    margin-top: 0.65rem;
-    color: var(--color-storm-grey);
-    font-size: 0.92rem;
-    line-height: 1.6;
-  }
-
-  .product-modal__short-description > * {
-    margin: 0;
   }
 
   .product-modal__details {
@@ -2267,6 +2244,34 @@
 .careers-application-copy ul,
 .careers-application-copy ol {
   padding-left: 1.25rem;
+}
+
+.career-job-detail-copy {
+  color: var(--color-storm-grey);
+  font-size: 0.925rem;
+  line-height: 1.75;
+}
+
+.career-job-detail-copy > * + * {
+  margin-top: 0.75rem;
+}
+
+.career-job-detail-copy ul,
+.career-job-detail-copy ol {
+  margin: 0.75rem 0 0;
+  padding-left: 1.25rem;
+}
+
+.career-job-detail-copy ul {
+  list-style: disc;
+}
+
+.career-job-detail-copy ol {
+  list-style: decimal;
+}
+
+.career-job-detail-copy li + li {
+  margin-top: 0.4rem;
 }
 
 /* Recipe detail — editorial layout for CMS-authored ingredients and directions. */

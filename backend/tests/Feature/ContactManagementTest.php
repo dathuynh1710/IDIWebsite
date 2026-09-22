@@ -72,6 +72,54 @@ class ContactManagementTest extends TestCase
             ]);
     }
 
+    public function test_legacy_contact_module_status_does_not_hide_the_page_or_active_locations(): void
+    {
+        DB::table('modules')->where('code', 'contact')->update(['is_active' => false]);
+
+        $this->getJson('/api/contacts?locale=vi')
+            ->assertOk()
+            ->assertJsonPath('locations.0.code', 'HEAD_OFFICE');
+    }
+
+    public function test_toggling_an_office_hides_and_restores_its_content_and_map_on_the_public_website(): void
+    {
+        $user = $this->contactManager();
+        $office = OfficeLocation::create([
+            'code' => 'VISIBILITY_TEST',
+            'name' => ['vi' => 'Visibility test office'],
+            'address' => ['vi' => 'Dong Thap'],
+            'map_type' => 'embed',
+            'map_embed' => '<iframe src='.chr(34).'https://www.google.com/maps/embed?pb=visibility-test'.chr(34).'></iframe>',
+            'sort_order' => 999,
+            'is_active' => true,
+        ]);
+
+        $this->getJson('/api/contacts?locale=vi')
+            ->assertOk()
+            ->assertJsonFragment(['code' => 'VISIBILITY_TEST'])
+            ->assertJsonFragment(['embedUrl' => 'https://www.google.com/maps/embed?pb=visibility-test']);
+
+        Livewire::actingAs($user)->test(Settings::class)
+            ->call('toggleLocation', $office->id)
+            ->assertHasNoErrors();
+
+        $this->assertFalse($office->fresh()->is_active);
+        $this->getJson('/api/contacts?locale=vi')
+            ->assertOk()
+            ->assertJsonMissing(['code' => 'VISIBILITY_TEST'])
+            ->assertJsonMissing(['embedUrl' => 'https://www.google.com/maps/embed?pb=visibility-test']);
+
+        Livewire::actingAs($user)->test(Settings::class)
+            ->call('toggleLocation', $office->id)
+            ->assertHasNoErrors();
+
+        $this->assertTrue($office->fresh()->is_active);
+        $this->getJson('/api/contacts?locale=vi')
+            ->assertOk()
+            ->assertJsonFragment(['code' => 'VISIBILITY_TEST'])
+            ->assertJsonFragment(['embedUrl' => 'https://www.google.com/maps/embed?pb=visibility-test']);
+    }
+
     public function test_public_contact_form_validates_fields_and_discards_honeypot_submissions(): void
     {
         $this->postJson('/api/contacts', [
@@ -150,6 +198,52 @@ class ContactManagementTest extends TestCase
         $component->set('perPage', 10)
             ->assertSet('perPage', 10)
             ->assertSet('paginators.page', 1);
+    }
+
+    public function test_select_all_checkbox_toggles_every_message_on_the_current_page(): void
+    {
+        $user = $this->contactManager();
+        foreach (range(1, 7) as $index) {
+            $this->message([
+                'full_name' => "Bulk contact {$index}",
+                'email' => "bulk{$index}@example.com",
+            ]);
+        }
+
+        Livewire::actingAs($user)->test(Index::class)
+            ->assertSee('Chọn tất cả thư trên trang này')
+            ->call('togglePageSelection')
+            ->assertCount('selected', 5)
+            ->call('togglePageSelection')
+            ->assertSet('selected', [])
+            ->call('gotoPage', 2, 'page')
+            ->call('togglePageSelection')
+            ->assertCount('selected', 2);
+    }
+
+    public function test_changing_page_size_clears_selection_and_checkbox_dom_state(): void
+    {
+        $user = $this->contactManager();
+        foreach (range(1, 10) as $index) {
+            $this->message([
+                'full_name' => "Page size contact {$index}",
+                'email' => "page-size{$index}@example.com",
+            ]);
+        }
+
+        $component = Livewire::actingAs($user)->test(Index::class)
+            ->set('perPage', 10)
+            ->call('togglePageSelection')
+            ->assertCount('selected', 10)
+            ->set('perPage', 5)
+            ->assertSet('selected', [])
+            ->assertSet('paginators.page', 1);
+
+        preg_match_all('/<input class="table-checkbox"[^>]*>/', $component->html(), $checkboxes);
+        $this->assertNotEmpty($checkboxes[0]);
+        foreach ($checkboxes[0] as $checkbox) {
+            $this->assertStringNotContainsString(' checked', $checkbox);
+        }
     }
 
     public function test_opening_message_marks_it_as_read_and_assigns_user(): void
@@ -241,6 +335,7 @@ class ContactManagementTest extends TestCase
         $this->actingAs($user)->get('/admin/contacts/settings')
             ->assertOk()
             ->assertSee('Cấu hình liên lạc')
+            ->assertDontSee('Trạng thái trang liên hệ')
             ->assertSee('English')
             ->assertSee('中文')
             ->assertDontSee('Cấu hình chung');

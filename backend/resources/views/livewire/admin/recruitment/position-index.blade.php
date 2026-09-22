@@ -30,15 +30,10 @@
         @if($positions->isEmpty())
             <x-ui.empty-state title="Chưa có vị trí tuyển dụng" description="Tạo vị trí đầu tiên hoặc thay đổi bộ lọc." icon="briefcase" />
         @else
-            @php
-                $pageIds = $positions->pluck('id')->map(fn ($id) => (int) $id)->values()->all();
-                $selectedIds = array_map('intval', $selected);
-                $allPageSelected = $pageIds !== [] && count(array_intersect($pageIds, $selectedIds)) === count($pageIds);
-            @endphp
-            <div class="table-responsive recruitment-compact-table-wrap">
+            <x-ui.data-table class="recruitment-compact-table-wrap" label="Danh sách vị trí tuyển dụng">
                 <table class="data-table recruitment-compact-table">
                     <thead><tr>
-                        <th class="selection-column"><input class="table-checkbox" type="checkbox" wire:click="togglePageSelection(@js($pageIds))" @checked($allPageSelected) aria-label="Chọn tất cả vị trí trên trang"></th>
+                        <th class="selection-column"><x-ui.table-check-all :ids="$positions->pluck('id')" :selected="$selected" label="Chọn tất cả vị trí trên trang" /></th>
                         <th class="recruitment-order-heading">Thứ tự</th>
                         <th>Tiêu đề</th>
                         <th class="recruitment-number-heading">Số lượng</th>
@@ -49,7 +44,7 @@
                     <tbody>
                         @foreach($positions as $item)
                             <tr wire:key="position-{{ $item->id }}" @class(['is-muted-row' => !$item->is_active])>
-                                <td class="selection-column"><input class="table-checkbox" type="checkbox" wire:model.live="selected" value="{{ $item->id }}" aria-label="Chọn {{ $item->getTranslation('title', $locale, false) }}"></td>
+                                <td class="selection-column"><x-ui.table-row-checkbox :id="$item->id" :selected="$selected" label="Chọn {{ $item->getTranslation('title', $locale, false) }}" /></td>
                                 <td><input class="input order-input" type="number" wire:model="sortOrders.{{ $item->id }}" min="0" aria-label="Thứ tự {{ $item->getTranslation('title', $locale, false) }}"></td>
                                 <td><div class="recruitment-compact-title"><small>{{ $item->code ?: 'Chưa có mã' }}</small><strong>{{ $item->getTranslation('title', $locale, false) ?: 'Chưa có bản dịch' }}</strong>@if($item->department)<span>{{ $item->department }}</span>@endif</div></td>
                                 <td class="recruitment-number-cell">{{ $item->quantity }}</td>
@@ -66,7 +61,7 @@
                         @endforeach
                     </tbody>
                 </table>
-            </div>
+            </x-ui.data-table>
             <x-ui.pagination :paginator="$positions" :per-page-options="$perPageOptions" />
         @endif
     </section>

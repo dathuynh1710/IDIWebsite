@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router'
 import PageHead from '@components/common/PageHead'
 import { careersService } from '@services/careers.service'
@@ -21,18 +21,27 @@ const JOBS_COPY = {
     role: 'Vị trí tuyển dụng', quantity: 'Số lượng', location: 'Nơi làm việc', apply: 'Ứng tuyển',
     openings: 'vị trí', loading: 'Đang tải các vị trí tuyển dụng...',
     empty: 'Hiện chưa có vị trí tuyển dụng phù hợp.', error: 'Không thể tải danh sách tuyển dụng.', retry: 'Thử lại',
+    detail: 'Chi tiết vị trí', description: 'Mô tả công việc', requirements: 'Yêu cầu ứng viên', benefits: 'Quyền lợi và phúc lợi',
+    contact: 'Thông tin liên hệ', close: 'Đóng chi tiết vị trí', loadingDetail: 'Đang tải thông tin vị trí...',
+    detailError: 'Không thể tải chi tiết vị trí. Vui lòng thử lại.', viewDetail: 'Xem chi tiết',
   },
   en: {
     eyebrow: 'Opportunities at IDI', title: 'Current openings',
     role: 'Position', quantity: 'Openings', location: 'Location', apply: 'Apply now',
     openings: 'positions', loading: 'Loading current openings...',
     empty: 'There are no current openings.', error: 'Unable to load current openings.', retry: 'Try again',
+    detail: 'Position details', description: 'Job description', requirements: 'Candidate requirements', benefits: 'Benefits',
+    contact: 'Contact information', close: 'Close position details', loadingDetail: 'Loading position details...',
+    detailError: 'Unable to load position details. Please try again.', viewDetail: 'View details',
   },
   'zh-CN': {
     eyebrow: 'IDI 职业机会', title: '正在招聘的职位',
     role: '招聘职位', quantity: '人数', location: '工作地点', apply: '立即申请',
     openings: '个职位', loading: '正在加载招聘职位……',
     empty: '目前暂无招聘职位。', error: '无法加载招聘职位。', retry: '重试',
+    detail: '职位详情', description: '工作描述', requirements: '任职要求', benefits: '福利待遇',
+    contact: '联系方式', close: '关闭职位详情', loadingDetail: '正在加载职位详情……',
+    detailError: '无法加载职位详情，请重试。', viewDetail: '查看详情',
   },
 }
 
@@ -42,6 +51,120 @@ function LocationIcon() {
       <path d="M15.5 8.2c0 4.1-5.5 8.3-5.5 8.3S4.5 12.3 4.5 8.2a5.5 5.5 0 1 1 11 0Z" stroke="currentColor" strokeWidth="1.4" />
       <circle cx="10" cy="8" r="1.8" stroke="currentColor" strokeWidth="1.4" />
     </svg>
+  )
+}
+
+function JobDetailModal({ job, status, labels, onClose, onRetry, onApply }) {
+  const dialogRef = useRef(null)
+  const closeButtonRef = useRef(null)
+  const isOpen = Boolean(job)
+
+  useEffect(() => {
+    if (!isOpen) return undefined
+
+    const previouslyFocused = document.activeElement
+    const previousOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    closeButtonRef.current?.focus()
+
+    const handleKeyDown = (event) => {
+      if (event.key !== 'Tab') return
+
+      const focusable = dialogRef.current?.querySelectorAll('button:not([disabled]), a[href]')
+      if (!focusable?.length) return
+      const first = focusable[0]
+      const last = focusable[focusable.length - 1]
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault()
+        last.focus()
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault()
+        first.focus()
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => {
+      document.body.style.overflow = previousOverflow
+      window.removeEventListener('keydown', handleKeyDown)
+      previouslyFocused?.focus?.()
+    }
+  }, [isOpen])
+
+  if (!job) return null
+
+  const sections = [
+    ['description', labels.description, job.description],
+    ['requirements', labels.requirements, job.requirements],
+    ['benefits', labels.benefits, job.benefits],
+    ['contact', labels.contact, job.contact],
+  ].filter(([, , content]) => content)
+
+  return (
+    <div
+      className="fixed inset-0 z-[160] overflow-y-auto bg-ocean-deep/75 p-4 backdrop-blur-sm sm:p-8"
+      role="presentation"
+    >
+      <section
+        ref={dialogRef}
+        className="relative mx-auto my-4 w-full max-w-4xl overflow-hidden rounded-2xl bg-white shadow-[0_32px_90px_rgba(5,29,54,0.35)] sm:my-8"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="job-detail-title"
+        aria-describedby={job.summary ? 'job-detail-summary' : undefined}
+      >
+        <button
+          ref={closeButtonRef}
+          type="button"
+          onClick={onClose}
+          className="absolute right-4 top-4 z-10 grid h-11 w-11 place-items-center rounded-full border border-white/25 bg-white/10 text-2xl text-white transition hover:bg-white hover:text-ocean-deep focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+          aria-label={labels.close}
+        >
+          <span aria-hidden="true">×</span>
+        </button>
+
+        <header className="bg-ocean-deep px-6 py-8 pr-20 text-white sm:px-10 sm:py-10 sm:pr-24">
+          <span className="text-xs font-bold uppercase tracking-[0.18em] text-seafoam-light">{labels.detail}</span>
+          <h2 id="job-detail-title" className="mt-3 text-2xl font-extrabold leading-tight text-white sm:text-4xl">{job.title}</h2>
+          <div className="mt-5 flex flex-wrap gap-x-6 gap-y-3 text-sm text-white/75">
+            {job.department && <span>{job.department}</span>}
+            {job.location && <span className="flex items-center gap-2"><LocationIcon /> {job.location}</span>}
+            <span>{labels.quantity}: <strong className="text-white">{job.quantity}</strong></span>
+          </div>
+          {job.summary && <p id="job-detail-summary" className="mt-5 max-w-3xl leading-7 text-white/75">{job.summary}</p>}
+        </header>
+
+        <div className="max-h-[65vh] overflow-y-auto px-6 py-7 sm:px-10 sm:py-9">
+          {status === 'loading' && (
+            <div className="py-16 text-center text-sm text-storm-grey" role="status">{labels.loadingDetail}</div>
+          )}
+
+          {status === 'error' && (
+            <div className="py-16 text-center" role="alert">
+              <p className="text-sm text-storm-grey">{labels.detailError}</p>
+              <button type="button" onClick={onRetry} className="btn btn-secondary mt-5">{labels.retry}</button>
+            </div>
+          )}
+
+          {status === 'success' && (
+            <div className="grid gap-8 md:grid-cols-2">
+              {sections.map(([key, title, content]) => (
+                <section key={key} className={key === 'contact' ? 'md:col-span-2' : ''}>
+                  <h3 className="border-l-2 border-seafoam pl-3 text-lg font-extrabold text-ocean-deep">{title}</h3>
+                  <div className="career-job-detail-copy mt-4" dangerouslySetInnerHTML={{ __html: content }} />
+                </section>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <footer className="flex justify-end border-t border-light-mist bg-arctic-white px-6 py-5 sm:px-10">
+          <button type="button" onClick={() => onApply(job)} className="btn btn-primary" disabled={status !== 'success'}>
+            {labels.apply} <span aria-hidden="true">→</span>
+          </button>
+        </footer>
+      </section>
+    </div>
   )
 }
 
@@ -113,10 +236,13 @@ export default function CareersPage() {
   const [isLoadingOpenings, setIsLoadingOpenings] = useState(true)
   const [openingsError, setOpeningsError] = useState(false)
   const [openingsReloadKey, setOpeningsReloadKey] = useState(0)
+  const [selectedOpening, setSelectedOpening] = useState(null)
+  const [openingDetailStatus, setOpeningDetailStatus] = useState('idle')
   const [errors, setErrors] = useState({})
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [referenceId, setReferenceId] = useState('')
   const fileInputRef = useRef(null)
+  const detailRequestRef = useRef(0)
 
   useEffect(() => {
     let active = true
@@ -209,6 +335,38 @@ export default function CareersPage() {
     setErrors(current => ({ ...current, jobPositionId: '' }))
 
     document.getElementById('ung-tuyen')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
+
+  const loadOpeningDetail = async (job) => {
+    const requestId = detailRequestRef.current + 1
+    detailRequestRef.current = requestId
+    setSelectedOpening(job)
+    setOpeningDetailStatus('loading')
+
+    try {
+      const detail = await careersService.getById(job.slug, language)
+      if (detailRequestRef.current !== requestId) return
+      setSelectedOpening(detail)
+      setOpeningDetailStatus('success')
+    } catch {
+      if (detailRequestRef.current === requestId) setOpeningDetailStatus('error')
+    }
+  }
+
+  const closeOpeningDetail = useCallback(() => {
+    detailRequestRef.current += 1
+    setSelectedOpening(null)
+    setOpeningDetailStatus('idle')
+  }, [])
+
+  const applyForOpening = (job) => {
+    closeOpeningDetail()
+    setReferenceId('')
+    setForm(current => ({ ...current, jobPositionId: String(job.id) }))
+    setErrors(current => ({ ...current, jobPositionId: '' }))
+    window.setTimeout(() => {
+      document.getElementById('ung-tuyen')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }, 0)
   }
 
   return (
@@ -394,7 +552,10 @@ export default function CareersPage() {
                 {!isLoadingOpenings && !openingsError && openings.map((job, index) => (
                   <article
                     key={job.id}
-                    className="group grid gap-6 border border-light-mist bg-white p-5 transition-colors hover:border-seafoam/45 sm:p-6 lg:grid-cols-[minmax(0,1.45fr)_minmax(7rem,0.35fr)_minmax(14rem,0.65fr)_8.5rem] lg:items-center lg:border-x-0 lg:border-t-0 lg:px-5 lg:py-7 lg:hover:bg-seafoam-pale/35"
+                    onClick={(event) => {
+                      if (!event.target.closest('button, a')) loadOpeningDetail(job)
+                    }}
+                    className="group grid cursor-pointer gap-6 border border-light-mist bg-white p-5 transition-colors hover:border-seafoam/45 sm:p-6 lg:grid-cols-[minmax(0,1.45fr)_minmax(7rem,0.35fr)_minmax(14rem,0.65fr)_8.5rem] lg:items-center lg:border-x-0 lg:border-t-0 lg:px-5 lg:py-7 lg:hover:bg-seafoam-pale/35"
                   >
                     <div className="min-w-0">
                       <div className="flex items-start gap-4">
@@ -402,8 +563,16 @@ export default function CareersPage() {
                           {String(index + 1).padStart(2, '0')}
                         </span>
                         <div>
-                          <h3 className="text-lg font-bold leading-snug text-ocean-deep transition-colors group-hover:text-seafoam">
-                            {job.title}
+                          <h3>
+                            <button
+                              type="button"
+                              onClick={() => loadOpeningDetail(job)}
+                              className="cursor-pointer text-left text-lg font-bold leading-snug text-ocean-deep transition-colors hover:text-seafoam focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-seafoam group-hover:text-seafoam"
+                              aria-haspopup="dialog"
+                              aria-label={`${jobsCopy.viewDetail}: ${job.title}`}
+                            >
+                              {job.title}
+                            </button>
                           </h3>
                           {job.department && <div className="mt-2 text-xs">
                             <span className="font-semibold text-storm-grey">{job.department}</span>
@@ -668,6 +837,14 @@ export default function CareersPage() {
           </div>
         </section>
       </main>
+      <JobDetailModal
+        job={selectedOpening}
+        status={openingDetailStatus}
+        labels={jobsCopy}
+        onClose={closeOpeningDetail}
+        onRetry={() => loadOpeningDetail(selectedOpening)}
+        onApply={applyForOpening}
+      />
     </>
   )
 }

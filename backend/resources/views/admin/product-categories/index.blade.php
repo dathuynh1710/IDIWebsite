@@ -77,7 +77,7 @@
                         <span class="category-selection-count" x-text="selectedLabel">Chưa chọn danh mục</span>
                     </div>
 
-                    <div class="table-responsive">
+                    <x-ui.data-table label="Danh sách danh mục sản phẩm">
                         <table class="data-table category-table">
                             <thead>
                                 <tr>
@@ -144,10 +144,10 @@
                                 @endforeach
                             </tbody>
                         </table>
-                    </div>
+                    </x-ui.data-table>
                 </div>
             @else
-                <div class="table-responsive">
+                <x-ui.data-table label="Danh sách danh mục sản phẩm">
                     <table class="data-table category-table">
                         <thead><tr><th>Tên danh mục</th><th>Mã</th><th>Đã xóa</th><th class="table-actions-heading">Thao tác</th></tr></thead>
                         <tbody>
@@ -170,7 +170,7 @@
                             @endforeach
                         </tbody>
                     </table>
-                </div>
+                </x-ui.data-table>
             @endif
             <x-ui.pagination :paginator="$categories" />
         @endif

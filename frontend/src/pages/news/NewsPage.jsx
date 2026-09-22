@@ -104,7 +104,7 @@ function NewsCard({ article, pageConfig, language, labels }) {
   const href = `/news/${article.slug}`
 
   return (
-    <article className="group flex h-full flex-col border-t border-mist-mid pt-4">
+    <article className="group flex h-full flex-col">
       <Link
         to={href}
         className="relative block aspect-[16/10] overflow-hidden bg-light-mist focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-seafoam"
@@ -134,7 +134,7 @@ function LoadingGrid({ label }) {
   return (
     <div className="grid animate-pulse gap-x-7 gap-y-14 sm:grid-cols-2 lg:grid-cols-3" aria-busy="true" aria-label={label}>
       {Array.from({ length: 6 }, (_, index) => (
-        <div key={index} className="border-t border-mist-mid pt-4">
+        <div key={index}>
           <div className="aspect-[16/10] bg-light-mist" />
           <div className="mt-5 h-3 w-1/3 bg-light-mist" />
           <div className="mt-4 h-6 w-full bg-light-mist" />

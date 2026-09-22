@@ -61,9 +61,6 @@ function ProductCard({ product, category, onOpen }) {
         <div className="dstitle">
           <h3><button type="button" onClick={onOpen} aria-haspopup="dialog">{product.name}</button></h3>
         </div>
-        {product.shortDescription && (
-          <div className="product-short-description" dangerouslySetInnerHTML={{ __html: product.shortDescription }} />
-        )}
         <div className="dsconts" aria-label={t('products.specificationLabel')}>
           <span className="size-label">{t('products.sizeLabel')}</span>
           {product.sizes.map(size => <span key={size} className="size-chip">{size}</span>)}
@@ -108,9 +105,6 @@ function ProductModal({ product, isClosing, onClose, closeButtonRef, dialogRef }
         <div className="product-modal__content">
           {product.category && <div className="product-modal__eyebrow"><span>{product.category}</span></div>}
           <h2 id="product-modal-title">{product.name}</h2>
-          {product.shortDescription && (
-            <div className="product-modal__short-description" dangerouslySetInnerHTML={{ __html: product.shortDescription }} />
-          )}
           <div id="product-modal-description" className="product-modal__details">
             {product.productSpecification && (
               <section className="product-modal__detail-block">
@@ -168,6 +162,7 @@ export default function ProductsPage() {
   const closeTimerRef = useRef(null)
   const closeButtonRef = useRef(null)
   const dialogRef = useRef(null)
+  const catalogResultsRef = useRef(null)
   const categoryParam = searchParams.get('category')
   const activeCategory = useMemo(
     () => categoryParam ? catalog.categories.find(category => category.slug === categoryParam) ?? null : null,
@@ -191,6 +186,20 @@ export default function ProductsPage() {
       .catch(() => {})
     return () => { isMounted = false }
   }, [language])
+
+  useEffect(() => {
+    if (!categoryParam || !activeCategory) return undefined
+
+    const animationFrame = window.requestAnimationFrame(() => {
+      const prefersReducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+      catalogResultsRef.current?.scrollIntoView({
+        behavior: prefersReducedMotion ? 'auto' : 'smooth',
+        block: 'start',
+      })
+    })
+
+    return () => window.cancelAnimationFrame(animationFrame)
+  }, [activeCategory, categoryParam])
 
   const openProduct = (product, category) => {
     if (closeTimerRef.current) window.clearTimeout(closeTimerRef.current)
@@ -265,30 +274,32 @@ export default function ProductsPage() {
               </div>
             </section>
 
-            <nav className="tpproductha" aria-label={t('products.catalogLabel')}>
-              <ul>
-                <li className={activeCategory === null ? 'active' : ''}>
-                  <button type="button" onClick={() => setSearchParams({}, { preventScrollReset: true })} aria-pressed={activeCategory === null}><span>{t('actions.all')}</span></button>
-                </li>
-                {catalog.categories.map(category => (
-                  <li key={category.id} className={activeCategory?.id === category.id ? 'active' : ''}>
-                    <button type="button" onClick={() => setSearchParams({ category: category.slug }, { preventScrollReset: true })} aria-pressed={activeCategory?.id === category.id}>
-                      <span>{category.name}</span>
-                    </button>
+            <div ref={catalogResultsRef} className="products-catalog__results">
+              <nav className="tpproductha" aria-label={t('products.catalogLabel')}>
+                <ul>
+                  <li className={activeCategory === null ? 'active' : ''}>
+                    <button type="button" onClick={() => setSearchParams({}, { preventScrollReset: true })} aria-pressed={activeCategory === null}><span>{t('actions.all')}</span></button>
                   </li>
-                ))}
-              </ul>
-            </nav>
+                  {catalog.categories.map(category => (
+                    <li key={category.id} className={activeCategory?.id === category.id ? 'active' : ''}>
+                      <button type="button" onClick={() => setSearchParams({ category: category.slug }, { preventScrollReset: true })} aria-pressed={activeCategory?.id === category.id}>
+                        <span>{category.name}</span>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </nav>
 
-            <div className="slproducthb vhslickload">
-              {visibleProducts.map(product => (
-                <ProductCard
-                  key={product.id}
-                  product={product}
-                  category={product.categoryName ?? activeCategory?.name}
-                  onOpen={() => openProduct(product, product.categoryName ?? activeCategory?.name)}
-                />
-              ))}
+              <div className="slproducthb vhslickload">
+                {visibleProducts.map(product => (
+                  <ProductCard
+                    key={product.id}
+                    product={product}
+                    category={product.categoryName ?? activeCategory?.name}
+                    onOpen={() => openProduct(product, product.categoryName ?? activeCategory?.name)}
+                  />
+                ))}
+              </div>
             </div>
           </div>
         </section>

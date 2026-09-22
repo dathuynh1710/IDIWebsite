@@ -18,7 +18,7 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
 </head>
-<body x-data="adminLayout()" :class="{ 'sidebar-open': sidebarOpen, 'sidebar-collapsed': sidebarCollapsed }">
+<body class="admin-body" x-data="adminLayout()" :class="{ 'sidebar-open': sidebarOpen, 'sidebar-collapsed': sidebarCollapsed }">
     <a class="skip-link" href="#main-content">Chuyển đến nội dung chính</a>
     <div class="admin-shell">
         <x-admin.sidebar />
@@ -29,9 +29,7 @@
             <main id="main-content" class="admin-content" tabindex="-1">
                 {{ $slot }}
             </main>
-            @persist('admin-footer')
-                <x-admin.footer />
-            @endpersist
+            <x-admin.footer />
         </div>
     </div>
     @persist('admin-mobile-overlay')

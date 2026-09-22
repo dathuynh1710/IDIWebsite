@@ -39,10 +39,10 @@
         @if($documents->isEmpty())
             <x-ui.empty-state title="Chưa có tài liệu" description="Tạo tài liệu đầu tiên hoặc thay đổi bộ lọc." icon="file" />
         @else
-            <div class="table-responsive">
+            <x-ui.data-table label="Danh sách tài liệu nhà đầu tư">
                 <table class="data-table category-table">
                     <thead>
-                        <tr><th class="selection-column"></th><th class="order-column">Thứ tự</th><th>Tiêu đề</th><th class="investor-actions-column">Thao tác</th></tr>
+                        <tr><th class="selection-column"><x-ui.table-check-all :ids="$documents->pluck('id')" :selected="$selected" label="Chọn tất cả tài liệu trên trang" /></th><th class="order-column">Thứ tự</th><th>Tiêu đề</th><th class="investor-actions-column">Thao tác</th></tr>
                     </thead>
                     <tbody>
                         @foreach($documents as $item)
@@ -52,7 +52,7 @@
                                 $file = $item->files->first();
                             @endphp
                             <tr wire:key="investor-document-{{ $item->id }}" @class(['is-muted-row' => !$item->is_active])>
-                                <td><input class="table-checkbox" type="checkbox" wire:model.live="selected" value="{{ $item->id }}"></td>
+                                <td><x-ui.table-row-checkbox :id="$item->id" :selected="$selected" label="Chọn tài liệu {{ $item->id }}" /></td>
                                 <td><input class="input order-input" type="number" wire:model="sortOrders.{{ $item->id }}"></td>
                                 <td>
                                     <strong>{{ $title ?: 'Chưa có tiêu đề' }}</strong>
@@ -72,7 +72,7 @@
                         @endforeach
                     </tbody>
                 </table>
-            </div>
+            </x-ui.data-table>
             <x-ui.pagination :paginator="$documents" :per-page-options="$perPageOptions" />
         @endif
     </section>

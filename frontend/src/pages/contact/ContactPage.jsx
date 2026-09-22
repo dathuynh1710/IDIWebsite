@@ -122,7 +122,10 @@ export default function ContactPage() {
   }, [language])
 
   const pageConfig = pageData?.pageConfig ?? null
-  const offices = pageData && pageData !== false ? (pageData.locations ?? []) : FALLBACK_OFFICES
+  // Backend data is the single source of truth for office visibility. Falling
+  // back to static offices would expose inactive content and maps while the
+  // request is loading or when the API is unavailable.
+  const offices = pageData?.locations ?? []
   const mapOffices = offices.filter(office => office.map?.type !== 'none' && (office.map?.embedUrl || office.map?.imageUrl || office.map?.url))
   const activeOffice = mapOffices.find(office => (office.code || String(office.id)) === activeMap) ?? mapOffices[0]
   const officeTitle = office => office.name ?? t(`contact.details.${office.nameKey}`)

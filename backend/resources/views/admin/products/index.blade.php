@@ -50,7 +50,7 @@
         @if($products->isEmpty())
             <x-ui.empty-state title="Không tìm thấy sản phẩm" description="Thử thay đổi bộ lọc hoặc tạo sản phẩm mới." />
         @else
-            <div class="table-responsive desktop-product-table">
+            <x-ui.data-table class="desktop-product-table" label="Danh sách sản phẩm">
                 <table class="data-table">
                     <thead><tr><th>Sản phẩm</th><th>SKU</th><th>Danh mục</th><th>Thứ tự</th><th>Nổi bật</th><th>Trạng thái</th><th>Cập nhật</th><th class="table-actions-heading">Thao tác</th></tr></thead>
                     <tbody>
@@ -90,7 +90,7 @@
                         @endforeach
                     </tbody>
                 </table>
-            </div>
+            </x-ui.data-table>
 
             <div class="mobile-product-list">
                 @foreach($products as $product)

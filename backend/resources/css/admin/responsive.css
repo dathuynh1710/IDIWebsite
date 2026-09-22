@@ -435,7 +435,11 @@
     }
 
     .admin-footer {
-        padding: 14px;
+        height: auto;
+        min-height: 68px;
+        max-height: none;
+        flex-basis: auto;
+        padding: 12px 14px;
         flex-direction: column;
         align-items: center;
         gap: 2px;

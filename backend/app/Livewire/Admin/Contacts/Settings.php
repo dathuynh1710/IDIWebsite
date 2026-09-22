@@ -29,8 +29,6 @@ class Settings extends AdminComponent
 
     public array $success_message = ['vi' => '', 'en' => '', 'zh' => ''];
 
-    public bool $is_active = true;
-
     public bool $form_enabled = true;
 
     public bool $spam_protection = true;
@@ -85,7 +83,6 @@ class Settings extends AdminComponent
         foreach (['page_title', 'description', 'seo_title', 'meta_description'] as $field) {
             $this->{$field} = array_replace($this->{$field}, json_decode($module->{$field} ?: '[]', true) ?: []);
         }
-        $this->is_active = (bool) $module->is_active;
         $settings = DB::table('module_settings')->where('module_id', $module->id)->pluck('setting_value', 'setting_key');
         foreach (['form_enabled', 'spam_protection', 'notification_email', 'items_per_page', 'success_message'] as $key) {
             if ($settings->has($key)) {
@@ -105,7 +102,6 @@ class Settings extends AdminComponent
             'seo_title.*' => ['nullable', 'string', 'max:255'],
             'meta_description.*' => ['nullable', 'string', 'max:500'],
             'success_message.*' => ['nullable', 'string', 'max:1000'],
-            'is_active' => ['required', 'boolean'],
             'form_enabled' => ['required', 'boolean'],
             'spam_protection' => ['required', 'boolean'],
             'notification_email' => ['nullable', 'email', 'max:255'],
@@ -126,7 +122,6 @@ class Settings extends AdminComponent
             'success_message.vi'  => 'Thông báo gửi thành công (Tiếng Việt)',
             'success_message.en'  => 'Thông báo gửi thành công (Tiếng Anh)',
             'success_message.zh'  => 'Thông báo gửi thành công (Tiếng Trung)',
-            'is_active'           => 'Trạng thái module',
             'form_enabled'        => 'Kích hoạt biểu mẫu',
             'spam_protection'     => 'Bảo vệ spam',
             'notification_email'  => 'Email nhận thông báo',
@@ -143,7 +138,7 @@ class Settings extends AdminComponent
                 'description' => json_encode($validated['description'], JSON_UNESCAPED_UNICODE),
                 'seo_title' => json_encode($validated['seo_title'], JSON_UNESCAPED_UNICODE),
                 'meta_description' => json_encode($validated['meta_description'], JSON_UNESCAPED_UNICODE),
-                'is_active' => $validated['is_active'],
+                'is_active' => true,
                 'updated_at' => now(),
                 'created_at' => now(),
             ]);

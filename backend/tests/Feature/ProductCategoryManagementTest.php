@@ -170,6 +170,34 @@ class ProductCategoryManagementTest extends TestCase
         $this->assertSame(1, $second->fresh()->sort_order);
     }
 
+    public function test_table_check_all_stays_in_sync_with_rows_and_page_size(): void
+    {
+        $first = $this->category();
+        $second = ProductCategory::create([
+            'code' => 'WHOLE-FISH',
+            'name' => ['vi' => 'Cá nguyên con'],
+            'slug' => ['vi' => 'ca-nguyen-con'],
+            'sort_order' => 8,
+            'is_active' => true,
+        ]);
+        $pageIds = [$first->id, $second->id];
+
+        Livewire::actingAs($this->productEditor())->test(ProductCategoryIndex::class)
+            ->assertSeeHtml('toggleRenderedPageSelection')
+            ->call('toggleRenderedPageSelection', $pageIds)
+            ->assertSet('selected', fn ($selected) => collect($selected)->sort()->values()->all() === collect($pageIds)->sort()->values()->all())
+            ->assertSeeHtml('$el.checked = true; $el.indeterminate = false')
+            ->set('selected', [$first->id])
+            ->assertSeeHtml('$el.checked = false; $el.indeterminate = true')
+            ->call('toggleRenderedPageSelection', $pageIds)
+            ->assertSet('selected', fn ($selected) => collect($selected)->sort()->values()->all() === collect($pageIds)->sort()->values()->all())
+            ->call('toggleRenderedPageSelection', $pageIds)
+            ->assertSet('selected', [])
+            ->set('selected', $pageIds)
+            ->set('perPage', 20)
+            ->assertSet('selected', []);
+    }
+
     private function productEditor(): User
     {
         $permission = Permission::findOrCreate('products.manage', 'web');

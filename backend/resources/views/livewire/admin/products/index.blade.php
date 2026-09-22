@@ -35,14 +35,14 @@
                 </div>
                 <span class="category-selection-count">{{ count($selected) ? 'Đã chọn '.count($selected).' sản phẩm' : 'Chưa chọn sản phẩm' }}</span>
             </div>
-            <div class="table-responsive desktop-product-table">
+            <x-ui.data-table class="desktop-product-table" label="Danh sách sản phẩm">
                 <table class="data-table compact-product-table">
-                    <thead><tr><th class="selection-column"></th><th class="order-column">Thứ tự</th><th>Sản phẩm</th><th class="featured-column">Nổi bật</th><th class="table-actions-heading">Thao tác</th></tr></thead>
+                    <thead><tr><th class="selection-column"><x-ui.table-check-all :ids="$products->pluck('id')" :selected="$selected" label="Chọn tất cả sản phẩm trên trang" /></th><th class="order-column">Thứ tự</th><th>Sản phẩm</th><th class="featured-column">Nổi bật</th><th class="table-actions-heading">Thao tác</th></tr></thead>
                     <tbody>
                         @foreach($products as $product)
                             @php($name = $product->getTranslation('title', 'vi', false) ?: 'Chưa có tên')
                             <tr wire:key="product-{{ $product->id }}" class="{{ $product->is_active ? '' : 'is-muted-row' }}">
-                                <td><input class="table-checkbox" type="checkbox" wire:model.live="selected" value="{{ $product->id }}" aria-label="Chọn {{ $name }}"></td>
+                                <td><x-ui.table-row-checkbox :id="$product->id" :selected="$selected" label="Chọn {{ $name }}" /></td>
                                 <td><input class="input order-input" type="number" min="0" max="999999" wire:model="sortOrders.{{ $product->id }}" aria-label="Thứ tự của {{ $name }}"></td>
                                 <td>
                                     <div class="product-cell">
@@ -88,12 +88,12 @@
                         @endforeach
                     </tbody>
                 </table>
-            </div>
+            </x-ui.data-table>
             <div class="mobile-product-list">
                 @foreach($products as $product)
                     <article class="product-mobile-card" wire:key="mobile-product-{{ $product->id }}">
                         <div class="mobile-product-controls">
-                            <label><input class="table-checkbox" type="checkbox" wire:model.live="selected" value="{{ $product->id }}"> Chọn</label>
+                            <label><x-ui.table-row-checkbox :id="$product->id" :selected="$selected" key-prefix="mobile-product" label="Chọn {{ $product->getTranslation('title', 'vi', false) ?: 'sản phẩm '.$product->id }}" /> Chọn</label>
                             <label>Thứ tự <input class="input order-input" type="number" min="0" max="999999" wire:model="sortOrders.{{ $product->id }}"></label>
                         </div>
                         <div class="product-cell"><div class="product-thumb" x-data="{ imageFailed: false }">@if($product->featuredMedia)<img src="{{ $product->featuredMedia->url }}" alt="" x-show="!imageFailed" x-on:error="imageFailed = true"><span x-show="imageFailed" x-cloak><x-ui.icon name="image" /></span>@else<x-ui.icon name="image" />@endif</div><div><strong>{{ $product->getTranslation('title', 'vi', false) ?: 'Chưa có tên' }}</strong><small>{{ $product->sku }}</small></div></div>

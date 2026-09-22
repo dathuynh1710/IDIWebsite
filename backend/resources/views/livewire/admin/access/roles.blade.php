@@ -46,7 +46,7 @@
             @if($matrix->isEmpty())
                 <x-ui.empty-state title="Không tìm thấy quyền phù hợp" description="Hãy thử tìm bằng tên module hoặc mã quyền khác." />
             @else
-                <div class="permission-matrix-scroll">
+                <x-ui.data-table class="permission-matrix-scroll" label="Ma trận phân quyền" max-height="min(70vh, 780px)">
                     <table class="permission-matrix-table">
                         <thead><tr>
                             <th><button type="button" wire:click="selectAll" {{ $selectedRole->name === 'super-admin' ? 'disabled' : '' }}><span class="matrix-master-check"><x-ui.icon name="check" size="14" /></span><span>Module / Menu</span></button></th>
@@ -68,7 +68,7 @@
                             @endforeach
                         </tbody>
                     </table>
-                </div>
+                </x-ui.data-table>
                 <footer class="permission-matrix-footer"><span><strong>{{ count(array_intersect(array_map('strval', $permissionIds), $visiblePermissionIds)) }}</strong> quyền đang được chọn cho <strong>{{ $selectedRole->display_name ?: $selectedRole->name }}</strong></span><div>@can('roles.delete')@if(!$selectedRole->is_system && $selectedRole->users_count === 0)<button class="button button-ghost matrix-delete-role" type="button" wire:click="requestDeleteSelected"><x-ui.icon name="trash" size="16" /> Xóa vai trò</button>@endif @endcan @can('roles.update')<button class="button button-primary" type="button" wire:click="savePermissions" {{ !$selectedRole ? 'disabled' : '' }}><x-ui.icon name="save" size="17" /> Lưu phân quyền</button>@endcan</div></footer>
             @endif
         </section>

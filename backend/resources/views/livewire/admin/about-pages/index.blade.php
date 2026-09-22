@@ -35,9 +35,9 @@
                 </div>
                 <span class="category-selection-count">Đã chọn {{ count($selected) }} / {{ $pages->total() }} nội dung</span>
             </div>
-            <div class="table-responsive">
+            <x-ui.data-table label="Danh sách nội dung giới thiệu">
                 <table class="data-table category-table">
-                    <thead><tr><th class="selection-column"></th><th class="order-column">Thứ tự</th><th>Tiêu đề ({{ strtoupper($locale) }})</th><th>Đường dẫn</th><th>Loại giới thiệu</th><th>Bản dịch</th><th>Hiển thị</th><th class="table-actions-heading">Thao tác</th></tr></thead>
+                    <thead><tr><th class="selection-column"><x-ui.table-check-all :ids="$pages->pluck('id')" :selected="$selected" label="Chọn tất cả nội dung trên trang" /></th><th class="order-column">Thứ tự</th><th>Tiêu đề ({{ strtoupper($locale) }})</th><th>Đường dẫn</th><th>Loại giới thiệu</th><th>Bản dịch</th><th>Hiển thị</th><th class="table-actions-heading">Thao tác</th></tr></thead>
                     <tbody>
                         @foreach($pages as $item)
                             @php
@@ -45,7 +45,7 @@
                                 $isTrashed = $item->trashed();
                             @endphp
                             <tr wire:key="about-page-{{ $item->id }}" @class(['is-muted-row' => !$item->is_active || $isTrashed])>
-                                <td><input class="table-checkbox" type="checkbox" wire:model.live="selected" value="{{ $item->id }}" aria-label="Chọn {{ $item->getTranslation('title', $locale, false) }}"></td>
+                                <td><x-ui.table-row-checkbox :id="$item->id" :selected="$selected" label="Chọn {{ $item->getTranslation('title', $locale, false) }}" /></td>
                                 <td><input class="input order-input" type="number" min="0" wire:model="sortOrders.{{ $item->id }}" aria-label="Thứ tự {{ $item->id }}"></td>
                                 <td class="category-name-cell"><strong>{{ $item->getTranslation('title', $locale, false) ?: 'Chưa có bản dịch' }}</strong><small>{{ $item->code ?: '#'.$item->id }} @if($item->parent) · Thuộc {{ $item->parent->getTranslation('title', $locale, false) }} @endif</small></td>
                                 <td><code>{{ $item->getTranslation('slug', $locale, false) ?: '—' }}</code></td>
@@ -67,7 +67,7 @@
                         @endforeach
                     </tbody>
                 </table>
-            </div>
+            </x-ui.data-table>
             <x-ui.pagination :paginator="$pages" :per-page-options="$perPageOptions" />
         @endif
     </section>

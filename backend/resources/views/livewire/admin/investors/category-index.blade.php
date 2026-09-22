@@ -15,9 +15,9 @@
             <button class="button button-danger" type="button" wire:click="requestBulkDelete">Xóa</button>
         </div><span>{{ $categoryCount }} danh mục · {{ $categories->total() }} nhánh gốc</span></div>
         @if($categories->isEmpty())<x-ui.empty-state title="Chưa có danh mục" description="Hãy tạo danh mục đầu tiên cho quan hệ cổ đông." icon="folder" />
-        @else<div class="table-responsive"><table class="data-table category-table"><thead><tr><th></th><th>Thứ tự</th><th>Tiêu đề ({{ strtoupper($locale) }})</th><th>Danh mục cha</th><th>Số tài liệu</th><th>Bản dịch</th><th>Trạng thái</th><th></th></tr></thead><tbody>
+        @else<x-ui.data-table label="Danh mục tài liệu nhà đầu tư"><table class="data-table category-table"><thead><tr><th><x-ui.table-check-all :ids="$categories->pluck('id')" :selected="$selected" label="Chọn tất cả danh mục trên trang" /></th><th>Thứ tự</th><th>Tiêu đề ({{ strtoupper($locale) }})</th><th>Danh mục cha</th><th>Số tài liệu</th><th>Bản dịch</th><th>Trạng thái</th><th></th></tr></thead><tbody>
             @foreach($categories as $item)<tr wire:key="investor-category-{{ $item->id }}" @class(['is-muted-row' => !$item->is_active])>
-                <td><input class="table-checkbox" type="checkbox" wire:model.live="selected" value="{{ $item->id }}"></td>
+                <td><x-ui.table-row-checkbox :id="$item->id" :selected="$selected" label="Chọn danh mục {{ $item->id }}" /></td>
                 <td><input class="input order-input" type="number" wire:model="sortOrders.{{ $item->id }}"></td>
                 <td class="category-name-cell investor-category-name-cell" style="--tree-depth: {{ $item->tree_depth }}">
                     <div @class(['investor-category-tree-label', 'is-child' => $item->tree_depth])>
@@ -45,7 +45,7 @@
                 <td><x-ui.badge :tone="$item->is_active ? 'success' : 'neutral'">{{ $item->is_active ? 'Hiện' : 'Ẩn' }}</x-ui.badge></td>
                 <td><div class="row-actions"><a class="icon-button" href="{{ route('admin.investors.categories.edit', $item) }}" wire:navigate title="Sửa"><x-ui.icon name="edit" size="18" /></a><button class="icon-button is-dark" wire:click="toggleVisibility({{ $item->id }})" title="Ẩn/hiện"><x-ui.icon :name="$item->is_active ? 'eye-off' : 'eye'" size="18" /></button><button class="icon-button is-danger" type="button" wire:click="requestDelete({{ $item->id }})" title="Xóa" aria-label="Xóa danh mục {{ $item->getTranslation('name', $locale, false) }}"><x-ui.icon name="trash" size="18" /></button></div></td>
             </tr>@endforeach
-        </tbody></table></div><x-ui.pagination :paginator="$categories" :per-page-options="$perPageOptions" :show-summary="false" />@endif
+        </tbody></table></x-ui.data-table><x-ui.pagination :paginator="$categories" :per-page-options="$perPageOptions" :show-summary="false" />@endif
     </section>
     @if($pendingDeleteId || $pendingBulkDelete)
         <x-ui.delete-confirmation-modal wire-key="investor-category-delete-confirmation" title="Xóa danh mục cổ đông?" confirm-label="Có, xóa danh mục" warning="Chỉ có thể xóa danh mục không còn danh mục con hoặc tài liệu.">

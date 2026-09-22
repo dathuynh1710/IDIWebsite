@@ -26,15 +26,10 @@
         @if($applications->isEmpty())
             <x-ui.empty-state title="Chưa có hồ sơ ứng viên" description="Hồ sơ gửi từ website sẽ xuất hiện tại đây." icon="users" />
         @else
-            @php
-                $pageIds = $applications->pluck('id')->map(fn ($id) => (int) $id)->values()->all();
-                $selectedIds = array_map('intval', $selected);
-                $allPageSelected = $pageIds !== [] && count(array_intersect($pageIds, $selectedIds)) === count($pageIds);
-            @endphp
-            <div class="table-responsive application-table-wrap">
+            <x-ui.data-table class="application-table-wrap" label="Danh sách hồ sơ ứng tuyển">
                 <table class="data-table application-reference-table">
                     <thead><tr>
-                        <th class="selection-column"><input class="table-checkbox" type="checkbox" wire:click="togglePageSelection(@js($pageIds))" @checked($allPageSelected) aria-label="Chọn tất cả hồ sơ trên trang"></th>
+                        <th class="selection-column"><x-ui.table-check-all :ids="$applications->pluck('id')" :selected="$selected" label="Chọn tất cả hồ sơ trên trang" /></th>
                         <th>Thông tin đăng ký</th>
                         <th>Nội dung</th>
                         <th class="table-actions-heading">Thao tác</th>
@@ -42,7 +37,7 @@
                     <tbody>
                         @foreach($applications as $item)
                             <tr wire:key="application-{{ $item->id }}">
-                                <td class="selection-column"><input class="table-checkbox" type="checkbox" wire:model.live="selected" value="{{ $item->id }}" aria-label="Chọn hồ sơ của {{ $item->full_name }}"></td>
+                                <td class="selection-column"><x-ui.table-row-checkbox :id="$item->id" :selected="$selected" label="Chọn hồ sơ của {{ $item->full_name }}" /></td>
                                 <td>
                                     <div class="application-person">
                                         <button type="button" wire:click="viewApplication({{ $item->id }})"><x-ui.icon name="user" size="15" /><strong>{{ $item->full_name }}</strong></button>
@@ -78,7 +73,7 @@
                         @endforeach
                     </tbody>
                 </table>
-            </div>
+            </x-ui.data-table>
             <x-ui.pagination :paginator="$applications" :per-page-options="$perPageOptions" />
         @endif
     </section>

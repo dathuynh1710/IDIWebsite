@@ -1,7 +1,5 @@
 <div>
-    <x-admin.page-header title="Quản lý liên lạc" description="Tiếp nhận và xử lý thư gửi từ website" :breadcrumbs="$breadcrumbs">
-        <x-slot:actions><a class="button button-secondary" href="{{ route('admin.contacts.settings') }}" wire:navigate><x-ui.icon name="settings" size="18" /> Cấu hình liên lạc</a></x-slot:actions>
-    </x-admin.page-header>
+    <x-admin.page-header title="Quản lý liên lạc" description="Tiếp nhận và xử lý thư gửi từ website" :breadcrumbs="$breadcrumbs" />
 
     <section class="filter-card card">
         <div class="contact-filter-grid">
@@ -53,16 +51,19 @@
         @if($messages->isEmpty())
             <x-ui.empty-state title="Không có thư liên hệ phù hợp" description="Hãy thử thay đổi từ khóa, thời gian hoặc trạng thái lọc." />
         @else
-            <div class="table-responsive contact-desktop-list">
+            <x-ui.data-table class="contact-desktop-list" label="Danh sách thư liên hệ">
                 <table class="data-table contact-table">
                     <thead>
-                        <tr><th class="selection-column"></th><th>Người gửi</th><th>Nội dung liên hệ</th><th>Ngày gửi</th><th>Trạng thái</th><th class="table-actions-heading">Thao tác</th></tr>
+                        <tr><th class="selection-column"><input class="table-checkbox" type="checkbox" wire:key="contact-select-page-{{ $messages->currentPage() }}-{{ $perPage }}-{{ $allPageSelected ? 'all' : ($somePageSelected ? 'some' : 'none') }}" wire:click="togglePageSelection" @checked($allPageSelected) x-data x-init="$el.checked = @js($allPageSelected); $el.indeterminate = @js($somePageSelected)" x-effect="$el.checked = @js($allPageSelected); $el.indeterminate = @js($somePageSelected)" aria-label="Chọn tất cả thư trên trang này" title="Chọn tất cả thư trên trang này"></th><th>Người gửi</th><th>Nội dung liên hệ</th><th>Ngày gửi</th><th>Trạng thái</th><th class="table-actions-heading">Thao tác</th></tr>
                     </thead>
                     <tbody>
                         @foreach($messages as $message)
-                            @php $value = $message->status->value; @endphp
+                            @php
+                                $value = $message->status->value;
+                                $isSelected = in_array((int) $message->id, array_map('intval', $selected), true);
+                            @endphp
                             <tr wire:key="contact-{{ $message->id }}" class="{{ $message->status === \App\Enums\ContactStatus::Unread ? 'is-unread' : '' }}">
-                                <td><input class="table-checkbox" type="checkbox" wire:model.live="selected" value="{{ $message->id }}" aria-label="Chọn thư của {{ $message->full_name }}"></td>
+                                <td><input class="table-checkbox" type="checkbox" wire:key="contact-checkbox-{{ $message->id }}-{{ $isSelected ? 'selected' : 'clear' }}" wire:model.live="selected" value="{{ $message->id }}" @checked($isSelected) aria-label="Chọn thư của {{ $message->full_name }}"></td>
                                 <td>
                                     <div class="contact-sender">
                                         <strong>{{ $message->full_name }}</strong><small>{{ $message->email }}</small>
@@ -84,7 +85,7 @@
                         @endforeach
                     </tbody>
                 </table>
-            </div>
+            </x-ui.data-table>
 
             <div class="contact-mobile-list">
                 @foreach($messages as $message)
@@ -92,7 +93,8 @@
                         $value = $message->status->value;
                     @endphp
                     <article class="contact-mobile-card {{ $message->status === \App\Enums\ContactStatus::Unread ? 'is-unread' : '' }}" wire:key="contact-mobile-{{ $message->id }}">
-                        <label class="contact-mobile-select"><input class="table-checkbox" type="checkbox" wire:model.live="selected" value="{{ $message->id }}"> Chọn</label>
+                        @php $isSelected = in_array((int) $message->id, array_map('intval', $selected), true); @endphp
+                        <label class="contact-mobile-select"><input class="table-checkbox" type="checkbox" wire:key="contact-mobile-checkbox-{{ $message->id }}-{{ $isSelected ? 'selected' : 'clear' }}" wire:model.live="selected" value="{{ $message->id }}" @checked($isSelected)> Chọn</label>
                         <button type="button" wire:click="viewMessage({{ $message->id }})">
                             <div class="contact-sender"><strong>{{ $message->full_name }}</strong><small>{{ $message->email }}</small></div>
                             <h3>{{ $message->subject ?: 'Không có tiêu đề' }}</h3>

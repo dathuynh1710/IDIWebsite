@@ -121,13 +121,13 @@
         @if($available->isEmpty())
             <x-ui.empty-state title="Không có bài viết phù hợp" description="Thử thay đổi từ khóa, chuyên mục hoặc ngôn ngữ." icon="newspaper" />
         @else
-            <div class="table-responsive featured-available-desktop">
+            <x-ui.data-table class="featured-available-desktop" label="Danh sách tin có thể chọn làm nổi bật">
                 <table class="data-table featured-available-table">
-                    <thead><tr><th></th><th>Bài viết</th><th>Chuyên mục</th><th>Cập nhật</th></tr></thead>
+                    <thead><tr><th><x-ui.table-check-all :ids="$available->pluck('id')" :selected="$selected" label="Chọn tất cả tin trên trang" /></th><th>Bài viết</th><th>Chuyên mục</th><th>Cập nhật</th></tr></thead>
                     <tbody>
                         @foreach($available as $item)
                             <tr wire:key="available-featured-{{ $item->id }}">
-                                <td><input class="table-checkbox" type="checkbox" wire:model.live="selected" value="{{ $item->id }}" aria-label="Chọn {{ $item->getTranslation('title', $locale, false) }}"></td>
+                                <td><x-ui.table-row-checkbox :id="$item->id" :selected="$selected" label="Chọn {{ $item->getTranslation('title', $locale, false) }}" /></td>
                                 <td><div class="product-cell"><div class="product-thumb">@if($item->featuredMedia)<img src="{{ $item->featuredMedia->url }}" alt="">@else<x-ui.icon name="image" />@endif</div><div><strong>{{ $item->getTranslation('title', $locale, false) }}</strong><small>/{{ $locale }}/news/{{ $item->getTranslation('slug', $locale, false) }}</small></div></div></td>
                                 <td>{{ $item->category?->getTranslation('name', $locale, false) ?: 'Chưa phân loại' }}</td>
                                 <td><time datetime="{{ $item->updated_at?->toIso8601String() }}">{{ $item->updated_at?->format('d/m/Y H:i') }}</time></td>
@@ -135,12 +135,12 @@
                         @endforeach
                     </tbody>
                 </table>
-            </div>
+            </x-ui.data-table>
 
             <div class="featured-available-mobile">
                 @foreach($available as $item)
                     <label class="featured-mobile-item" wire:key="mobile-available-featured-{{ $item->id }}">
-                        <input type="checkbox" wire:model.live="selected" value="{{ $item->id }}">
+                            <x-ui.table-row-checkbox :id="$item->id" :selected="$selected" key-prefix="mobile-featured" label="Chọn {{ $item->getTranslation('title', $locale, false) }}" />
                         <div class="product-thumb">@if($item->featuredMedia)<img src="{{ $item->featuredMedia->url }}" alt="">@else<x-ui.icon name="image" />@endif</div>
                         <span><strong>{{ $item->getTranslation('title', $locale, false) }}</strong><small>{{ $item->category?->getTranslation('name', $locale, false) ?: 'Chưa phân loại' }}</small></span>
                     </label>

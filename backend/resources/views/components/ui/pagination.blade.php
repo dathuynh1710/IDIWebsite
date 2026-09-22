@@ -41,13 +41,13 @@
         }
     @endphp
 
-    <nav {{ $attributes->class(['pagination']) }} aria-label="Phân trang">
+    <nav {{ $attributes->class(['pagination']) }} aria-label="Phân trang" aria-live="polite" wire:loading.class="is-loading" wire:loading.attr="aria-busy">
         <div class="pagination__meta">
             @if($showsPerPageSelector)
                 <label class="pagination__per-page">
                     <span>Hiển thị</span>
                     <span class="pagination__select-wrap">
-                        <select wire:model.live="{{ $perPageModel }}" aria-label="Số kết quả hiển thị trên mỗi trang">
+                        <select wire:model.live="{{ $perPageModel }}" wire:loading.attr="disabled" aria-label="Số kết quả hiển thị trên mỗi trang">
                             @foreach($perPageOptions as $option)
                                 <option value="{{ $option }}">{{ $option }}</option>
                             @endforeach

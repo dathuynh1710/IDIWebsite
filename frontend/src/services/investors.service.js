@@ -24,7 +24,9 @@ function downloadUrl(value) {
   try {
     const frontendOrigin = typeof window === 'undefined' ? 'http://localhost' : window.location.origin
     const apiBase = new URL(api.defaults.baseURL || '/api', frontendOrigin)
-    return new URL(url, apiBase.origin).href
+    const resolvedUrl = new URL(url, apiBase.origin)
+    resolvedUrl.searchParams.set('inline', '1')
+    return resolvedUrl.href
   } catch {
     return ''
   }

@@ -112,6 +112,10 @@ class InvestorRelationsApiTest extends TestCase
         $this->get(route('investors.documents.download', $file))
             ->assertOk()
             ->assertDownload('BCTC-Q2-2026.pdf');
+
+        $inlineResponse = $this->get(route('investors.documents.download', ['file' => $file, 'inline' => 1]))
+            ->assertOk();
+        $this->assertStringStartsWith('inline;', (string) $inlineResponse->headers->get('content-disposition'));
     }
 
     public function test_external_document_file_uses_the_internal_download_route(): void

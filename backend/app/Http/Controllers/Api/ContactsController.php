@@ -19,7 +19,6 @@ class ContactsController extends Controller
     public function index(Request $request): JsonResponse
     {
         $module = DB::table('modules')->where('code', 'contact')->first();
-        abort_if($module && ! $module->is_active, 404);
 
         $locale = Locale::fromRequest($request);
         $localized = static function (?string $value) use ($locale): ?string {
@@ -88,7 +87,6 @@ class ContactsController extends Controller
     public function store(Request $request): JsonResponse
     {
         $module = DB::table('modules')->where('code', 'contact')->first();
-        abort_if($module && ! $module->is_active, 403, 'Contact form is currently unavailable.');
 
         $settings = $module
             ? DB::table('module_settings')

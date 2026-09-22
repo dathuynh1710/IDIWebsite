@@ -1,7 +1,6 @@
 <div>
     <x-admin.page-header title="Cấu hình liên lạc" description="Thiết lập trang liên hệ, biểu mẫu và các địa chỉ văn phòng bằng 3 ngôn ngữ" :breadcrumbs="$breadcrumbs">
         <x-slot:actions>
-            <a class="button button-secondary" href="{{ route('admin.contacts.index') }}" wire:navigate><x-ui.icon name="mail" size="18" /> Quản lý thư</a>
             <x-ui.button type="submit" form="contact-settings-form" icon="save">Lưu cấu hình</x-ui.button>
         </x-slot:actions>
     </x-admin.page-header>
@@ -40,7 +39,7 @@
         @if($locations->isEmpty())
             <x-ui.empty-state title="Chưa có địa chỉ liên hệ" description="Thêm trụ sở hoặc văn phòng đại diện đầu tiên." />
         @else
-            <div class="table-responsive contact-location-desktop">
+            <x-ui.data-table class="contact-location-desktop" label="Danh sách địa chỉ liên hệ">
                 <table class="data-table">
                     <thead><tr><th>Thứ tự</th><th>Tên địa chỉ</th><th>Trạng thái</th><th class="table-actions-heading">Thao tác</th></tr></thead>
                     <tbody>
@@ -58,7 +57,7 @@
                         @endforeach
                     </tbody>
                 </table>
-            </div>
+            </x-ui.data-table>
             <div class="contact-location-mobile">
                 @foreach($locations as $location)
                     <article><div class="contact-location-mobile-summary"><div><strong>{{ $location->getTranslation('name', 'vi', false) ?: 'Chưa có tên' }}</strong><small>{{ $location->code ?: '#'.$location->id }}</small></div><x-ui.badge :tone="$location->is_active ? 'success' : 'neutral'">{{ $location->is_active ? 'Hiện' : 'Ẩn' }}</x-ui.badge></div><button class="button button-secondary" type="button" wire:click="editLocation({{ $location->id }})">Xem và chỉnh sửa</button></article>
@@ -67,7 +66,7 @@
         @endif
     </section>
 
-    <div class="mobile-form-actions"><a class="button button-secondary" href="{{ route('admin.contacts.index') }}" wire:navigate>Quản lý thư</a><x-ui.button type="submit" form="contact-settings-form" icon="save">Lưu cấu hình</x-ui.button></div>
+    <div class="mobile-form-actions"><x-ui.button type="submit" form="contact-settings-form" icon="save">Lưu cấu hình</x-ui.button></div>
 
     @if($showLocationForm)
         <div class="contact-detail-modal" x-data="{ locale: 'vi' }" x-on:keydown.escape.window="$wire.closeLocationForm()" role="dialog" aria-modal="true" aria-labelledby="location-form-title">

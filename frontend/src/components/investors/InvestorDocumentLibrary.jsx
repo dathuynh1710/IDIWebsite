@@ -16,22 +16,12 @@ function SearchIcon() {
   return <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" className="h-5 w-5" stroke="currentColor" strokeWidth="1.8"><circle cx="11" cy="11" r="6.5" /><path d="m16 16 4 4" strokeLinecap="round" /></svg>
 }
 
-function DownloadIcon() {
-  return <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" className="h-4 w-4" stroke="currentColor" strokeWidth="1.8"><path d="M12 3v12m0 0 4-4m-4 4-4-4M5 20h14" strokeLinecap="round" strokeLinejoin="round" /></svg>
-}
-
 function formatDate(value, language, unavailableDate) {
   if (!value) return unavailableDate
   const date = new Date(`${value}T00:00:00`)
   if (Number.isNaN(date.getTime())) return value
   const options = language === 'vi' ? undefined : LONG_DATE_OPTIONS
   return date.toLocaleDateString(DATE_LOCALES[language] ?? 'vi-VN', options)
-}
-
-function formatSize(bytes) {
-  if (!bytes) return ''
-  if (bytes < 1024 * 1024) return `${Math.max(1, Math.round(bytes / 1024))} KB`
-  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
 }
 
 function DocumentToolbar({ labels, query, setQuery, year, setYear, category, setCategory, result, status, lockedCategory, hasFilters, resetFilters, t }) {
@@ -74,34 +64,12 @@ function LoadingRows({ label }) {
   return (
     <div className="divide-y divide-light-mist" aria-label={label} aria-busy="true">
       {Array.from({ length: 5 }, (_, index) => (
-        <div key={index} className="grid animate-pulse gap-3 px-4 py-5 md:grid-cols-[7.25rem_minmax(0,1fr)_9rem_6.5rem] md:items-center md:px-5">
+        <div key={index} className="grid animate-pulse gap-3 px-4 py-5 md:grid-cols-[7.25rem_minmax(0,1fr)_6.5rem] md:items-center md:px-5">
           <div className="h-4 w-20 rounded bg-light-mist" />
           <div className="space-y-2"><div className="h-4 w-24 rounded bg-light-mist" /><div className="h-5 max-w-md rounded bg-light-mist" /></div>
-          <div className="h-4 w-24 rounded bg-light-mist" />
           <div className="h-9 rounded-lg bg-light-mist" />
         </div>
       ))}
-    </div>
-  )
-}
-
-function DocumentMeta({ document, language, labels }) {
-  const items = []
-  if (document.quarter) items.push(`${labels.quarter} ${document.quarter}`)
-  if (document.file?.extension) items.push(document.file.extension)
-  if (document.file?.size) items.push(formatSize(document.file.size))
-  const requestedFileLocale = language === 'zh-CN' ? 'zh' : language
-  if (document.file?.locale && document.file.locale !== requestedFileLocale) items.push(labels.fallbackFile)
-
-  return (
-    <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs font-semibold text-storm-grey md:block md:space-y-1">
-      {items.length > 0 ? items.map((item, index) => (
-        <span key={item} className="inline-flex items-center md:flex">
-          {index > 0 && <span aria-hidden="true" className="mr-2 text-mist-mid md:hidden">·</span>}
-          {item}
-        </span>
-      )) : <span>—</span>}
-      {document.documentNumber && <span className="block w-full truncate font-normal md:pt-0.5" title={document.documentNumber}>{document.documentNumber}</span>}
     </div>
   )
 }
@@ -111,7 +79,7 @@ function DocumentRow({ document, language, labels }) {
   const titleClass = 'text-[15px] font-semibold leading-[1.5] tracking-[-0.01em] text-ocean-deep transition-colors sm:text-base'
 
   return (
-    <article className="group m-3 grid gap-3 rounded-lg border border-light-mist px-4 py-4 transition-colors hover:bg-[#f8fbfa] md:m-0 md:grid-cols-[7.25rem_minmax(0,1fr)_9rem_6.5rem] md:items-center md:gap-4 md:rounded-none md:border-0 md:px-5 md:py-4">
+    <article className="group m-3 grid gap-3 rounded-lg border border-light-mist px-4 py-4 transition-colors hover:bg-[#f8fbfa] md:m-0 md:grid-cols-[7.25rem_minmax(0,1fr)_6.5rem] md:items-center md:gap-4 md:rounded-none md:border-0 md:px-5 md:py-4">
       <time className="hidden text-[13px] font-semibold tabular-nums text-slate md:block" dateTime={document.publishedOn ?? undefined}>{formattedDate}</time>
       <div className="min-w-0">
         <div className="mb-1.5 flex flex-wrap items-center gap-2">
@@ -121,15 +89,10 @@ function DocumentRow({ document, language, labels }) {
         <h3 className={titleClass}>
           {document.file ? <a href={document.file.url} target="_blank" rel="noreferrer" className="hover:text-seafoam">{document.title}</a> : document.title}
         </h3>
-        <div className="mt-2 md:hidden"><DocumentMeta document={document} language={language} labels={labels} /></div>
       </div>
-      <div className="hidden md:block"><DocumentMeta document={document} language={language} labels={labels} /></div>
       <div className="flex items-center gap-1.5 md:justify-end">
         {document.file ? (
-          <>
-            <a href={document.file.url} target="_blank" rel="noreferrer" aria-label={`${labels.viewLabel}: ${document.title}`} className="inline-flex min-h-9 items-center rounded-md px-2.5 text-xs font-bold text-[#14785b] transition-colors hover:bg-seafoam-pale hover:text-ocean-deep">{labels.view}</a>
-            <a href={document.file.url} download aria-label={`${labels.download}: ${document.title}`} title={labels.download} className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-light-mist bg-white text-ocean-deep transition-colors hover:border-seafoam hover:bg-seafoam-pale hover:text-[#14785b]"><DownloadIcon /></a>
-          </>
+          <a href={document.file.url} target="_blank" rel="noreferrer" aria-label={`${labels.viewLabel}: ${document.title}`} className="inline-flex min-h-9 items-center rounded-md px-3 text-xs font-bold text-[#14785b] transition-colors hover:bg-seafoam-pale hover:text-ocean-deep">{labels.view}</a>
         ) : <span className="text-xs font-semibold text-storm-grey">{labels.noFile}</span>}
       </div>
     </article>
@@ -189,8 +152,8 @@ export default function InvestorDocumentLibrary({ category: lockedCategory = '',
       </div>
       <div className="overflow-hidden rounded-xl border border-light-mist bg-white">
         <DocumentToolbar labels={labels} query={query} setQuery={updateQuery} year={year} setYear={updateYear} category={category} setCategory={updateCategory} result={result} status={status} lockedCategory={lockedCategory} hasFilters={hasFilters} resetFilters={resetFilters} t={t} />
-        <div className="hidden grid-cols-[7.25rem_minmax(0,1fr)_9rem_6.5rem] gap-4 border-b border-light-mist bg-white px-5 py-2.5 text-[10px] font-bold uppercase tracking-[0.1em] text-storm-grey md:grid">
-          <span>{labels.dateColumn}</span><span>{labels.documentColumn}</span><span>{labels.metaColumn}</span><span className="text-right">{labels.actionColumn}</span>
+        <div className="hidden grid-cols-[7.25rem_minmax(0,1fr)_6.5rem] gap-4 border-b border-light-mist bg-white px-5 py-2.5 text-[10px] font-bold uppercase tracking-[0.1em] text-storm-grey md:grid">
+          <span>{labels.dateColumn}</span><span>{labels.documentColumn}</span><span className="text-right">{labels.actionColumn}</span>
         </div>
         <DocumentList result={result} status={status} language={language} labels={labels} hasFilters={hasFilters} resetFilters={resetFilters} retry={() => setRequestKey(key => key + 1)} />
         {status !== 'error' && result.lastPage > 1 && (

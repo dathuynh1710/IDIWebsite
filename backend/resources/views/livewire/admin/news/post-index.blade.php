@@ -13,7 +13,7 @@
     <section class="card category-list-card">
         <div class="category-toolbar"><div class="category-toolbar-actions"><button class="button button-success" wire:click="bulk('show')" @disabled(!$selected)>Hiện</button><button class="button button-secondary" wire:click="bulk('hide')" @disabled(!$selected)>Ẩn</button><button class="button button-secondary" wire:click="bulk('reorder')" @disabled(!$selected)>Cập nhật thứ tự</button><button class="button button-danger" type="button" wire:click="requestBulkDelete">Xóa</button></div><span>{{ $posts->total() }} tin</span></div>
         @if($posts->isEmpty())<x-ui.empty-state title="Chưa có tin tức" description="Tạo bài viết đầu tiên hoặc thay đổi bộ lọc." icon="newspaper" />
-        @else<div class="table-responsive news-desktop-list"><table class="data-table category-table"><thead><tr><th></th><th>Thứ tự</th><th>Tiêu đề ({{ strtoupper($locale) }})</th><th>Chuyên mục</th><th>Bản dịch</th><th>Trạng thái</th><th></th></tr></thead><tbody>
+        @else<x-ui.data-table class="news-desktop-list" label="Danh sách tin tức"><table class="data-table category-table"><thead><tr><th><x-ui.table-check-all :ids="$posts->pluck('id')" :selected="$selected" label="Chọn tất cả tin trên trang" /></th><th>Thứ tự</th><th>Tiêu đề ({{ strtoupper($locale) }})</th><th>Chuyên mục</th><th>Bản dịch</th><th>Trạng thái</th><th></th></tr></thead><tbody>
             @foreach($posts as $item)
             @php
                 $selectedTranslationEnabled = $item->getTranslation('translation_status', $locale, false) === 'published';
@@ -21,7 +21,7 @@
                 $selectedSlug = $item->getTranslation('slug', $locale, false);
             @endphp
             <tr wire:key="post-{{ $item->id }}" @class(['is-muted-row' => !$item->is_active])>
-                <td><input class="table-checkbox" type="checkbox" wire:model.live="selected" value="{{ $item->id }}"></td><td><input class="input order-input" type="number" wire:model="sortOrders.{{ $item->id }}"></td>
+                <td><x-ui.table-row-checkbox :id="$item->id" :selected="$selected" label="Chọn tin {{ $item->id }}" /></td><td><input class="input order-input" type="number" wire:model="sortOrders.{{ $item->id }}"></td>
                 <td>
                     <div class="product-cell">
                         <div class="product-thumb">
@@ -49,7 +49,7 @@
                 <td><div class="news-status-stack"><x-ui.badge :tone="$item->is_active ? 'success' : 'neutral'">{{ $item->is_active ? 'Hiện' : 'Ẩn' }}</x-ui.badge>@if($item->is_featured)<x-ui.badge tone="warning">Tiêu điểm</x-ui.badge>@endif</div></td>
                 <td><div class="row-actions"><a class="icon-button" href="{{ route('admin.news.posts.edit', $item) }}" wire:navigate title="Sửa"><x-ui.icon name="edit" size="18" /></a><a class="icon-button is-dark" href="{{ route('admin.news.posts.preview', ['post' => $item, 'locale' => $locale]) }}" target="_blank" title="Xem trước"><x-ui.icon name="eye" size="18" /></a><button class="icon-button" wire:click="duplicate({{ $item->id }})" title="Nhân bản"><x-ui.icon name="copy" size="18" /></button><button class="icon-button is-danger" type="button" wire:click="requestDelete({{ $item->id }})" title="Xóa" aria-label="Xóa tin {{ $selectedTitle ?: $item->id }}"><x-ui.icon name="trash" size="18" /></button></div></td>
             </tr>@endforeach
-        </tbody></table></div><x-ui.pagination :paginator="$posts" :per-page-options="$perPageOptions" />@endif
+        </tbody></table></x-ui.data-table><x-ui.pagination :paginator="$posts" :per-page-options="$perPageOptions" />@endif
     </section>
 
     @if($pendingDeleteId || $pendingBulkDelete)

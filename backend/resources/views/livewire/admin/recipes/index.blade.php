@@ -35,14 +35,14 @@
                 </div>
                 <span class="category-selection-count">Đã chọn {{ count($selected) }} / {{ $recipes->total() }} công thức</span>
             </div>
-            <div class="table-responsive recipe-desktop-list">
+            <x-ui.data-table class="recipe-desktop-list" label="Danh sách công thức">
                 <table class="data-table category-table">
-                    <thead><tr><th class="selection-column"></th><th class="order-column">Thứ tự</th><th>Công thức ({{ strtoupper($locale) }})</th><th>Ngày đăng</th><th>Video</th><th>Bản dịch</th><th>Trạng thái</th><th class="table-actions-heading">Thao tác</th></tr></thead>
+                    <thead><tr><th class="selection-column"><x-ui.table-check-all :ids="$recipes->pluck('id')" :selected="$selected" label="Chọn tất cả công thức trên trang" /></th><th class="order-column">Thứ tự</th><th>Công thức ({{ strtoupper($locale) }})</th><th>Ngày đăng</th><th>Video</th><th>Bản dịch</th><th>Trạng thái</th><th class="table-actions-heading">Thao tác</th></tr></thead>
                     <tbody>
                         @foreach($recipes as $item)
                             @php $translations = $item->getTranslations('title'); $statuses = $item->getTranslations('translation_status'); @endphp
                             <tr wire:key="recipe-{{ $item->id }}" @class(['is-muted-row' => !$item->is_active])>
-                                <td><input class="table-checkbox" type="checkbox" wire:model.live="selected" value="{{ $item->id }}" aria-label="Chọn công thức {{ $item->id }}"></td>
+                                <td><x-ui.table-row-checkbox :id="$item->id" :selected="$selected" label="Chọn công thức {{ $item->id }}" /></td>
                                 <td><input class="input order-input" type="number" min="0" wire:model="sortOrders.{{ $item->id }}" aria-label="Thứ tự {{ $item->id }}"></td>
                                 <td><div class="product-cell"><div class="product-thumb" x-data="{ failed: false }">@if($item->featuredMedia)<img src="{{ $item->featuredMedia->url }}" alt="" x-show="!failed" x-on:error="failed=true"><span x-show="failed" x-cloak><x-ui.icon name="image" /></span>@else<x-ui.icon name="image" />@endif</div><div><strong>{{ $item->getTranslation('title', $locale, false) ?: 'Chưa có bản dịch' }}</strong></div></div></td>
                                 <td>{{ ($date = $item->getTranslation('locale_published_at', $locale, false)) ? \Illuminate\Support\Carbon::parse($date)->format('d/m/Y') : '—' }}</td>
@@ -60,7 +60,7 @@
                         @endforeach
                     </tbody>
                 </table>
-            </div>
+            </x-ui.data-table>
             <div class="recipe-mobile-list">
                 @foreach($recipes as $item)
                     <article class="product-mobile-card" wire:key="mobile-recipe-{{ $item->id }}"><div class="product-cell"><div class="product-thumb">@if($item->featuredMedia)<img src="{{ $item->featuredMedia->url }}" alt="">@else<x-ui.icon name="image" />@endif</div><div><strong>{{ $item->getTranslation('title', $locale, false) ?: 'Chưa có bản dịch' }}</strong><small>Đăng {{ ($date = $item->getTranslation('locale_published_at', $locale, false)) ? \Illuminate\Support\Carbon::parse($date)->format('d/m/Y') : '—' }}</small></div></div><div class="mobile-card-actions">@can('recipes.update')<a class="button button-secondary" href="{{ route('admin.recipes.edit', $item) }}" wire:navigate><x-ui.icon name="edit" size="18" /> Sửa</a>@endcan</div></article>

@@ -79,17 +79,6 @@ class PositionIndex extends AdminComponent
         $this->selected = [];
     }
 
-    public function togglePageSelection(array $ids): void
-    {
-        $ids = array_values(array_map('intval', $ids));
-        $selected = array_values(array_map('intval', $this->selected));
-        $allSelected = $ids !== [] && count(array_intersect($ids, $selected)) === count($ids);
-
-        $this->selected = $allSelected
-            ? array_values(array_diff($selected, $ids))
-            : array_values(array_unique(array_merge($selected, $ids)));
-    }
-
     public function updatedPerPage($value): void
     {
         $this->perPage = max(1, min(100, (int) $value));

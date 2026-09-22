@@ -24,7 +24,7 @@
         @if($users->isEmpty())
             <x-ui.empty-state title="Không tìm thấy quản trị viên" description="Hãy thay đổi bộ lọc hoặc tạo tài khoản quản trị mới." />
         @else
-            <div class="table-responsive"><table class="data-table access-table users-table"><thead><tr><th>Quản trị viên</th><th>Vai trò / Nhóm</th><th>Trạng thái</th><th>Đăng nhập gần nhất</th><th class="table-actions-heading">Thao tác</th></tr></thead><tbody>
+            <x-ui.data-table label="Danh sách quản trị viên"><table class="data-table access-table users-table"><thead><tr><th>Quản trị viên</th><th>Vai trò / Nhóm</th><th>Trạng thái</th><th>Đăng nhập gần nhất</th><th class="table-actions-heading">Thao tác</th></tr></thead><tbody>
             @foreach($users as $user)<tr wire:key="admin-user-{{ $user->id }}">
                 <td><div class="access-person"><span>{{ mb_strtoupper(mb_substr($user->name, 0, 1)) }}</span><div><strong>{{ $user->name }}</strong><small>{{ '@'.$user->username }} · {{ $user->email }}</small></div></div></td>
                 <td><div class="chip-list">@forelse($user->roles as $role)<span class="access-chip {{ $role->name === 'super-admin' ? 'is-primary' : '' }}">{{ $role->display_name ?: $role->name }}</span>@empty<span class="access-empty-value">Chưa gán vai trò</span>@endforelse</div></td>
@@ -32,7 +32,7 @@
                 <td><div class="access-login"><strong>{{ $user->last_login_at?->format('H:i, d/m/Y') ?: 'Chưa đăng nhập' }}</strong>@if($user->last_login_ip)<small>IP {{ $user->last_login_ip }}</small>@endif</div></td>
                 <td><div class="row-actions">@can('users.update')<button class="icon-button is-success" type="button" wire:click="edit({{ $user->id }})" title="Chỉnh sửa"><x-ui.icon name="edit" size="18" /></button>@endcan @can('users.delete')@if(!$user->is(auth()->user()) && !$user->hasRole('super-admin'))<button class="icon-button is-danger" type="button" wire:click="requestDelete({{ $user->id }})" title="Xóa"><x-ui.icon name="trash" size="18" /></button>@endif @endcan</div></td>
             </tr>@endforeach
-            </tbody></table></div>
+            </tbody></table></x-ui.data-table>
             <x-ui.pagination :paginator="$users" :per-page-options="[10, 20, 50]" />
         @endif
     </section>

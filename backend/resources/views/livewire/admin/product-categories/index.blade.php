@@ -48,14 +48,14 @@
                     </div>
                     <span class="category-selection-count">{{ count($selected) ? 'Đã chọn '.count($selected).' danh mục' : 'Chưa chọn danh mục' }}</span>
                 </div>
-                <div class="table-responsive">
+                <x-ui.data-table label="Danh sách danh mục sản phẩm">
                     <table class="data-table category-table">
-                        <thead><tr><th class="selection-column"></th><th class="order-column">Thứ tự</th><th>Tên danh mục</th><th>Sản phẩm</th><th class="table-actions-heading">Thao tác</th></tr></thead>
+                        <thead><tr><th class="selection-column"><x-ui.table-check-all :ids="$categories->pluck('id')" :selected="$selected" label="Chọn tất cả danh mục trên trang" /></th><th class="order-column">Thứ tự</th><th>Tên danh mục</th><th>Sản phẩm</th><th class="table-actions-heading">Thao tác</th></tr></thead>
                         <tbody>
                             @foreach($categories as $category)
                                 @php($name = $category->getTranslation('name', 'vi', false) ?: 'Chưa có tên')
                                 <tr wire:key="category-{{ $category->id }}" class="{{ $category->is_active ? '' : 'is-muted-row' }}">
-                                    <td><input class="table-checkbox" type="checkbox" wire:model.live="selected" value="{{ $category->id }}" aria-label="Chọn {{ $name }}"></td>
+                                    <td><x-ui.table-row-checkbox :id="$category->id" :selected="$selected" label="Chọn {{ $name }}" /></td>
                                     <td><input class="input order-input" type="number" min="0" max="999999" wire:model="sortOrders.{{ $category->id }}"></td>
                                     <td><div class="category-name-cell"><strong>{{ $name }}</strong><small><span class="category-date-item" title="Ngày tạo"><x-ui.icon name="calendar" size="14" />{{ $category->created_at?->format('H:i - d/m/Y') ?: '—' }}</span><span aria-hidden="true">-</span><span class="category-date-item" title="Ngày cập nhật"><x-ui.icon name="history" size="14" />{{ $category->updated_at?->format('H:i - d/m/Y') ?: '—' }}</span></small></div></td>
                                     <td><span class="category-product-count">{{ $category->products_count }}</span></td>
@@ -72,15 +72,15 @@
                             @endforeach
                         </tbody>
                     </table>
-                </div>
+                </x-ui.data-table>
             </div>
         @else
-            <div class="table-responsive">
+            <x-ui.data-table label="Danh sách danh mục trong thùng rác">
                 <table class="data-table category-table">
                     <thead><tr><th>Tên danh mục</th><th>Đã xóa</th><th>Thao tác</th></tr></thead>
                     <tbody>@foreach($categories as $category)<tr wire:key="trashed-category-{{ $category->id }}"><td><div class="category-name-cell"><strong>{{ $category->getTranslation('name', 'vi', false) }}</strong><small><span class="category-date-item" title="Ngày tạo"><x-ui.icon name="calendar" size="14" />{{ $category->created_at?->format('H:i - d/m/Y') ?: '—' }}</span><span aria-hidden="true">-</span><span class="category-date-item" title="Ngày cập nhật"><x-ui.icon name="history" size="14" />{{ $category->updated_at?->format('H:i - d/m/Y') ?: '—' }}</span></small></div></td><td>{{ $category->deleted_at?->format('d/m/Y H:i') }}</td><td><button class="button button-secondary" wire:click="restore({{ $category->id }})"><x-ui.icon name="restore" size="17" /> Khôi phục</button></td></tr>@endforeach</tbody>
                 </table>
-            </div>
+            </x-ui.data-table>
         @endif
         <x-ui.pagination :paginator="$categories" :per-page-options="[10, 20, 50, 100]" />
     </section>

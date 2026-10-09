@@ -8,6 +8,8 @@ const LanguageContext = createContext(null)
 
 export function getStoredLanguage() {
   if (typeof window === 'undefined') return DEFAULT_LANGUAGE
+  const locale = window.location.pathname.match(/^\/(vi|en|zh)(?:\/|$)/)?.[1]
+  if (locale) return locale === 'zh' ? 'zh-CN' : locale
   const stored = window.localStorage.getItem(LANGUAGE_STORAGE_KEY)
   return supportedLanguages.includes(stored) ? stored : DEFAULT_LANGUAGE
 }

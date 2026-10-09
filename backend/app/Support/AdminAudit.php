@@ -7,6 +7,8 @@ use App\Models\DocumentCategory;
 use App\Models\InvestorDocument;
 use App\Models\JobApplication;
 use App\Models\JobPosition;
+use App\Models\Menu;
+use App\Models\MenuItem;
 use App\Models\OfficeLocation;
 use App\Models\Page;
 use App\Models\Permission;
@@ -24,6 +26,8 @@ class AdminAudit
 {
     /** @var array<class-string<Model>, string> */
     public const MODULES = [
+        Menu::class => 'Menu website',
+        MenuItem::class => 'Mục menu website',
         User::class => 'Quản trị viên',
         Role::class => 'Vai trò',
         Permission::class => 'Quyền hạn',
@@ -93,7 +97,7 @@ class AdminAudit
 
     public static function subjectLabel(Model $model): string
     {
-        foreach (['name', 'title', 'subject', 'code', 'sku', 'email', 'username'] as $field) {
+        foreach (['name', 'title', 'label', 'subject', 'code', 'sku', 'email', 'username'] as $field) {
             $value = $model->getAttribute($field);
             if (is_array($value)) {
                 $value = $value['vi'] ?? reset($value);

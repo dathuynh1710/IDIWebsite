@@ -1,0 +1,286 @@
+{
+  "main": [
+    {
+      "key": "about",
+      "label": {
+        "vi": "Về IDI",
+        "en": "About IDI",
+        "zh": "关于 IDI"
+      },
+      "url": "/about",
+      "children": [
+        {
+          "key": "story",
+          "label": {
+            "vi": "Lịch sử phát triển",
+            "en": "Our history",
+            "zh": "发展历程"
+          },
+          "url": "/about/story",
+          "children": []
+        },
+        {
+          "key": "values",
+          "label": {
+            "vi": "Giá trị cốt lõi",
+            "en": "Core values",
+            "zh": "核心价值观"
+          },
+          "url": "/about/values",
+          "children": []
+        }
+      ]
+    },
+    {
+      "key": "products",
+      "label": {
+        "vi": "Sản phẩm",
+        "en": "Products",
+        "zh": "产品"
+      },
+      "url": "/products",
+      "children": []
+    },
+    {
+      "key": "sustainability",
+      "label": {
+        "vi": "Phát triển bền vững",
+        "en": "Sustainability",
+        "zh": "可持续发展"
+      },
+      "url": "/sustainability",
+      "children": []
+    },
+    {
+      "key": "investors",
+      "label": {
+        "vi": "Cổ đông",
+        "en": "Investors",
+        "zh": "投资者"
+      },
+      "url": "/investors",
+      "children": [
+        {
+          "key": "investor-overview",
+          "label": {
+            "vi": "Tổng quan",
+            "en": "Overview",
+            "zh": "概览"
+          },
+          "url": "/investors",
+          "children": []
+        },
+        {
+          "key": "announcements",
+          "label": {
+            "vi": "Thông báo",
+            "en": "Announcements",
+            "zh": "公告"
+          },
+          "url": "/investors/announcements",
+          "children": []
+        },
+        {
+          "key": "financials",
+          "label": {
+            "vi": "Báo cáo tài chính",
+            "en": "Financial reports",
+            "zh": "财务报告"
+          },
+          "url": "/investors/financials",
+          "children": []
+        },
+        {
+          "key": "annual-reports",
+          "label": {
+            "vi": "Báo cáo thường niên",
+            "en": "Annual reports",
+            "zh": "年度报告"
+          },
+          "url": "/investors/annual-reports",
+          "children": []
+        },
+        {
+          "key": "agm",
+          "label": {
+            "vi": "Đại hội cổ đông",
+            "en": "General meetings",
+            "zh": "股东大会"
+          },
+          "url": "/investors/agm",
+          "children": []
+        },
+        {
+          "key": "green-bond",
+          "label": {
+            "vi": "Trái phiếu",
+            "en": "Bonds",
+            "zh": "债券"
+          },
+          "url": "/investors/green-bond",
+          "children": []
+        }
+      ]
+    },
+    {
+      "key": "news",
+      "label": {
+        "vi": "Tin tức",
+        "en": "News",
+        "zh": "新闻"
+      },
+      "url": "/news",
+      "children": []
+    },
+    {
+      "key": "recipes",
+      "label": {
+        "vi": "Món ăn",
+        "en": "Recipes",
+        "zh": "食谱"
+      },
+      "url": "/recipes",
+      "children": []
+    },
+    {
+      "key": "careers",
+      "label": {
+        "vi": "Tuyển dụng",
+        "en": "Careers",
+        "zh": "招聘"
+      },
+      "url": "/careers",
+      "children": []
+    }
+  ],
+  "footer": [
+    {
+      "key": "products",
+      "label": {
+        "vi": "Sản phẩm",
+        "en": "Products",
+        "zh": "产品"
+      },
+      "url": "/products",
+      "children": []
+    },
+    {
+      "key": "company",
+      "label": {
+        "vi": "Công ty",
+        "en": "Company",
+        "zh": "公司"
+      },
+      "url": "/about",
+      "children": [
+        {
+          "label": {
+            "vi": "Lịch sử phát triển",
+            "en": "Our history",
+            "zh": "发展历程"
+          },
+          "url": "/about/story",
+          "children": []
+        },
+        {
+          "label": {
+            "vi": "Phát triển bền vững",
+            "en": "Sustainability",
+            "zh": "可持续发展"
+          },
+          "url": "/sustainability",
+          "children": []
+        },
+        {
+          "label": {
+            "vi": "Món ăn",
+            "en": "Recipes",
+            "zh": "食谱"
+          },
+          "url": "/recipes",
+          "children": []
+        },
+        {
+          "label": {
+            "vi": "Tuyển dụng",
+            "en": "Careers",
+            "zh": "招聘"
+          },
+          "url": "/careers",
+          "children": []
+        }
+      ]
+    },
+    {
+      "key": "investors",
+      "label": {
+        "vi": "Cổ đông",
+        "en": "Investors",
+        "zh": "投资者"
+      },
+      "url": "/investors",
+      "children": [
+        {
+          "key": "investor-overview",
+          "label": {
+            "vi": "Tổng quan",
+            "en": "Overview",
+            "zh": "概览"
+          },
+          "url": "/investors",
+          "children": []
+        },
+        {
+          "key": "announcements",
+          "label": {
+            "vi": "Thông báo",
+            "en": "Announcements",
+            "zh": "公告"
+          },
+          "url": "/investors/announcements",
+          "children": []
+        },
+        {
+          "key": "financials",
+          "label": {
+            "vi": "Báo cáo tài chính",
+            "en": "Financial reports",
+            "zh": "财务报告"
+          },
+          "url": "/investors/financials",
+          "children": []
+        },
+        {
+          "key": "annual-reports",
+          "label": {
+            "vi": "Báo cáo thường niên",
+            "en": "Annual reports",
+            "zh": "年度报告"
+          },
+          "url": "/investors/annual-reports",
+          "children": []
+        },
+        {
+          "key": "agm",
+          "label": {
+            "vi": "Đại hội cổ đông",
+            "en": "General meetings",
+            "zh": "股东大会"
+          },
+          "url": "/investors/agm",
+          "children": []
+        },
+        {
+          "key": "green-bond",
+          "label": {
+            "vi": "Trái phiếu",
+            "en": "Bonds",
+            "zh": "债券"
+          },
+          "url": "/investors/green-bond",
+          "children": []
+        }
+      ]
+    }
+  ]
+}

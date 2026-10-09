@@ -161,6 +161,7 @@ class Index extends AdminComponent
                     'updated_by' => auth()->id(),
                     'updated_at' => now(),
                 ]);
+                ProductCategory::whereKey($this->selected)->get()->each(fn ($model) => \App\Support\PublicRoutes::sync($model));
             } elseif ($action === 'reorder') {
                 foreach ($this->selected as $id) {
                     if (array_key_exists($id, $this->sortOrders)) {

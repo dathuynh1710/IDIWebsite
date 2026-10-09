@@ -108,6 +108,7 @@ return [
     [
         'section' => 'Hệ thống',
         'items' => [
+            ['label' => 'Quản lý menu', 'route' => 'admin.menus.index', 'icon' => 'menu', 'permission' => 'settings.manage', 'active' => 'admin.menus.*'],
             ['label' => 'Quản trị viên', 'route' => 'admin.access.users', 'icon' => 'user', 'permission' => 'users.view'],
             ['label' => 'Vai trò & Quyền', 'route' => 'admin.access.roles', 'icon' => 'shield', 'permission' => 'roles.view', 'active' => 'admin.access.roles'],
             ['label' => 'Danh mục quyền hạn', 'route' => 'admin.access.permissions', 'icon' => 'check', 'permission' => 'permissions.view'],

@@ -23,6 +23,13 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        foreach (array_keys(\App\Support\PublicRoutes::TYPES) as $routeModel) {
+            $routeModel::saving(fn (Model $model) => \App\Support\PublicRoutes::validate($model));
+            $routeModel::saved(fn (Model $model) => \App\Support\PublicRoutes::sync($model));
+            $routeModel::deleted(fn (Model $model) => \Illuminate\Support\Facades\DB::table('localized_routes')->where('routeable_type', $model::class)->where('routeable_id', $model->id)->delete());
+            $routeModel::restored(fn (Model $model) => \App\Support\PublicRoutes::sync($model));
+        }
+
         Gate::before(function (User $user): ?bool {
             return $user->hasRole('super-admin') ? true : null;
         });

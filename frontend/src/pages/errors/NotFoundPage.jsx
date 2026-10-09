@@ -1,4 +1,4 @@
-import { Link } from 'react-router'
+import { Link } from '@components/navigation/LocalizedLink'
 import { useLanguage } from '@hooks/useLanguage'
 
 export default function NotFoundPage() {

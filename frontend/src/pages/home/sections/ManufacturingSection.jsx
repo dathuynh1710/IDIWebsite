@@ -1,4 +1,4 @@
-import { Link } from 'react-router'
+import { Link } from '@components/navigation/LocalizedLink'
 import RevealOnScroll from '@components/common/RevealOnScroll'
 import { useLanguage } from '@hooks/useLanguage'
 import { getHomeTranslations } from '@/i18n/home'

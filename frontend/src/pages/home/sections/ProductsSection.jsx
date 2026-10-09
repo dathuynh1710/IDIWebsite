@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router'
+import { Link } from '@components/navigation/LocalizedLink'
 import RevealOnScroll from '@components/common/RevealOnScroll'
 import { productsService } from '@services/products.service'
 import { useLanguage } from '@hooks/useLanguage'

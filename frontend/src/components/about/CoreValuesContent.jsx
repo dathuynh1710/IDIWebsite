@@ -1,3 +1,4 @@
+import LocalizedHtml from '@components/common/LocalizedHtml'
 import { useMemo } from 'react'
 
 function parseSections(html) {
@@ -90,7 +91,7 @@ export default function CoreValuesContent({ html }) {
   const sections = useMemo(() => parseSections(html), [html])
 
   if (!sections.length) {
-    return <div className="cms-about-rich" dangerouslySetInnerHTML={{ __html: html }} />
+    return <LocalizedHtml className="cms-about-rich" html={html} />
   }
 
   const [values, ...pillars] = sections

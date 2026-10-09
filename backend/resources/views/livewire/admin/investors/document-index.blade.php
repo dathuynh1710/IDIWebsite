@@ -12,7 +12,7 @@
                 <select class="select" wire:model.live="category">
                     <option value="">Tất cả</option>
                     @foreach($categories as $categoryItem)
-                        <option value="{{ $categoryItem->id }}">{{ $categoryItem->getTranslation('name', 'vi', false) }}</option>
+                        <option value="{{ $categoryItem->id }}">{{ $categoryItem->tree_label }}</option>
                     @endforeach
                 </select>
             </div>

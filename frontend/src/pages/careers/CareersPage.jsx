@@ -1,5 +1,9 @@
+import LocalizedHtml from '@components/common/LocalizedHtml'
+import { useParams, useNavigate, useLocation } from 'react-router'
+import { usePublicRouting } from '@context/PublicRoutingContext'
+import { useAboutRouting } from '@context/AboutRoutingContext'
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { Link } from 'react-router'
+import { Link } from '@components/navigation/LocalizedLink'
 import PageHead from '@components/common/PageHead'
 import { careersService } from '@services/careers.service'
 import toast from '@/utils/toast'
@@ -151,7 +155,7 @@ function JobDetailModal({ job, status, labels, onClose, onRetry, onApply }) {
               {sections.map(([key, title, content]) => (
                 <section key={key} className={key === 'contact' ? 'md:col-span-2' : ''}>
                   <h3 className="border-l-2 border-seafoam pl-3 text-lg font-extrabold text-ocean-deep">{title}</h3>
-                  <div className="career-job-detail-copy mt-4" dangerouslySetInnerHTML={{ __html: content }} />
+                  <LocalizedHtml className="career-job-detail-copy mt-4" html={content} />
                 </section>
               ))}
             </div>
@@ -227,6 +231,11 @@ function FormField({ label, name, error, children }) {
 }
 
 export default function CareersPage() {
+  const { resolveLink } = useAboutRouting()
+  const { slug } = useParams()
+  const navigate = useNavigate()
+  const location = useLocation()
+  const routing = usePublicRouting()
   const { language, t } = useLanguage()
   const jobsCopy = JOBS_COPY[language] ?? JOBS_COPY.vi
   const [form, setForm] = useState(INITIAL_FORM)
@@ -337,7 +346,14 @@ export default function CareersPage() {
     document.getElementById('ung-tuyen')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }
 
-  const loadOpeningDetail = async (job) => {
+  useEffect(() => {
+    if (slug) loadOpeningDetail({ slug }, false)
+    else { detailRequestRef.current += 1; setSelectedOpening(null); setOpeningDetailStatus('idle') }
+    return () => { detailRequestRef.current += 1 }
+  }, [slug, language])
+
+  const loadOpeningDetail = async (job, updateUrl = true) => {
+    if (updateUrl && routing) navigate(routing.resolveLink('/careers/' + job.slug) + location.search + location.hash)
     const requestId = detailRequestRef.current + 1
     detailRequestRef.current = requestId
     setSelectedOpening(job)
@@ -357,7 +373,8 @@ export default function CareersPage() {
     detailRequestRef.current += 1
     setSelectedOpening(null)
     setOpeningDetailStatus('idle')
-  }, [])
+    if (routing) navigate(routing.resolveLink('/careers') + location.search + location.hash)
+  }, [routing, navigate, location.search, location.hash])
 
   const applyForOpening = (job) => {
     closeOpeningDetail()
@@ -372,7 +389,7 @@ export default function CareersPage() {
   return (
     <>
       <PageHead
-        title={pageConfig?.seoTitle || t('careers.seoTitle')}
+        title={(slug && selectedOpening?.title) || pageConfig?.seoTitle || t('careers.seoTitle')}
         description={pageConfig?.metaDescription || t('careers.seoDescription')}
       />
 
@@ -418,7 +435,7 @@ export default function CareersPage() {
               <div className="mt-6 h-1 w-20 rounded-full bg-coral-gold" />
               <div className="careers-workplace-copy mt-7 max-w-2xl">
                 {pageConfig?.description ? (
-                  <div dangerouslySetInnerHTML={{ __html: pageConfig.description }} />
+                  <LocalizedHtml html={pageConfig.description} />
                 ) : (
                   <>
                     <p>{t('careers.workplace.paragraph1')}</p>
@@ -453,7 +470,7 @@ export default function CareersPage() {
             </div>
 
             {pageConfig?.benefitsContent ? (
-              <div className="border border-light-mist bg-white p-7 leading-8 text-storm-grey shadow-[0_20px_60px_-45px_rgba(11,37,69,0.55)] sm:p-9" dangerouslySetInnerHTML={{ __html: pageConfig.benefitsContent }} />
+              <LocalizedHtml className="border border-light-mist bg-white p-7 leading-8 text-storm-grey shadow-[0_20px_60px_-45px_rgba(11,37,69,0.55)] sm:p-9" html={pageConfig.benefitsContent} />
             ) : (
               <div className="grid gap-5 lg:grid-cols-3">{BENEFITS.map(benefit => (
                 <article
@@ -618,7 +635,7 @@ export default function CareersPage() {
                     {t('careers.application.title')}
                   </h2>
                   {pageConfig?.contactContent ? (
-                    <div className="careers-application-copy mt-5" dangerouslySetInnerHTML={{ __html: pageConfig.contactContent }} />
+                    <LocalizedHtml className="careers-application-copy mt-5" html={pageConfig.contactContent} />
                   ) : (
                     <p className="mt-5 leading-8 text-white/72">{t('careers.application.description')}</p>
                   )}
@@ -830,7 +847,7 @@ export default function CareersPage() {
               </span>
               <h2 className="mt-2 text-2xl text-white sm:text-3xl">{t('careers.bottom.title')}</h2>
             </div>
-            <Link to="/about" className="btn btn-ghost">
+            <Link to={resolveLink('/about')} className="btn btn-ghost">
               {t('actions.exploreIdi')}
               <span aria-hidden="true">→</span>
             </Link>

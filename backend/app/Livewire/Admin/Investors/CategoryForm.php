@@ -4,6 +4,7 @@ namespace App\Livewire\Admin\Investors;
 
 use App\Livewire\AdminComponent;
 use App\Models\DocumentCategory;
+use App\Support\DocumentCategoryTree;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -54,7 +55,7 @@ class CategoryForm extends AdminComponent
             }
         }
         $data = $this->validate([
-            'parent_id' => ['nullable', Rule::exists('document_categories', 'id')->whereNull('deleted_at'), Rule::notIn(array_filter([$this->category?->id]))],
+            'parent_id' => ['nullable', Rule::exists('document_categories', 'id')->whereNull('deleted_at'), Rule::notIn($this->excludedParentIds())],
             'name.vi' => ['required', 'string', 'max:255'],
             'name.en' => ['nullable', 'string', 'max:255'],
             'name.zh' => ['nullable', 'string', 'max:255'],
@@ -65,18 +66,18 @@ class CategoryForm extends AdminComponent
             'sort_order' => ['required', 'integer', 'min:0'],
             'is_active' => ['boolean'],
         ], [], [
-            'parent_id'      => 'Danh mục cha',
-            'name.vi'        => 'Tên danh mục (Tiếng Việt)',
-            'name.en'        => 'Tên danh mục (English)',
-            'name.zh'        => 'Tên danh mục (中文)',
-            'slug.vi'        => 'Đường dẫn (Tiếng Việt)',
-            'slug.en'        => 'Đường dẫn (English)',
-            'slug.zh'        => 'Đường dẫn (中文)',
+            'parent_id' => 'Danh mục cha',
+            'name.vi' => 'Tên danh mục (Tiếng Việt)',
+            'name.en' => 'Tên danh mục (English)',
+            'name.zh' => 'Tên danh mục (中文)',
+            'slug.vi' => 'Đường dẫn (Tiếng Việt)',
+            'slug.en' => 'Đường dẫn (English)',
+            'slug.zh' => 'Đường dẫn (中文)',
             'description.vi' => 'Mô tả (Tiếng Việt)',
             'description.en' => 'Mô tả (English)',
             'description.zh' => 'Mô tả (中文)',
-            'sort_order'     => 'Thứ tự hiển thị',
-            'is_active'      => 'Trạng thái',
+            'sort_order' => 'Thứ tự hiển thị',
+            'is_active' => 'Trạng thái',
         ]);
         foreach (['name', 'slug', 'description'] as $field) {
             $data[$field] = collect($data[$field] ?? [])->map(fn ($value) => trim((string) $value))->filter(fn ($value) => $value !== '')->all();
@@ -89,10 +90,21 @@ class CategoryForm extends AdminComponent
         return $this->redirectRoute('admin.investors.categories.index', navigate: true);
     }
 
+    private function excludedParentIds(): array
+    {
+        if (! $this->category) {
+            return [];
+        }
+
+        return DocumentCategoryTree::build(DocumentCategory::all())
+            ->filter(fn ($item) => $item->id === $this->category->id || in_array($this->category->id, $item->tree_ancestors))
+            ->pluck('id')->all();
+    }
+
     public function render()
     {
         return view('livewire.admin.investors.category-form', [
-            'parents' => DocumentCategory::whereKeyNot($this->category?->id)->orderBy('sort_order')->get(),
+            'parents' => DocumentCategoryTree::build(DocumentCategory::all())->whereNotIn('id', $this->excludedParentIds()),
             'locales' => ['vi' => 'Tiếng Việt', 'en' => 'English', 'zh' => '中文'],
             'breadcrumbs' => [['label' => 'Bảng điều khiển', 'route' => 'admin.dashboard'], ['label' => 'Danh mục cổ đông', 'route' => 'admin.investors.categories.index'], ['label' => $this->category ? 'Cập nhật' : 'Thêm mới']],
         ]);

@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Page;
+use App\Support\AboutPageRoutes;
 use Database\Seeders\ContentSeeder;
 use Database\Seeders\CoreSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -142,6 +143,46 @@ class AboutPagesApiTest extends TestCase
 
         DB::table('modules')->where('code', 'about')->update(['is_active' => false]);
         $this->getJson('/api/about')->assertNotFound();
+    }
+
+    public function test_arbitrary_about_page_exposes_the_same_paths_as_route_sync(): void
+    {
+        $this->seed(CoreSeeder::class);
+        $page = $this->page('ABOUT_LEADERSHIP', 'about-leadership', 'Leadership');
+        $page->update([
+            'title' => ['vi' => 'Vietnamese', 'en' => 'English', 'zh' => 'Chinese'],
+            'slug' => ['vi' => 'lanh-dao', 'en' => 'leadership', 'zh' => 'ling-dao'],
+            'content' => ['vi' => '<p>VI</p>', 'en' => '<p>EN</p>', 'zh' => '<p>ZH</p>'],
+        ]);
+        AboutPageRoutes::sync($page);
+        foreach (['vi' => 'lanh-dao', 'en' => 'leadership', 'zh' => 'ling-dao'] as $locale => $slug) {
+            $path = DB::table('localized_routes')->where('routeable_id', $page->id)
+                ->where('routeable_type', Page::class)->where('locale', $locale)->value('full_path');
+            $this->getJson("/api/about/{$slug}?locale={$locale}&bySlug=1")
+                ->assertOk()->assertJsonPath('data.id', $page->id)
+                ->assertJsonPath('data.locale', $locale)
+                ->assertJsonPath("data.localizedPaths.{$locale}", $path)
+                ->assertJsonPath('data.content', '<p>'.strtoupper($locale).'</p>');
+        }
+        $this->getJson('/api/about?locale=en')->assertJsonPath('items.0.localizedPaths.en', '/en/about/leadership');
+        $page->forgetTranslation('slug', 'zh')->save();
+        $this->getJson('/api/about/ABOUT_LEADERSHIP?locale=vi')->assertJsonMissingPath('data.localizedPaths.zh');
+        $page->forgetTranslation('title', 'en')->save();
+        $this->getJson('/api/about/ABOUT_LEADERSHIP?locale=vi')->assertJsonMissingPath('data.localizedPaths.en');
+    }
+
+    public function test_localized_lookup_does_not_confuse_codes_or_vietnamese_fallback_with_localized_slugs(): void
+    {
+        $this->module();
+        $first = $this->page('ABOUT_MESSAGE', 'about', 'First');
+        $first->update(['title' => ['vi' => 'First', 'en' => 'First'], 'slug' => ['vi' => 'shared', 'en' => 'first']]);
+        $second = $this->page('ABOUT_OTHER', 'about', 'Second');
+        $second->update(['title' => ['vi' => 'Second', 'en' => 'Second'], 'slug' => ['vi' => 'second', 'en' => 'shared']]);
+        $this->getJson('/api/about/shared?locale=en&bySlug=1')->assertOk()->assertJsonPath('data.id', $second->id);
+        $this->getJson('/api/about/shared?locale=vi&bySlug=1')->assertOk()->assertJsonPath('data.id', $first->id);
+        $this->getJson('/api/about/ABOUT_MESSAGE?locale=en&bySlug=1')->assertNotFound();
+        $this->getJson('/api/about/second?locale=en&bySlug=1')->assertNotFound();
+        $this->getJson('/api/about/ABOUT_MESSAGE?locale=en')->assertOk()->assertJsonPath('data.id', $first->id);
     }
 
     private function module(): void

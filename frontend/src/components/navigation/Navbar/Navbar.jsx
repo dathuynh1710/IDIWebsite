@@ -1,24 +1,20 @@
+import { useMenu } from '@context/MenuContext'
 import { useEffect, useState } from 'react'
-import { Link, useLocation } from 'react-router'
+import { useLocation } from 'react-router'
+import { Link } from '@components/navigation/LocalizedLink'
 import { cn } from '@utils/cn'
 import NavbarBrand from './NavbarBrand'
-import NavbarDesktop from './NavbarDesktop'
+import NavbarDesktop, { NavbarMobileItems } from './NavbarDesktop'
 import LanguageSwitcher from '@components/navigation/LanguageSwitcher'
-import { NAV_ITEMS, localizedNavItems, withProductCategories } from '@data/navigation'
 import { useLanguage } from '@hooks/useLanguage'
-import { useProductCategories } from '@hooks/useProductCategories'
 
 export default function Navbar() {
+  const menu = useMenu('main')
   const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
   const location = useLocation()
-  const { language, t } = useLanguage()
-  const productCategories = useProductCategories(language)
-  const navigationItems = localizedNavItems(withProductCategories(NAV_ITEMS, productCategories), t)
-  const mobileMenuLinks = [
-    ...navigationItems,
-    { id: 'contact', label: t('nav.contact'), href: '/contact' },
-  ]
+  const { t } = useLanguage()
+  const navigationItems = menu.items
 
   // Detect scroll to switch from transparent → solid
   useEffect(() => {
@@ -31,7 +27,7 @@ export default function Navbar() {
   // Close mobile menu on route change
   useEffect(() => {
     setMobileOpen(false)
-  }, [location.pathname])
+  }, [location.pathname, location.search, location.hash])
 
   // Lock body scroll when mobile menu is open
   useEffect(() => {
@@ -39,7 +35,7 @@ export default function Navbar() {
     return () => { document.body.style.overflow = '' }
   }, [mobileOpen])
 
-  const isHeroPage = location.pathname === '/'
+  const isHeroPage = /^\/(vi|en|zh)?\/?$/.test(location.pathname)
 
   return (
     <>
@@ -57,7 +53,8 @@ export default function Navbar() {
             <NavbarBrand />
 
             {/* Desktop Nav */}
-            <NavbarDesktop scrolled={scrolled || !isHeroPage} items={navigationItems} />
+            <NavbarDesktop scrolled={scrolled || !isHeroPage} items={navigationItems} loading={menu.status === 'loading'} />
+            {menu.status === 'error' && <button type="button" className="hidden xl:block text-sm" onClick={menu.retry}>{t('common.retry')}</button>}
 
             {/* Right: Language + CTA + Hamburger */}
             <div className="flex items-center gap-3">
@@ -87,6 +84,7 @@ export default function Navbar() {
                 )}
                 aria-label={mobileOpen ? t('nav.closeMenu') : t('nav.openMenu')}
                 aria-expanded={mobileOpen}
+                aria-controls="mobile-navigation"
               >
                 <span className={cn('block w-6 h-0.5 bg-current transition-all duration-300', mobileOpen && 'rotate-45 translate-y-2')} />
                 <span className={cn('block w-6 h-0.5 bg-current transition-all duration-300', mobileOpen && 'opacity-0')} />
@@ -108,33 +106,9 @@ export default function Navbar() {
 
           {/* Drawer content */}
           <div className="relative z-10 flex flex-col h-full pt-[72px] overflow-y-auto animate-slide-in-left">
-            <nav className="container py-8 flex flex-col gap-1">
-              {mobileMenuLinks.map((link) => (
-                <div key={link.href} className="border-b border-white/10">
-                  <Link
-                    to={link.href}
-                    className={cn(
-                      'block py-3 text-lg font-semibold uppercase tracking-[0.035em] text-white/80 transition-all duration-200 hover:pl-2 hover:text-white',
-                      location.pathname.startsWith(link.href) && link.href !== '/' && 'text-coral-gold',
-                    )}
-                  >
-                    {link.label}
-                  </Link>
-                  {link.children?.length > 0 && (
-                    <div className="grid grid-cols-1 gap-1 pb-3 pl-4">
-                      {link.children.map((child) => (
-                        <Link
-                          key={`${child.href}-${child.label}`}
-                          to={child.href}
-                          className="py-1.5 text-sm font-medium text-white/55 hover:text-white transition-colors"
-                        >
-                          {child.label}
-                        </Link>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              ))}
+            <nav id="mobile-navigation" aria-label={t('nav.main')} aria-busy={menu.status === 'loading'} className="container py-8 flex flex-col gap-1" onKeyDown={event => { if (event.key === 'Escape') setMobileOpen(false) }}>
+              <NavbarMobileItems items={[...navigationItems, { id: 'contact-cta', label: t('nav.contact'), href: '/contact' }]} />
+              {menu.status === 'error' && <button type="button" className="text-white" onClick={menu.retry}>{t('common.retry')}</button>}
             </nav>
 
             {/* Mobile CTA */}

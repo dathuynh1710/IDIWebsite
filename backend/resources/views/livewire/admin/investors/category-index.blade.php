@@ -14,16 +14,23 @@
             <button class="button button-secondary" wire:click="bulk('reorder')" @disabled(!$selected)>Cập nhật thứ tự</button>
             <button class="button button-danger" type="button" wire:click="requestBulkDelete">Xóa</button>
         </div><span>{{ $categoryCount }} danh mục · {{ $categories->total() }} nhánh gốc</span></div>
+        <div class="investor-tree-toolbar">
+            <div><strong>Cây danh mục</strong><small>Mỗi trang hiển thị theo nhánh gốc, kèm các danh mục con. Thứ tự áp dụng trong cùng cấp.</small></div>
+            <div class="category-toolbar-actions"><button type="button" class="button button-secondary" wire:click="expandAll">Mở tất cả</button><button type="button" class="button button-secondary" wire:click="collapseAll">Thu gọn tất cả</button></div>
+        </div>
         @if($categories->isEmpty())<x-ui.empty-state title="Chưa có danh mục" description="Hãy tạo danh mục đầu tiên cho quan hệ cổ đông." icon="folder" />
-        @else<x-ui.data-table label="Danh mục tài liệu nhà đầu tư"><table class="data-table category-table"><thead><tr><th><x-ui.table-check-all :ids="$categories->pluck('id')" :selected="$selected" label="Chọn tất cả danh mục trên trang" /></th><th>Thứ tự</th><th>Tiêu đề ({{ strtoupper($locale) }})</th><th>Danh mục cha</th><th>Số tài liệu</th><th>Bản dịch</th><th>Trạng thái</th><th></th></tr></thead><tbody>
-            @foreach($categories as $item)<tr wire:key="investor-category-{{ $item->id }}" @class(['is-muted-row' => !$item->is_active])>
+        @else<x-ui.data-table label="Danh mục tài liệu nhà đầu tư"><table class="data-table category-table investor-tree-table"><thead><tr><th><x-ui.table-check-all :ids="$categories->pluck('id')" :selected="$selected" label="Chọn tất cả danh mục trên trang" /></th><th>Thứ tự</th><th>Tiêu đề ({{ strtoupper($locale) }})</th><th>Đường dẫn danh mục</th><th>Số tài liệu</th><th>Bản dịch</th><th>Trạng thái</th><th>Thao tác</th></tr></thead><tbody>
+            @foreach($categories as $item)<tr wire:key="investor-category-{{ $item->id }}" @class(['is-muted-row' => !$item->is_active, 'investor-tree-root' => !$item->tree_depth])>
                 <td><x-ui.table-row-checkbox :id="$item->id" :selected="$selected" label="Chọn danh mục {{ $item->id }}" /></td>
-                <td><input class="input order-input" type="number" wire:model="sortOrders.{{ $item->id }}"></td>
+                <td><input class="input order-input" type="number" min="0" aria-label="Thứ tự danh mục #{{ $item->id }}" wire:model="sortOrders.{{ $item->id }}"></td>
                 <td class="category-name-cell investor-category-name-cell" style="--tree-depth: {{ $item->tree_depth }}">
                     <div @class(['investor-category-tree-label', 'is-child' => $item->tree_depth])>
                         <span class="investor-category-tree-connector" aria-hidden="true"></span>
-                        <x-ui.icon :name="$item->tree_depth ? 'file' : 'folder'" size="16" />
-                        <strong>{{ $item->getTranslation('name', $locale, false) ?: 'Chưa có bản dịch' }}</strong>
+                        @if($item->children_count)
+                            <button type="button" class="icon-button investor-tree-toggle" wire:click="toggleBranch({{ $item->id }})" aria-expanded="{{ in_array($item->id, $collapsed) ? 'false' : 'true' }}" aria-label="Mở/thu gọn {{ $item->tree_label }}"><x-ui.icon :name="in_array($item->id, $collapsed) ? 'chevron-right' : 'chevron-down'" size="16" /></button>
+                        @else<span class="investor-tree-leaf"><x-ui.icon name="file" size="16" /></span>@endif
+                        <strong>{{ $item->getTranslation('name', $locale, false) ?: $item->getTranslation('name', 'vi', false) }}</strong>
+                        <span class="investor-tree-id">#{{ $item->id }}</span>@if($item->children_count)<span class="investor-tree-child-count">{{ $item->children_count }} mục con</span>@endif
                         @if(!$item->tree_depth)<span class="investor-category-root-badge">Danh mục gốc</span>@endif
                     </div>
                     <small><x-ui.icon name="link" size="13" /> /{{ $locale }}/investors/{{ $item->getTranslation('slug', $locale, false) }}</small>
@@ -35,12 +42,12 @@
                 </td>
                 <td>
                     @if($item->parent)
-                        <span class="investor-category-parent"><x-ui.icon name="chevron-right" size="15" /> {{ $item->parent->getTranslation('name', $locale, false) }}</span>
+                        <span class="investor-category-parent"><x-ui.icon name="chevron-right" size="15" /> {{ $item->tree_parent_path }}</span>
                     @else
                         <span class="investor-category-parent is-root"><x-ui.icon name="folder" size="15" /> — Gốc —</span>
                     @endif
                 </td>
-                <td><span class="category-product-count">{{ $item->documents_count }}</span></td>
+                <td><a class="category-product-count" href="{{ route('admin.investors.documents.index', ['category' => $item->id]) }}" wire:navigate title="Xem tài liệu trong danh mục">{{ $item->documents_count }}</a></td>
                 <td><div class="translation-dots">@foreach(['vi','en','zh'] as $code)<span class="{{ filled($item->getTranslation('name', $code, false)) ? 'is-complete' : '' }}">{{ strtoupper($code) }}</span>@endforeach</div></td>
                 <td><x-ui.badge :tone="$item->is_active ? 'success' : 'neutral'">{{ $item->is_active ? 'Hiện' : 'Ẩn' }}</x-ui.badge></td>
                 <td><div class="row-actions"><a class="icon-button" href="{{ route('admin.investors.categories.edit', $item) }}" wire:navigate title="Sửa"><x-ui.icon name="edit" size="18" /></a><button class="icon-button is-dark" wire:click="toggleVisibility({{ $item->id }})" title="Ẩn/hiện"><x-ui.icon :name="$item->is_active ? 'eye-off' : 'eye'" size="18" /></button><button class="icon-button is-danger" type="button" wire:click="requestDelete({{ $item->id }})" title="Xóa" aria-label="Xóa danh mục {{ $item->getTranslation('name', $locale, false) }}"><x-ui.icon name="trash" size="18" /></button></div></td>

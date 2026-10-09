@@ -4,7 +4,7 @@
     </x-admin.page-header>
     <form id="investor-category-form" wire:submit="save" data-dirty-form><div class="product-form-grid">
         <aside><x-form.section title="Thông tin chung" description="Áp dụng cho mọi ngôn ngữ" icon="folder"><div class="form-stack">
-            <div class="form-field"><label>Danh mục cha</label><select class="select" wire:model="parent_id"><option value="">— Gốc —</option>@foreach($parents as $parent)<option value="{{ $parent->id }}">{{ $parent->getTranslation('name', 'vi', false) }}</option>@endforeach</select><x-form.field-error name="parent_id" /></div>
+            <div class="form-field"><label>Danh mục cha</label><select class="select" wire:model="parent_id"><option value="">— Gốc —</option>@foreach($parents as $parent)<option value="{{ $parent->id }}">{{ $parent->tree_label }}</option>@endforeach</select><x-form.field-error name="parent_id" /></div>
             <x-form.input name="sort_order" label="Thứ tự hiển thị" type="number" wire:model="sort_order" min="0" />
             <x-form.switch name="is_active" label="Đang hiển thị" wire:model="is_active" />
         </div></x-form.section></aside>

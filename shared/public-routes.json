@@ -1,0 +1,72 @@
+{
+  "/": {
+    "vi": "/vi",
+    "en": "/en",
+    "zh": "/zh"
+  },
+  "/products": {
+    "vi": "/vi/san-pham",
+    "en": "/en/products",
+    "zh": "/zh/chanpin"
+  },
+  "/quality": {
+    "vi": "/vi/chat-luong",
+    "en": "/en/quality",
+    "zh": "/zh/zhiliang"
+  },
+  "/sustainability": {
+    "vi": "/vi/phat-trien-ben-vung",
+    "en": "/en/sustainability",
+    "zh": "/zh/kechixu-fazhan"
+  },
+  "/investors": {
+    "vi": "/vi/quan-he-co-dong",
+    "en": "/en/investors",
+    "zh": "/zh/touzizhe"
+  },
+  "/news": {
+    "vi": "/vi/tin-tuc",
+    "en": "/en/news",
+    "zh": "/zh/xinwen"
+  },
+  "/recipes": {
+    "vi": "/vi/cong-thuc",
+    "en": "/en/recipes",
+    "zh": "/zh/shipu"
+  },
+  "/careers": {
+    "vi": "/vi/tuyen-dung",
+    "en": "/en/careers",
+    "zh": "/zh/zhaopin"
+  },
+  "/contact": {
+    "vi": "/vi/lien-he",
+    "en": "/en/contact",
+    "zh": "/zh/lianxi"
+  },
+  "/investors/announcements": {
+    "vi": "/vi/quan-he-co-dong/cong-bo-thong-tin",
+    "en": "/en/investors/announcements",
+    "zh": "/zh/touzizhe/gonggao"
+  },
+  "/investors/financials": {
+    "vi": "/vi/quan-he-co-dong/bao-cao-tai-chinh",
+    "en": "/en/investors/financials",
+    "zh": "/zh/touzizhe/caiwu-baogao"
+  },
+  "/investors/annual-reports": {
+    "vi": "/vi/quan-he-co-dong/bao-cao-thuong-nien",
+    "en": "/en/investors/annual-reports",
+    "zh": "/zh/touzizhe/niandu-baogao"
+  },
+  "/investors/agm": {
+    "vi": "/vi/quan-he-co-dong/dai-hoi-co-dong",
+    "en": "/en/investors/agm",
+    "zh": "/zh/touzizhe/gudong-dahui"
+  },
+  "/investors/green-bond": {
+    "vi": "/vi/quan-he-co-dong/trai-phieu-xanh",
+    "en": "/en/investors/green-bond",
+    "zh": "/zh/touzizhe/lvse-zhaiquan"
+  }
+}

@@ -1,7 +1,7 @@
-import { Link } from 'react-router'
-import { FOOTER_LINKS } from '@data/navigation'
+import { useMenu } from '@context/MenuContext'
+import MenuTree, { MenuLink } from '../MenuTree'
+import { Link } from '@components/navigation/LocalizedLink'
 import { useLanguage } from '@hooks/useLanguage'
-import { useProductCategories } from '@hooks/useProductCategories'
 import { publicAsset } from '@utils/publicAsset'
 
 const CONTACT_INFO = [
@@ -72,20 +72,8 @@ const CERTIFICATIONS = [
 const currentYear = new Date().getFullYear()
 
 export default function Footer() {
-  const { language, t } = useLanguage()
-  const productCategories = useProductCategories(language)
-  const footerLinks = {
-    ...FOOTER_LINKS,
-    products: productCategories.length
-      ? {
-          ...FOOTER_LINKS.products,
-          links: productCategories.map(category => ({
-            label: category.name,
-            href: `/products?category=${encodeURIComponent(category.slug)}`,
-          })),
-        }
-      : FOOTER_LINKS.products,
-  }
+  const menu = useMenu('footer')
+  const { t } = useLanguage()
   return (
     <footer style={{ background: '#081C38' }} className="text-white/80">
 
@@ -125,25 +113,13 @@ export default function Footer() {
             aria-label={t('nav.footer')}
             className="md:col-span-8 lg:col-span-6 xl:col-span-5 grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-10"
           >
-            {Object.values(footerLinks).map((col) => (
-              <div key={col.titleKey} className="min-w-0">
-                <h4 className="text-white text-sm font-bold mb-5 tracking-wide">
-                  {t(col.titleKey)}
-                </h4>
-                <ul className="flex flex-col gap-2.5">
-                  {col.links.map((link) => (
-                    <li key={link.href}>
-                      <Link
-                        to={link.href}
-                        className="text-white/50 hover:text-white text-sm leading-snug transition-colors duration-200"
-                      >
-                        {link.label ?? t(link.labelKey)}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
+            {menu.items.map(col => (
+              <div key={col.id} className="min-w-0">
+                <h4 className="text-white text-sm font-bold mb-5 tracking-wide"><MenuLink item={col} /></h4>
+                <MenuTree items={col.children || []} mode="footer" />
               </div>
             ))}
+            {menu.status === 'error' && <button type="button" onClick={menu.retry}>{t('common.retry')}</button>}
           </nav>
 
           {/* Contact column */}

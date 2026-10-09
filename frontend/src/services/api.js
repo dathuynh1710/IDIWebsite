@@ -13,7 +13,7 @@ const api = axios.create({
 
 api.interceptors.request.use((config) => {
   const locale = getStoredLanguage()
-  config.params = { ...config.params, locale }
+  config.params = { locale, ...config.params }
   config.headers['Accept-Language'] = locale
   return config
 })

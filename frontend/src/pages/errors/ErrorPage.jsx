@@ -1,4 +1,5 @@
-import { Link, useRouteError } from 'react-router'
+import { useRouteError } from 'react-router'
+import { Link } from '@components/navigation/LocalizedLink'
 import { useLanguage } from '@hooks/useLanguage'
 
 export default function ErrorPage() {

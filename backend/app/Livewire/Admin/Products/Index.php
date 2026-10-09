@@ -128,6 +128,7 @@ class Index extends AdminComponent
                     'updated_by' => auth()->id(),
                     'updated_at' => now(),
                 ]);
+                Product::whereKey($this->selected)->get()->each(fn ($model) => \App\Support\PublicRoutes::sync($model));
             } else {
                 Product::whereKey($this->selected)->get()->each->delete();
             }

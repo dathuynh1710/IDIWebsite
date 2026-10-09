@@ -337,6 +337,30 @@ class InvestorRelationsManagementTest extends TestCase
         $this->assertNotSoftDeleted($category);
     }
 
+    public function test_tree_search_preserves_ancestors_and_collapsing_clears_hidden_selection(): void
+    {
+        $root = $this->category();
+        $child = DocumentCategory::create(['parent_id' => $root->id, 'name' => ['vi' => 'Năm 2024'], 'slug' => ['vi' => 'nam-2024'], 'is_active' => true]);
+        Livewire::actingAs($this->editor())->test(CategoryIndex::class)
+            ->set('search', '2024')
+            ->assertViewHas('categories', fn ($items) => $items->pluck('id')->all() === [$root->id, $child->id])
+            ->set('selected', [$child->id])
+            ->call('toggleBranch', $root->id)
+            ->assertSet('selected', [])
+            ->assertViewHas('categories', fn ($items) => $items->pluck('id')->all() === [$root->id])
+            ->call('expandAll')
+            ->assertViewHas('categories', fn ($items) => $items->count() === 2);
+    }
+
+    public function test_category_cannot_be_moved_under_its_descendant(): void
+    {
+        $root = $this->category();
+        $child = DocumentCategory::create(['parent_id' => $root->id, 'name' => ['vi' => 'Con'], 'slug' => ['vi' => 'con'], 'is_active' => true]);
+        Livewire::actingAs($this->editor())->test(CategoryForm::class, ['category' => $root->fresh()])
+            ->set('parent_id', $child->id)->call('save')->assertHasErrors('parent_id');
+        $this->assertNull($root->fresh()->parent_id);
+    }
+
     private function editor(): User
     {
         foreach ([['vi', 'Vietnamese', 'Tiếng Việt'], ['en', 'English', 'English'], ['zh', 'Chinese', '中文']] as $index => [$code, $name, $native]) {

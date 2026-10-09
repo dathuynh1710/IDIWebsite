@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Page;
+use App\Support\AboutPageRoutes;
 use App\Support\Locale;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
@@ -24,7 +25,7 @@ class AboutPagesController extends Controller
             ->orderBy('sort_order')
             ->orderBy('id')
             ->get()
-            ->filter(fn (Page $page): bool => filled($page->getTranslation('title', $requestedLocale, false)))
+            ->filter(fn (Page $page): bool => \App\Support\PublicRoutes::available($page, $requestedLocale))
             ->map(fn (Page $page): array => $this->page($page, $requestedLocale))
             ->values();
 
@@ -46,7 +47,12 @@ class AboutPagesController extends Controller
             ->with('featuredMedia')
             ->where('is_active', true);
 
-        $page = (clone $query)->where('code', $normalizedCode)->first();
+        $page = $request->boolean('bySlug')
+            ? (clone $query)->where("slug->{$requestedLocale}", $identifier)->first()
+            : (clone $query)->where('code', $normalizedCode)->first();
+        if ($request->boolean('bySlug')) {
+            abort_if(! $page, 404);
+        }
         $page ??= (clone $query)
             ->where(function (Builder $query) use ($identifier, $requestedLocale): void {
                 $query->where("slug->{$requestedLocale}", $identifier)
@@ -66,7 +72,7 @@ class AboutPagesController extends Controller
 
         abort_if(! $page, 404);
         abort_unless(
-            filled($page->getTranslation('title', $requestedLocale, false)),
+            \App\Support\PublicRoutes::available($page, $requestedLocale),
             404
         );
 
@@ -88,6 +94,7 @@ class AboutPagesController extends Controller
             'locale' => $locale,
             'requestedLocale' => $requestedLocale,
             'slug' => $page->getTranslation('slug', $locale, false),
+            'localizedPaths' => (object) AboutPageRoutes::paths($page),
             'title' => $page->getTranslation('title', $locale, false),
             'summary' => $page->getTranslation('summary', $locale, false),
             'content' => $this->absolutePublicAssetUrls(

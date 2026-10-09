@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\DocumentCategory;
 use App\Models\InvestorDocument;
 use App\Models\InvestorDocumentFile;
+use App\Support\DocumentCategoryTree;
 use App\Support\Locale;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
@@ -83,20 +84,33 @@ class InvestorRelationsController extends Controller
 
     private function categories(string $locale): array
     {
-        return DocumentCategory::query()
+        $categories = DocumentCategory::query()
             ->where('is_active', true)
             ->withCount([
                 'documents as public_documents_count' => fn (Builder $query) => $query->where('is_active', true),
             ])
             ->orderByDesc('sort_order')
             ->orderBy('id')
-            ->get()
+            ->get();
+
+        $tree = DocumentCategoryTree::build($categories, $locale);
+        $counts = $tree->pluck('public_documents_count', 'id')->all();
+        foreach ($tree as $category) {
+            foreach ($category->tree_ancestors as $ancestorId) {
+                $counts[$ancestorId] += $category->public_documents_count;
+            }
+        }
+
+        return $tree
             ->map(fn (DocumentCategory $category): array => [
                 'id' => $category->id,
                 'name' => $this->translation($category, 'name', $locale),
+                'label' => $category->tree_label,
+                'parentId' => $category->parent_id,
+                'depth' => $category->tree_depth,
                 'slug' => $this->translation($category, 'slug', $locale),
                 'description' => $this->translation($category, 'description', $locale),
-                'count' => $category->public_documents_count,
+                'count' => $counts[$category->id],
             ])
             ->values()
             ->all();
@@ -114,16 +128,16 @@ class InvestorRelationsController extends Controller
 
     private function applyCategoryFilter(Builder $query, string $requestedCategory, string $locale): void
     {
-        $query->whereHas('category', function (Builder $category) use ($requestedCategory, $locale): void {
-            $category->where(function (Builder $match) use ($requestedCategory, $locale): void {
-                $match->where("slug->{$locale}", $requestedCategory)
-                    ->orWhere('slug->vi', $requestedCategory);
-
-                if (ctype_digit($requestedCategory)) {
-                    $match->orWhereKey((int) $requestedCategory);
-                }
-            });
-        });
+        $categories = DocumentCategory::where('is_active', true)->get();
+        $rootIds = $categories->filter(fn ($category) => ctype_digit($requestedCategory)
+            ? $category->id === (int) $requestedCategory
+            : in_array($requestedCategory, [$category->getTranslation('slug', $locale, false), $category->getTranslation('slug', 'vi', false)], true)
+        )->modelKeys();
+        $ids = DocumentCategoryTree::build($categories, $locale)
+            ->filter(fn ($category) => in_array($category->id, $rootIds, true)
+                || array_intersect($category->tree_ancestors, $rootIds))
+            ->pluck('id');
+        $query->whereIn('document_category_id', $ids);
     }
 
     private function document(InvestorDocument $document, string $locale): array

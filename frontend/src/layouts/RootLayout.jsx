@@ -1,3 +1,6 @@
+import PublicRoutingProvider from '@context/PublicRoutingContext'
+import MenuProvider from '@context/MenuContext'
+import AboutRoutingProvider from '@context/AboutRoutingContext'
 import { Suspense } from 'react'
 import { ScrollRestoration } from 'react-router'
 import Navbar from '@components/navigation/Navbar'
@@ -21,6 +24,9 @@ import PageTransition from '@components/common/PageTransition'
  */
 export default function RootLayout() {
   return (
+    <PublicRoutingProvider>
+    <AboutRoutingProvider>
+    <MenuProvider>
     <div className="flex flex-col min-h-screen bg-arctic-white">
       {/* Sticky navigation */}
       <Navbar />
@@ -42,5 +48,8 @@ export default function RootLayout() {
       */}
       <ScrollRestoration />
     </div>
+    </MenuProvider>
+    </AboutRoutingProvider>
+    </PublicRoutingProvider>
   )
 }

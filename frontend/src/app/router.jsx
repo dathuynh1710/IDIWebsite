@@ -1,3 +1,6 @@
+import { staticRoutes } from '@utils/publicRoutes'
+import { usePublicRouting } from '@context/PublicRoutingContext'
+import { ABOUT_PATTERNS } from '@utils/aboutRoutes'
 import { lazy, Suspense } from 'react'
 import { createBrowserRouter } from 'react-router'
 
@@ -24,6 +27,7 @@ import ProductsPage from '@pages/products/ProductsPage'
 // LAZY LOADED — Non-critical pages (split into separate chunks)
 // Each lazy() call = separate JS bundle, downloaded on demand.
 // ─────────────────────────────────────────────────────────────
+const LocalizedAboutPage = lazy(() => import('@components/about/CmsAboutPage'))
 const AboutPage             = lazy(() => import('@pages/about/AboutPage'))
 const StoryPage             = lazy(() => import('@pages/about/StoryPage'))
 const ValuesPage            = lazy(() => import('@pages/about/ValuesPage'))
@@ -64,6 +68,26 @@ const withSuspense = (Component) => (
 // Structure mirrors the sitemap from react_architecture.md.
 // Each route group is annotated with its purpose.
 // ─────────────────────────────────────────────────────────────
+function NewsRoute() {
+  const { entry } = usePublicRouting()
+  return entry?.name === 'news.category' ? <NewsPage /> : <NewsDetailPage />
+}
+const publicPages = {
+  '/': HomePage, '/products': ProductsPage, '/quality': QualityPage,
+  '/sustainability': SustainabilityPage, '/news': NewsPage, '/recipes': RecipesPage,
+  '/careers': CareersPage, '/contact': ContactPage,
+}
+const investorPages = { '/investors': InvestorsPage, '/investors/announcements': AnnouncementsPage,
+  '/investors/financials': FinancialsPage, '/investors/annual-reports': AnnualReportsPage,
+  '/investors/agm': AGMPage, '/investors/green-bond': GreenBondPage }
+const localizedRoutes = Object.entries(publicPages).flatMap(([key, Component]) =>
+  Object.values(staticRoutes[key]).map(path => ({ path: path.slice(1), element: withSuspense(Component) })))
+localizedRoutes.push(...Object.entries(investorPages).flatMap(([key, Component]) =>
+  Object.values(staticRoutes[key]).map(path => ({ path: path.slice(1), element: withSuspense(InvestorLayout), children: [{ index: true, element: withSuspense(Component) }] }))))
+for (const [key, Component] of Object.entries({ '/products': ProductsPage, '/news': NewsRoute, '/recipes': RecipeDetailPage, '/careers': CareersPage })) {
+  localizedRoutes.push(...Object.values(staticRoutes[key]).map(path => ({ path: path.slice(1) + '/:slug', element: withSuspense(Component) })))
+}
+
 export const router = createBrowserRouter([
   {
     // ── Root: All public-facing pages share RootLayout (Navbar + Footer)
@@ -71,6 +95,7 @@ export const router = createBrowserRouter([
     element: <RootLayout />,
     errorElement: <ErrorPage />,
     children: [
+      ...localizedRoutes,
 
       // ── Homepage
       { index: true, element: <HomePage /> },
@@ -79,6 +104,7 @@ export const router = createBrowserRouter([
       { path: 'products', element: <ProductsPage /> },
 
       // ── About (parent page + sub-pages)
+      ...Object.values(ABOUT_PATTERNS).map(prefix => ({ path: `${prefix.slice(1)}/:slug`, element: withSuspense(LocalizedAboutPage) })),
       { path: 'about', element: withSuspense(AboutPage) },
       { path: 'about/story', element: withSuspense(StoryPage) },
       { path: 'about/values', element: withSuspense(ValuesPage) },

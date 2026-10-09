@@ -1,5 +1,7 @@
+import LocalizedHtml from '@components/common/LocalizedHtml'
 import { useEffect, useState } from 'react'
-import { Link, useParams } from 'react-router'
+import { useParams } from 'react-router'
+import { Link } from '@components/navigation/LocalizedLink'
 import PageHead from '@components/common/PageHead'
 import { useLanguage } from '@hooks/useLanguage'
 import { recipesService } from '@services/recipes.service'
@@ -143,7 +145,7 @@ export default function RecipeDetailPage() {
                 <aside className="recipe-detail-panel recipe-detail-panel--ingredients" aria-label={labels.ingredients}>
                   <p className="recipe-detail-panel__index" aria-hidden="true">01</p>
                   <p className="recipe-detail-panel__label">{labels.ingredients}</p>
-                  <div className="recipe-detail-rich recipe-detail-rich--ingredients" dangerouslySetInnerHTML={{ __html: recipe.contentLeftHtml }} />
+                  <LocalizedHtml className="recipe-detail-rich recipe-detail-rich--ingredients" html={recipe.contentLeftHtml} />
                 </aside>
               )}
 
@@ -155,7 +157,7 @@ export default function RecipeDetailPage() {
                       <p className="recipe-detail-panel__label">{labels.directions}</p>
                     </div>
                   </div>
-                  <div className="recipe-detail-rich recipe-detail-rich--directions" dangerouslySetInnerHTML={{ __html: recipe.contentRightHtml }} />
+                  <LocalizedHtml className="recipe-detail-rich recipe-detail-rich--directions" html={recipe.contentRightHtml} />
                 </section>
               )}
             </div>

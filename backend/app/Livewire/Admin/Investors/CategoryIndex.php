@@ -4,8 +4,8 @@ namespace App\Livewire\Admin\Investors;
 
 use App\Livewire\AdminComponent;
 use App\Models\DocumentCategory;
+use App\Support\DocumentCategoryTree;
 use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Gate;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Url;
@@ -30,6 +30,8 @@ class CategoryIndex extends AdminComponent
 
     public array $selected = [];
 
+    public array $collapsed = [];
+
     public array $sortOrders = [];
 
     public ?int $pendingDeleteId = null;
@@ -48,6 +50,7 @@ class CategoryIndex extends AdminComponent
         if (in_array($property, ['search', 'active', 'locale'], true)) {
             $this->resetPage();
             $this->selected = [];
+            $this->collapsed = [];
         }
     }
 
@@ -174,20 +177,24 @@ class CategoryIndex extends AdminComponent
 
     public function render()
     {
-        $allCategories = DocumentCategory::with('parent')->withCount(['documents', 'children'])
-            ->filtered(trim($this->search), $this->active, $this->locale)
-            ->get();
-
-        $categoriesById = $allCategories->keyBy(
-            fn (DocumentCategory $category): string => (string) $category->getKey()
+        $allCategories = DocumentCategoryTree::build(
+            DocumentCategory::with('parent')->withCount(['documents', 'children'])->get(), $this->locale
         );
-        $roots = $allCategories
-            ->filter(fn (DocumentCategory $category): bool => ! $category->parent_id
-                || ! $categoriesById->has((string) $category->parent_id))
-            ->sort($this->treeSorter());
-        $page = $this->getPage();
-        $pageRoots = $roots->forPage($page, $this->perPage);
-        $treeItems = $this->flattenTree($pageRoots, $allCategories);
+        $matchingIds = DocumentCategory::filtered(trim($this->search), $this->active, $this->locale)->pluck('id');
+        $includedIds = $matchingIds->all();
+        foreach ($allCategories->whereIn('id', $includedIds) as $item) {
+            $includedIds = array_merge($includedIds, $item->tree_ancestors);
+        }
+        $filtered = $allCategories->whereIn('id', array_unique($includedIds));
+        $roots = $filtered->where('tree_depth', 0)->values();
+        $page = min($this->getPage(), max(1, (int) ceil($roots->count() / $this->perPage)));
+        if ($page !== $this->getPage()) {
+            $this->setPage($page);
+        }
+        $pageRootIds = $roots->forPage($page, $this->perPage)->pluck('id')->all();
+        $treeItems = $filtered->filter(fn ($item) => in_array($item->tree_ancestors[0] ?? $item->id, $pageRootIds))
+            ->filter(fn ($item) => ! array_intersect($item->tree_ancestors, $this->collapsed))->values();
+        $this->selected = array_values(array_intersect($this->selected, $treeItems->pluck('id')->all()));
         $categories = new LengthAwarePaginator(
             $treeItems,
             $roots->count(),
@@ -202,31 +209,26 @@ class CategoryIndex extends AdminComponent
 
         return view('livewire.admin.investors.category-index', [
             'categories' => $categories,
-            'categoryCount' => $allCategories->count(),
+            'categoryCount' => $matchingIds->count(),
             'perPageOptions' => collect([5, 10, 15, 20, 50, 100, $this->perPage])->unique()->sort()->values()->all(),
             'breadcrumbs' => [['label' => 'Bảng điều khiển', 'route' => 'admin.dashboard'], ['label' => 'Quan hệ cổ đông'], ['label' => 'Danh mục']],
         ]);
     }
 
-    private function flattenTree(Collection $roots, Collection $allCategories, int $depth = 0): Collection
+    public function toggleBranch(int $id): void
     {
-        $flattened = collect();
-
-        foreach ($roots as $root) {
-            $root->setAttribute('tree_depth', $depth);
-            $flattened->push($root);
-
-            $children = $allCategories
-                ->where('parent_id', $root->id)
-                ->sort($this->treeSorter());
-            $flattened = $flattened->concat($this->flattenTree($children, $allCategories, $depth + 1));
-        }
-
-        return $flattened;
+        $this->collapsed = in_array($id, $this->collapsed)
+            ? array_values(array_diff($this->collapsed, [$id]))
+            : [...$this->collapsed, $id];
     }
 
-    private function treeSorter(): callable
+    public function expandAll(): void
     {
-        return fn (DocumentCategory $left, DocumentCategory $right): int => [$right->sort_order, $left->id] <=> [$left->sort_order, $right->id];
+        $this->collapsed = [];
+    }
+
+    public function collapseAll(): void
+    {
+        $this->collapsed = DocumentCategory::has('children')->pluck('id')->all();
     }
 }

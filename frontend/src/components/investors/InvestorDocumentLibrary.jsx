@@ -29,7 +29,7 @@ function DocumentToolbar({ labels, query, setQuery, year, setYear, category, set
 
   return (
     <div className="border-b border-light-mist bg-[#f4f7f9] p-3 sm:p-4">
-      <div className={`grid gap-2.5 ${lockedCategory ? 'md:grid-cols-[minmax(16rem,1fr)_10rem]' : 'md:grid-cols-[minmax(18rem,1fr)_9.5rem_13rem]'}`}>
+      <div className={`grid gap-2.5 ${lockedCategory ? 'md:grid-cols-[minmax(16rem,1fr)_10rem]' : 'md:grid-cols-[minmax(12rem,1fr)_8rem_minmax(18rem,1.2fr)]'}`}>
         <label className="relative block">
           <span className="sr-only">{labels.search}</span>
           <span className="pointer-events-none absolute inset-y-0 left-3.5 flex items-center text-storm-grey"><SearchIcon /></span>
@@ -47,7 +47,7 @@ function DocumentToolbar({ labels, query, setQuery, year, setYear, category, set
             <span className="sr-only">{labels.category}</span>
             <select id="investor-category" value={category} onChange={event => setCategory(event.target.value)} className={controlClass}>
               <option value="">{labels.allCategories}</option>
-              {result.categories.map(item => <option key={item.id} value={item.slug}>{item.name} ({item.count})</option>)}
+              {result.categories.map(item => <option key={item.id} value={item.id}>{item.label || item.name} ({item.count})</option>)}
             </select>
           </label>
         )}

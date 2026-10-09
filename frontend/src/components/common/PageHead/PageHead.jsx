@@ -1,3 +1,6 @@
+import { usePublicRouting } from '@context/PublicRoutingContext'
+import { useLocation } from 'react-router'
+import { SITE_URL } from '@utils/constants'
 import { useEffect } from 'react'
 
 /**
@@ -17,6 +20,18 @@ export default function PageHead({
   ogTitle,
   ogDescription,
 }) {
+  const routing = usePublicRouting()
+  const location = useLocation()
+  if (routing) canonical = routing.entry ? SITE_URL + location.pathname : undefined
+  useEffect(() => {
+    const links = Object.entries(routing?.entry?.paths || {}).map(([locale, path]) => {
+      const link = document.createElement('link')
+      link.rel = 'alternate'; link.hreflang = locale; link.href = SITE_URL + path
+      document.head.appendChild(link)
+      return link
+    })
+    return () => links.forEach(link => link.remove())
+  }, [routing?.entry])
   useEffect(() => {
     const setMeta = (attribute, key, value) => {
       let meta = document.querySelector(`meta[${attribute}="${key}"]`)

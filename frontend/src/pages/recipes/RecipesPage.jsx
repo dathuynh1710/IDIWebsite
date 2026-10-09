@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router";
+import { Link } from '@components/navigation/LocalizedLink'
 import PageHead from "@components/common/PageHead";
 import { useLanguage } from "@hooks/useLanguage";
 import { recipesService } from "@services/recipes.service";

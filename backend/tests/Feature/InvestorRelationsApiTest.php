@@ -286,6 +286,24 @@ class InvestorRelationsApiTest extends TestCase
         $this->getJson('/api/investors/documents')->assertNotFound();
     }
 
+    public function test_category_options_include_paths_and_distinguish_duplicate_siblings(): void
+    {
+        $children = collect();
+        foreach (range(1, 2) as $index) {
+            $children->push(DocumentCategory::create([
+                'parent_id' => $this->financials->id, 'name' => ['vi' => 'Năm 2024'],
+                'slug' => ['vi' => 'nam-2024-'.$index], 'is_active' => true, 'sort_order' => 100,
+            ]));
+        }
+        $document = $this->document($children[0]);
+        $this->document($children[1]);
+        $response = $this->getJson('/api/investors/documents?locale=en&category='.$children[0]->id)
+            ->assertOk()->assertJsonPath('total', 1)->assertJsonPath('items.0.id', $document->id)
+            ->assertJsonPath('categories.0.id', $this->financials->id)
+            ->assertJsonPath('categories.1.label', 'Financial reports → Năm 2024 · #'.$children[0]->id)
+            ->assertJsonPath('categories.2.label', 'Financial reports → Năm 2024 · #'.$children[1]->id);
+    }
+
     private function document(?DocumentCategory $category, array $overrides = []): InvestorDocument
     {
         static $sequence = 0;

@@ -1,5 +1,8 @@
+import { useParams, useNavigate, useLocation } from 'react-router'
+import { usePublicRouting } from '@context/PublicRoutingContext'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Link, useSearchParams } from 'react-router'
+import { useSearchParams } from 'react-router'
+import { Link } from '@components/navigation/LocalizedLink'
 import PageHead from '@components/common/PageHead'
 import { productsService } from '@services/products.service'
 import { useLanguage } from '@hooks/useLanguage'
@@ -155,7 +158,12 @@ function ProductModal({ product, isClosing, onClose, closeButtonRef, dialogRef }
 
 export default function ProductsPage() {
   const { language, t } = useLanguage()
-  const [searchParams, setSearchParams] = useSearchParams()
+  const [searchParams] = useSearchParams()
+  const { slug } = useParams()
+  const navigate = useNavigate()
+  const location = useLocation()
+  const routing = usePublicRouting()
+  const setSearchParams = params => navigate((params.category ? routing.resolveLink('/products?category=' + encodeURIComponent(params.category)) : routing.resolveLink('/products')) + location.hash)
   const [catalog, setCatalog] = useState({ categories: [], total: 0 })
   const [selectedProduct, setSelectedProduct] = useState(null)
   const [isModalClosing, setIsModalClosing] = useState(false)
@@ -163,7 +171,7 @@ export default function ProductsPage() {
   const closeButtonRef = useRef(null)
   const dialogRef = useRef(null)
   const catalogResultsRef = useRef(null)
-  const categoryParam = searchParams.get('category')
+  const categoryParam = routing?.entry?.name === 'product-categories.show' ? slug : searchParams.get('category')
   const activeCategory = useMemo(
     () => categoryParam ? catalog.categories.find(category => category.slug === categoryParam) ?? null : null,
     [catalog.categories, categoryParam],
@@ -201,10 +209,20 @@ export default function ProductsPage() {
     return () => window.cancelAnimationFrame(animationFrame)
   }, [activeCategory, categoryParam])
 
+  useEffect(() => {
+    if (!slug || routing?.entry?.name !== 'products.show') { setSelectedProduct(null); return }
+    let active = true
+    productsService.getBySlug(slug, { locale: language }).then(product => {
+      if (active) { setSelectedProduct(product); setIsModalClosing(false) }
+    }).catch(() => { if (active) setSelectedProduct(null) })
+    return () => { active = false }
+  }, [slug, language, routing?.entry?.name])
+
   const openProduct = (product, category) => {
     if (closeTimerRef.current) window.clearTimeout(closeTimerRef.current)
     setIsModalClosing(false)
     setSelectedProduct({ ...product, category })
+    navigate(routing.resolveLink('/products/' + product.slug) + location.search + location.hash)
   }
   const closeProduct = useCallback(() => {
     if (!selectedProduct || isModalClosing) return
@@ -212,8 +230,9 @@ export default function ProductsPage() {
     closeTimerRef.current = window.setTimeout(() => {
       setSelectedProduct(null)
       setIsModalClosing(false)
+      navigate(routing.resolveLink('/products') + location.search + location.hash)
     }, 220)
-  }, [isModalClosing, selectedProduct])
+  }, [isModalClosing, selectedProduct, navigate, routing, location.search, location.hash])
 
   useEffect(() => {
     if (!selectedProduct) return undefined
@@ -248,7 +267,7 @@ export default function ProductsPage() {
 
   return (
     <>
-      <PageHead title={t('products.seoTitle')} description={t('products.seoDescription')} />
+      <PageHead title={(slug && selectedProduct?.name) || t('products.seoTitle')} description={t('products.seoDescription')} />
       <main className="products-page">
         <section className="products-catalog" id="products-catalog">
           <div className="container">

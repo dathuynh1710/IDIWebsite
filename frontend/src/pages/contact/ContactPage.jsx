@@ -1,5 +1,6 @@
+import LocalizedHtml from '@components/common/LocalizedHtml'
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router'
+import { Link } from '@components/navigation/LocalizedLink'
 import PageHead from '@components/common/PageHead'
 import { inquiryService } from '@services/inquiry.service'
 import { useLanguage } from '@hooks/useLanguage'
@@ -204,7 +205,7 @@ export default function ContactPage() {
               {pageConfig?.title || t('contact.hero.title')}
             </h1>
             {pageConfig?.description ? (
-              <div className="mx-auto mt-5 max-w-2xl text-sm leading-7 text-storm-grey sm:text-base" dangerouslySetInnerHTML={{ __html: pageConfig.description }} />
+              <LocalizedHtml className="mx-auto mt-5 max-w-2xl text-sm leading-7 text-storm-grey sm:text-base" html={pageConfig.description} />
             ) : (
               <p className="mx-auto mt-5 max-w-2xl text-sm leading-7 text-storm-grey sm:text-base">{t('contact.hero.description')}</p>
             )}

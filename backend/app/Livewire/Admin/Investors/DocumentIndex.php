@@ -5,6 +5,7 @@ namespace App\Livewire\Admin\Investors;
 use App\Livewire\AdminComponent;
 use App\Models\DocumentCategory;
 use App\Models\InvestorDocument;
+use App\Support\DocumentCategoryTree;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Livewire\Attributes\Layout;
@@ -195,7 +196,7 @@ class DocumentIndex extends AdminComponent
         return view('livewire.admin.investors.document-index', [
             'documents' => $documents,
             'perPageOptions' => collect([5, 10, 15, 20, 50, 100, $this->perPage])->unique()->sort()->values()->all(),
-            'categories' => DocumentCategory::orderByDesc('sort_order')->get(),
+            'categories' => DocumentCategoryTree::build(DocumentCategory::all()),
             'years' => InvestorDocument::whereNotNull('year')->distinct()->orderByDesc('year')->pluck('year', 'year')->all(),
             'breadcrumbs' => [['label' => 'Bảng điều khiển', 'route' => 'admin.dashboard'], ['label' => 'Quản lý quan hệ cổ đông']],
         ]);

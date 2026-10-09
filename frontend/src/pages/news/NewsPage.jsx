@@ -1,5 +1,7 @@
+import { useParams, useNavigate, useLocation } from 'react-router'
+import { usePublicRouting } from '@context/PublicRoutingContext'
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router'
+import { Link } from '@components/navigation/LocalizedLink'
 import NewsImage from '@components/common/NewsImage'
 import PageHead from '@components/common/PageHead'
 import { useDebounce } from '@hooks/useDebounce'
@@ -159,7 +161,12 @@ export default function NewsPage() {
   const labels = COPY[language] ?? COPY.vi
   const [query, setQuery] = useState('')
   const debouncedQuery = useDebounce(query.trim(), 350)
-  const [category, setCategory] = useState('')
+  const { slug } = useParams()
+  const navigate = useNavigate()
+  const location = useLocation()
+  const routing = usePublicRouting()
+  const category = routing?.entry?.name === 'news.category' ? slug : ''
+  const setCategory = value => navigate(routing.resolveLink(value ? '/news/' + value : '/news') + location.search + location.hash)
   const [sortOrder, setSortOrder] = useState('newest')
   const [currentPage, setCurrentPage] = useState(1)
   const [requestKey, setRequestKey] = useState(0)
@@ -171,7 +178,6 @@ export default function NewsPage() {
 
   useEffect(() => {
     setCurrentPage(1)
-    setCategory('')
     setQuery('')
     setSortOrder('newest')
   }, [language])

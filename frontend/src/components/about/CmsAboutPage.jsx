@@ -1,3 +1,7 @@
+import LocalizedHtml from '@components/common/LocalizedHtml'
+import { useLocation, useNavigate, useParams } from 'react-router'
+import { useAboutRouting } from '@context/AboutRoutingContext'
+import { aboutLocale, aboutApiLocale, localizedAboutPath } from '@utils/aboutRoutes'
 import { useEffect, useState } from 'react'
 import PageHead from '@components/common/PageHead'
 import { useLanguage } from '@hooks/useLanguage'
@@ -32,6 +36,12 @@ function ErrorState({ onRetry, t }) {
 
 export default function CmsAboutPage({ identifier }) {
   const { language, t } = useLanguage()
+  const { slug } = useParams()
+  const { pathname, search, hash } = useLocation()
+  const navigate = useNavigate()
+  const { setCurrent } = useAboutRouting()
+  const locale = aboutLocale(pathname) || aboutApiLocale(language)
+  const lookup = slug || identifier
   const [page, setPage] = useState(null)
   const [status, setStatus] = useState('loading')
   const [requestKey, setRequestKey] = useState(0)
@@ -39,10 +49,14 @@ export default function CmsAboutPage({ identifier }) {
   useEffect(() => {
     let isMounted = true
     setStatus('loading')
+    setCurrent(null)
 
-    aboutService.getPage(identifier, { locale: language })
+    aboutService.getPage(lookup, { locale, bySlug: Boolean(slug) })
       .then((data) => {
         if (!isMounted) return
+        setCurrent({ pathname, page: data })
+        const canonical = localizedAboutPath(data, locale)
+        if (!slug && canonical) navigate(canonical + search + hash, { replace: true })
         setPage(data)
         setStatus('success')
       })
@@ -53,7 +67,7 @@ export default function CmsAboutPage({ identifier }) {
     return () => {
       isMounted = false
     }
-  }, [identifier, language, requestKey])
+  }, [lookup, locale, slug, pathname, search, hash, navigate, setCurrent, requestKey])
 
   if (status === 'loading') return <LoadingState label={t('common.loading')} />
   if (status === 'not-found') return <NotFoundPage />
@@ -95,10 +109,9 @@ export default function CmsAboutPage({ identifier }) {
           ) : page.content && page.code === 'ABOUT_VALUES' ? (
             <CoreValuesContent html={page.content} />
           ) : page.content ? (
-            <div
+            <LocalizedHtml
               className="cms-about-rich"
-              dangerouslySetInnerHTML={{ __html: page.content }}
-            />
+              html={page.content} />
           ) : (
             <p className="cms-about-empty">{t('common.noContent')}</p>
           )}

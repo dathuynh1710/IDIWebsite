@@ -1,5 +1,6 @@
 import { Fragment, useEffect, useState } from 'react'
-import { Link, useParams } from 'react-router'
+import { useParams } from 'react-router'
+import { Link, Anchor } from '@components/navigation/LocalizedLink'
 import NewsImage from '@components/common/NewsImage'
 import PageHead from '@components/common/PageHead'
 import { useLanguage } from '@hooks/useLanguage'
@@ -42,7 +43,7 @@ function InlineContent({ nodes, fallback = '' }) {
       case 'superscript': return <sup key={key}>{children}</sup>
       case 'link':
         return (
-          <a
+          <Anchor
             key={key}
             href={node.href}
             className="font-semibold text-seafoam underline decoration-seafoam/30 underline-offset-4 hover:text-ocean-deep"
@@ -50,7 +51,7 @@ function InlineContent({ nodes, fallback = '' }) {
             rel={node.external ? 'noreferrer noopener' : undefined}
           >
             {children}
-          </a>
+          </Anchor>
         )
       default: return <Fragment key={key}>{children}</Fragment>
     }
@@ -151,9 +152,9 @@ function ArticleBlock({ block, index }) {
 
     case 'embed':
       return (
-        <a href={block.url} target="_blank" rel="noreferrer noopener" className="my-8 flex items-center justify-between gap-4 rounded-xl border border-light-mist bg-arctic-white px-5 py-4 font-bold text-ocean-deep hover:border-seafoam hover:text-seafoam">
+        <Anchor href={block.url} target="_blank" rel="noreferrer noopener" className="my-8 flex items-center justify-between gap-4 rounded-xl border border-light-mist bg-arctic-white px-5 py-4 font-bold text-ocean-deep hover:border-seafoam hover:text-seafoam">
           <span>{block.title || 'Xem nội dung được nhúng'}</span><span aria-hidden="true">↗</span>
-        </a>
+        </Anchor>
       )
 
     case 'callout':

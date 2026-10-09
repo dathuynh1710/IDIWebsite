@@ -1,3 +1,4 @@
+import LocalizedHtml from '@components/common/LocalizedHtml'
 import { useMemo } from 'react'
 import { publicAsset } from '@utils/publicAsset'
 
@@ -88,7 +89,7 @@ export default function HistoryContent({ html, summary }) {
   const history = useMemo(() => parseHistory(html), [html])
 
   if (!history || (!history.introduction.length && !history.sections.length)) {
-    return <div className="cms-about-rich" dangerouslySetInnerHTML={{ __html: html }} />
+    return <LocalizedHtml className="cms-about-rich" html={html} />
   }
 
   const timeline = history.sections.find(section => section.items.length > 0)

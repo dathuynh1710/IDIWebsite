@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
             ContactSampleSeeder::class,
             PresentationSeeder::class,
             LocalizedRouteSeeder::class,
+            MenuSeeder::class,
         ]);
     }
 }

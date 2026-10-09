@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\AboutPagesController;
 use App\Http\Controllers\Api\CareersController;
 use App\Http\Controllers\Api\ContactsController;
 use App\Http\Controllers\Api\InvestorRelationsController;
+use App\Http\Controllers\Api\MenusController;
 use App\Http\Controllers\Api\NewsController;
 use App\Http\Controllers\Api\ProductsController;
 use App\Http\Controllers\Api\RecipesController;
@@ -32,3 +33,7 @@ Route::post('/careers/applications', [CareersController::class, 'store']);
 Route::get('/investors/documents', [InvestorRelationsController::class, 'index']);
 Route::get('/contacts', [ContactsController::class, 'index']);
 Route::post('/contacts', [ContactsController::class, 'store'])->middleware('throttle:10,1');
+
+Route::get('/menus/{location}', [MenusController::class, 'show']);
+
+Route::get('/public-routes', [\App\Http\Controllers\Api\PublicRoutesController::class, 'index']);

@@ -1,4 +1,5 @@
-import { NavLink } from 'react-router'
+import { useAboutRouting } from '@context/AboutRoutingContext'
+import { NavLink } from '@components/navigation/LocalizedLink'
 import PageHead from '@components/common/PageHead'
 import { useLanguage } from '@hooks/useLanguage'
 
@@ -8,6 +9,7 @@ const ABOUT_NAV = [
 ]
 
 export default function AboutPageHeader({ eyebrow, title, description }) {
+  const { resolveLink } = useAboutRouting()
   const { t } = useLanguage()
   return (
     <>
@@ -27,7 +29,7 @@ export default function AboutPageHeader({ eyebrow, title, description }) {
             {ABOUT_NAV.map((item) => (
               <NavLink
                 key={item.href}
-                to={item.href}
+                to={resolveLink(item.href)}
                 end={item.end}
                 className={({ isActive }) => [
                   'shrink-0 rounded-lg px-4 py-2.5 text-sm font-bold transition',

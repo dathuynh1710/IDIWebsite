@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Link } from 'react-router'
+import { Link } from '@components/navigation/LocalizedLink'
 import NewsImage from '@components/common/NewsImage'
 import RevealOnScroll from '@components/common/RevealOnScroll'
 import { useLanguage } from '@hooks/useLanguage'

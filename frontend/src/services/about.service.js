@@ -6,9 +6,9 @@ export const aboutService = {
     return response.data
   },
 
-  async getPage(identifier, { locale = 'vi' } = {}) {
+  async getPage(identifier, { locale = 'vi', bySlug = false } = {}) {
     const response = await api.get(`/about/${encodeURIComponent(identifier)}`, {
-      params: { locale },
+      params: { locale, bySlug },
     })
     return response.data.data
   },

@@ -1,10 +1,12 @@
-import { Link } from 'react-router'
+import { useAboutRouting } from '@context/AboutRoutingContext'
+import { Link } from '@components/navigation/LocalizedLink'
 import RevealOnScroll from '@components/common/RevealOnScroll'
 import { useLanguage } from '@hooks/useLanguage'
 import { getHomeTranslations } from '@/i18n/home'
 import { publicAsset } from '@utils/publicAsset'
 
 export default function AboutSection() {
+  const { resolveLink } = useAboutRouting()
   const { language, t } = useLanguage()
   const copy = getHomeTranslations(language).about
 
@@ -30,7 +32,7 @@ export default function AboutSection() {
             </RevealOnScroll>
 
             <RevealOnScroll delay={240}>
-              <Link to="/about" className="btn btn-secondary mt-8">
+              <Link to={resolveLink('/about')} className="btn btn-secondary mt-8">
                 {t('actions.exploreIdi')}
                 <svg className="h-4 w-4" viewBox="0 0 20 20" fill="none" aria-hidden="true">
                   <path d="M4 10h12m-4-4 4 4-4 4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />

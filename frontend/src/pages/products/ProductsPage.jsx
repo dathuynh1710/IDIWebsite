@@ -1,6 +1,6 @@
 import { useParams, useNavigate, useLocation } from 'react-router'
 import { usePublicRouting } from '@context/PublicRoutingContext'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router'
 import { Link } from '@components/navigation/LocalizedLink'
 import PageHead from '@components/common/PageHead'
@@ -163,7 +163,7 @@ export default function ProductsPage() {
   const navigate = useNavigate()
   const location = useLocation()
   const routing = usePublicRouting()
-  const setSearchParams = params => navigate((params.category ? routing.resolveLink('/products?category=' + encodeURIComponent(params.category)) : routing.resolveLink('/products')) + location.hash)
+  const setSearchParams = (params, options) => navigate((params.category ? routing.resolveLink('/products?category=' + encodeURIComponent(params.category)) : routing.resolveLink('/products')) + location.hash, options)
   const [catalog, setCatalog] = useState({ categories: [], total: 0 })
   const [selectedProduct, setSelectedProduct] = useState(null)
   const [isModalClosing, setIsModalClosing] = useState(false)
@@ -222,7 +222,7 @@ export default function ProductsPage() {
     if (closeTimerRef.current) window.clearTimeout(closeTimerRef.current)
     setIsModalClosing(false)
     setSelectedProduct({ ...product, category })
-    navigate(routing.resolveLink('/products/' + product.slug) + location.search + location.hash)
+    navigate(routing.resolveLink('/products/' + product.slug) + location.search + location.hash, { preventScrollReset: true })
   }
   const closeProduct = useCallback(() => {
     if (!selectedProduct || isModalClosing) return
@@ -230,15 +230,25 @@ export default function ProductsPage() {
     closeTimerRef.current = window.setTimeout(() => {
       setSelectedProduct(null)
       setIsModalClosing(false)
-      navigate(routing.resolveLink('/products') + location.search + location.hash)
+      navigate(routing.resolveLink('/products') + location.search + location.hash, { preventScrollReset: true })
     }, 220)
   }, [isModalClosing, selectedProduct, navigate, routing, location.search, location.hash])
 
-  useEffect(() => {
-    if (!selectedProduct) return undefined
+  const isModalOpen = Boolean(selectedProduct)
+  useLayoutEffect(() => {
+    if (!isModalOpen) return undefined
     const previousOverflow = document.body.style.overflow
+    const previousFocus = document.activeElement
     document.body.style.overflow = 'hidden'
-    closeButtonRef.current?.focus()
+    closeButtonRef.current?.focus({ preventScroll: true })
+    return () => {
+      document.body.style.overflow = previousOverflow
+      if (previousFocus?.isConnected) previousFocus.focus({ preventScroll: true })
+    }
+  }, [isModalOpen])
+
+  useEffect(() => {
+    if (!isModalOpen) return undefined
     const handleKeyDown = (event) => {
       if (event.key === 'Escape') closeProduct()
       if (event.key !== 'Tab') return
@@ -256,10 +266,9 @@ export default function ProductsPage() {
     }
     window.addEventListener('keydown', handleKeyDown)
     return () => {
-      document.body.style.overflow = previousOverflow
       window.removeEventListener('keydown', handleKeyDown)
     }
-  }, [closeProduct, selectedProduct])
+  }, [closeProduct, isModalOpen])
 
   useEffect(() => () => {
     if (closeTimerRef.current) window.clearTimeout(closeTimerRef.current)

@@ -1,5 +1,7 @@
 import { useLayoutEffect, useRef } from 'react'
 import { useLocation, useOutlet } from 'react-router'
+import { usePublicRouting } from '@context/PublicRoutingContext'
+import { pathLocale } from '@utils/publicRoutes'
 
 const PAGE_TRANSITION_DURATION = 420
 const REDUCED_MOTION_QUERY = '(prefers-reduced-motion: reduce)'
@@ -12,6 +14,11 @@ export default function PageTransition() {
   const containerRef = useRef(null)
   const location = useLocation()
   const outlet = useOutlet()
+  const routing = usePublicRouting()
+  // Product details are a dialog over the same catalog, not a new page.
+  const isProductPage = routing?.entry?.legacy === '/products'
+    || routing?.entry?.group === 'products'
+  const transitionKey = isProductPage ? `${pathLocale(location.pathname)}/products` : location.pathname
 
   useLayoutEffect(() => {
     const container = containerRef.current
@@ -33,7 +40,7 @@ export default function PageTransition() {
     )
 
     return () => animation.cancel()
-  }, [location.pathname])
+  }, [transitionKey])
 
   return (
     <div ref={containerRef} className="page-route-transition">

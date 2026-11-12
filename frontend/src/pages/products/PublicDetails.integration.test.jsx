@@ -1,6 +1,7 @@
 import { beforeEach, afterEach, expect, test, vi } from 'vitest'
-import { cleanup, render, screen, waitFor } from '@testing-library/react'
-import { createMemoryRouter, RouterProvider, Outlet } from 'react-router'
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { createMemoryRouter, RouterProvider, Outlet, ScrollRestoration } from 'react-router'
+import PageTransition from '@components/common/PageTransition'
 import { LanguageProvider } from '@context/LanguageContext'
 import PublicRoutingProvider from '@context/PublicRoutingContext'
 import AboutRoutingProvider from '@context/AboutRoutingContext'
@@ -31,6 +32,48 @@ beforeEach(() => {
   careersService.getById.mockImplementation(async slug => ({ id: 1, slug, title: 'Position ' + slug, description: '<p>Job description</p>' }))
 })
 afterEach(cleanup)
+test('opening and closing a product preserves catalog scroll and does not animate the page again', async () => {
+  const product = { id: 1, slug: 'viet', name: 'Product viet', sizes: [], presentation: [] }
+  productsService.getCatalog.mockResolvedValue({ categories: [{ id: 1, slug: 'fish', name: 'Fish', products: [product] }], total: 1 })
+  const scrollTo = vi.spyOn(window, 'scrollTo').mockImplementation(() => {})
+  const animate = vi.fn(() => ({ cancel: vi.fn() }))
+  const originalAnimate = HTMLElement.prototype.animate
+  HTMLElement.prototype.animate = animate
+  const router = createMemoryRouter([{
+    element: <LanguageProvider><PublicRoutingProvider><PageTransition /><ScrollRestoration /></PublicRoutingProvider></LanguageProvider>,
+    children: [
+      { path: '/vi/san-pham', element: <ProductsPage /> },
+      { path: '/vi/san-pham/:slug', element: <ProductsPage /> },
+    ],
+  }], { initialEntries: ['/vi/san-pham'] })
+  try {
+    render(<RouterProvider router={router} />)
+    const trigger = await screen.findByRole('button', { name: 'Product viet' })
+    trigger.focus()
+    scrollTo.mockClear()
+    animate.mockClear()
+    fireEvent.click(trigger)
+    await screen.findByRole('dialog')
+    await waitFor(() => expect(productsService.getBySlug).toHaveBeenCalled())
+    expect(router.state.location.pathname).toBe('/vi/san-pham/viet')
+    expect(scrollTo).not.toHaveBeenCalled()
+    expect(animate).not.toHaveBeenCalled()
+    expect(document.body.style.overflow).toBe('hidden')
+    fireEvent.keyDown(window, { key: 'Escape' })
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull())
+    expect(router.state.location.pathname).toBe('/vi/san-pham')
+    expect(scrollTo).not.toHaveBeenCalled()
+    expect(animate).not.toHaveBeenCalled()
+    expect(document.body.style.overflow).toBe('')
+    expect(document.activeElement).toBe(trigger)
+  } finally {
+    cleanup()
+    scrollTo.mockRestore()
+    if (originalAnimate) HTMLElement.prototype.animate = originalAnimate
+    else delete HTMLElement.prototype.animate
+  }
+})
+
 test.each(['vi','en','zh'])('product and position details load directly in %s and survive reload', async locale => {
   for (const [group, Component, title] of [['products', ProductsPage, 'Product'], ['careers', CareersPage, 'Position']]) {
     const entry = entries.find(item => item.group === group)
